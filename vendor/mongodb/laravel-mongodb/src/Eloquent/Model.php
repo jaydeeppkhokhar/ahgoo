@@ -46,14 +46,14 @@ use function sprintf;
 use function str_contains;
 use function str_starts_with;
 use function strcmp;
-use function uniqid;
 use function var_export;
 
-/** @mixin Builder */
 abstract class Model extends BaseModel
 {
     use HybridRelations;
     use EmbedsRelations;
+
+    private const TEMPORARY_KEY = '__LARAVEL_TEMPORARY_KEY__';
 
     /**
      * The collection associated with the model.
@@ -271,12 +271,10 @@ abstract class Model extends BaseModel
         // Support keys in dot notation.
         if (str_contains($key, '.')) {
             // Store to a temporary key, then move data to the actual key
-            $uniqueKey = uniqid($key);
+            parent::setAttribute(self::TEMPORARY_KEY, $value);
 
-            parent::setAttribute($uniqueKey, $value);
-
-            Arr::set($this->attributes, $key, $this->attributes[$uniqueKey] ?? null);
-            unset($this->attributes[$uniqueKey]);
+            Arr::set($this->attributes, $key, $this->attributes[self::TEMPORARY_KEY] ?? null);
+            unset($this->attributes[self::TEMPORARY_KEY]);
 
             return $this;
         }
@@ -747,6 +745,12 @@ abstract class Model extends BaseModel
      */
     public function save(array $options = [])
     {
+        // SQL databases would use autoincrement the id field if set to null.
+        // Apply the same behavior to MongoDB with _id only, otherwise null would be stored.
+        if (array_key_exists('_id', $this->attributes) && $this->attributes['_id'] === null) {
+            unset($this->attributes['_id']);
+        }
+
         $saved = parent::save($options);
 
         // Clear list of unset fields

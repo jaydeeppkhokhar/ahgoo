@@ -19,6 +19,8 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'username' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'dob' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
             'profile_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
@@ -43,6 +45,8 @@ class AuthController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'username' => $request->username,
+                'dob' => $request->dob,
+                'country' => $request->country,
                 'password' => Hash::make($request->password),
                 'profile_pic' => $profilePicUrl,
             ]);

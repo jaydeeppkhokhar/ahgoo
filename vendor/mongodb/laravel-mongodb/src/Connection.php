@@ -14,6 +14,7 @@ use MongoDB\Driver\Exception\ConnectionException;
 use MongoDB\Driver\Exception\RuntimeException;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Laravel\Concerns\ManagesTransactions;
+use OutOfBoundsException;
 use Throwable;
 
 use function filter_var;
@@ -65,6 +66,8 @@ class Connection extends BaseConnection
         // Select database
         $this->db = $this->connection->selectDatabase($this->getDefaultDatabaseName($dsn, $config));
 
+        $this->tablePrefix = $config['prefix'] ?? '';
+
         $this->useDefaultPostProcessor();
 
         $this->useDefaultSchemaGrammar();
@@ -108,7 +111,7 @@ class Connection extends BaseConnection
      */
     public function getCollection($name)
     {
-        return new Collection($this, $this->db->selectCollection($name));
+        return new Collection($this, $this->db->selectCollection($this->tablePrefix . $name));
     }
 
     /** @inheritdoc */
@@ -207,11 +210,13 @@ class Connection extends BaseConnection
     /** @inheritdoc */
     public function disconnect()
     {
-        unset($this->connection);
+        $this->connection = null;
     }
 
     /**
      * Determine if the given configuration array has a dsn string.
+     *
+     * @deprecated
      */
     protected function hasDsnString(array $config): bool
     {
@@ -260,9 +265,15 @@ class Connection extends BaseConnection
      */
     protected function getDsn(array $config): string
     {
-        return $this->hasDsnString($config)
-            ? $this->getDsnString($config)
-            : $this->getHostDsn($config);
+        if (! empty($config['dsn'])) {
+            return $this->getDsnString($config);
+        }
+
+        if (! empty($config['host'])) {
+            return $this->getHostDsn($config);
+        }
+
+        throw new InvalidArgumentException('MongoDB connection configuration requires "dsn" or "host" key.');
     }
 
     /** @inheritdoc */
@@ -324,7 +335,11 @@ class Connection extends BaseConnection
     private static function lookupVersion(): string
     {
         try {
-            return self::$version = InstalledVersions::getPrettyVersion('mongodb/laravel-mongodb') ?? 'unknown';
+            try {
+                return self::$version = InstalledVersions::getPrettyVersion('mongodb/laravel-mongodb') ?? 'unknown';
+            } catch (OutOfBoundsException) {
+                return self::$version = InstalledVersions::getPrettyVersion('jenssegers/mongodb') ?? 'unknown';
+            }
         } catch (Throwable) {
             return self::$version = 'error';
         }
