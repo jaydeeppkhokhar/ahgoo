@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\CmsController;
 
 Route::post('signup', [AuthController::class, 'signup']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('username_checks', [AuthController::class, 'username_checkups']);
+Route::post('email_checks', [AuthController::class, 'email_checkups']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('user', [AuthController::class, 'user']);
 Route::get('search', [SearchController::class, 'search']);

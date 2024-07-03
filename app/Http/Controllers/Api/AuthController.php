@@ -113,4 +113,90 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
+    public function username_checkups(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|min:5',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' => false,
+                'data' => array(),
+                'msg' => $errors
+            ], 422);
+        }
+        try {
+            $username = $request->username;
+
+            // Search for users where name, email, or username contains the keyword
+            $users = AllUser::where('username', 'LIKE', "%{$username}%")
+                        ->get();
+
+            // Check if users were found
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Username is available',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'msg' => 'Username not available.',
+                'data' => []
+            ], 404);
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Failed!',
+                'data' => []
+            ], 500);
+        }
+    }
+    public function email_checkups(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' => false,
+                'data' => array(),
+                'msg' => $errors
+            ], 422);
+        }
+        try {
+            $email = $request->email;
+
+            // Search for users where name, email, or username contains the keyword
+            $users = AllUser::where('email', 'LIKE', "%{$email}%")
+                        ->get();
+
+            // Check if users were found
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Email is available',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'msg' => 'Email already used.',
+                'data' => []
+            ], 404);
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Failed!',
+                'data' => []
+            ], 500);
+        }
+    }
 }
