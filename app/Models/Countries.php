@@ -13,6 +13,6 @@ class Countries extends Model
     protected $collection = 'countries';
 
     protected $fillable = [
-        'name', 'official_name', 'cca2', 'cca3', 'region', 'subregion', 'capital', 'population', 'area', 'languages', 'borders'
+        'name', 'official_name', 'cca2', 'cca3', 'region', 'subregion', 'capital', 'population', 'area', 'languages', 'borders', 'phone_code', 'flag'
     ];
 }
