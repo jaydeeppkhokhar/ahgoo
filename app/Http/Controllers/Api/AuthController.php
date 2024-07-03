@@ -71,7 +71,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            // 'email' => 'required|email',
             'password' => 'required',
         ]);
 
@@ -83,24 +83,51 @@ class AuthController extends Controller
                 'data' => $errors
             ], 422);
         }
+        if(!empty($request->email)){
+            $user = AllUser::where('email', $request->email)->first();
 
-        $user = AllUser::where('email', $request->email)->first();
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Invalid credentials',
+                    'data' => []
+                ], 401);
+            }
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+            // $token = $user->createToken('api-token')->plainTextToken;
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Login successful',
+                'data' => $user
+            ], 200);
+        }
+        else if(!empty($request->phone)){
+            $user = AllUser::where('phone', $request->phone)->first();
+
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Invalid credentials',
+                    'data' => []
+                ], 401);
+            }
+
+            // $token = $user->createToken('api-token')->plainTextToken;
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Login successful',
+                'data' => $user
+            ], 200);
+        }else{
             return response()->json([
                 'status' => false,
-                'msg' => 'Invalid credentials',
+                'msg' => 'Please provide either email or phone.',
                 'data' => []
-            ], 401);
+            ], 422);
         }
-
-        // $token = $user->createToken('api-token')->plainTextToken;
-
-        return response()->json([
-            'status' => true,
-            'msg' => 'Login successful',
-            'data' => $user
-        ], 200);
+        
     }
 
     public function logout(Request $request)
