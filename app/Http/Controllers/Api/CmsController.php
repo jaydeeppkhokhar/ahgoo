@@ -40,7 +40,7 @@ class CmsController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Failed!',
-                'data' => []
+                'data' => (object) []
             ], 500);
         }
     }

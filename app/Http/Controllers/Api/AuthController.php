@@ -29,7 +29,7 @@ class AuthController extends Controller
             $errors = $validator->errors()->all();
             return response()->json([
                 'status' => false,
-                'data' => array(),
+                'data' => (object) [],
                 'msg' => $errors
             ], 422);
         }
@@ -63,7 +63,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Registration failed',
-                'data' => []
+                'data' => (object) []
             ], 500);
         }
     }
@@ -90,7 +90,7 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => false,
                     'msg' => 'Invalid credentials',
-                    'data' => []
+                    'data' => (object) []
                 ], 401);
             }
 
@@ -109,7 +109,7 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => false,
                     'msg' => 'Invalid credentials',
-                    'data' => []
+                    'data' => (object) []
                 ], 401);
             }
 
@@ -124,7 +124,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Please provide either email or phone.',
-                'data' => []
+                'data' => (object) []
             ], 422);
         }
         
@@ -152,7 +152,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'data' => array(),
-                'msg' => $errors
+                'msg' => $errors[0]
             ], 422);
         }
         try {
@@ -167,20 +167,20 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => true,
                     'msg' => 'Username is available',
-                    'data' => []
+                    'data' => (object) []
                 ], 200);
             }
 
             return response()->json([
                 'status' => false,
                 'msg' => 'Username not available.',
-                'data' => []
+                'data' => (object) []
             ], 404);
         }catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'msg' => 'Failed!',
-                'data' => []
+                'data' => (object) []
             ], 500);
         }
     }
@@ -194,8 +194,8 @@ class AuthController extends Controller
             $errors = $validator->errors()->all();
             return response()->json([
                 'status' => false,
-                'data' => array(),
-                'msg' => $errors
+                'data' => (object) [],
+                'msg' => $errors[0]
             ], 422);
         }
         try {
@@ -210,20 +210,20 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => true,
                     'msg' => 'Email is available',
-                    'data' => []
+                    'data' => (object) []
                 ], 200);
             }
 
             return response()->json([
                 'status' => false,
                 'msg' => 'Email already used.',
-                'data' => []
+                'data' => (object) []
             ], 404);
         }catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'msg' => 'Failed!',
-                'data' => []
+                'data' => (object) []
             ], 500);
         }
     }

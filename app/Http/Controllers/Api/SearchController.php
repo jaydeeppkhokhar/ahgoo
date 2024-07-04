@@ -38,7 +38,7 @@ class SearchController extends Controller
                 return response()->json([
                     'status' => false,
                     'msg' => 'No users found',
-                    'data' => []
+                    'data' => (object) []
                 ], 404);
             }
 
@@ -51,7 +51,7 @@ class SearchController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Failed!',
-                'data' => []
+                'data' => (object) []
             ], 500);
         }
     }
