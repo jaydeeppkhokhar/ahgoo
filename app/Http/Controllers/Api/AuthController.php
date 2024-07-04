@@ -26,11 +26,17 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $errors = $validator->errors()->all();
+            // $errors = $validator->errors()->all();
+            $errors = $validator->errors()->toArray();
+            $formattedErrors = [];
+            foreach ($errors as $field => $messageArray) {
+                $formattedErrors[$field] = $messageArray[0]; // Get the first error message
+            }
+            
             return response()->json([
                 'status' => false,
                 'data' => (object) [],
-                'msg' => $errors
+                'msg' => $formattedErrors
             ], 422);
         }
 
