@@ -19,3 +19,4 @@ Route::middleware('auth:sanctum')->get('user', [AuthController::class, 'user']);
 Route::get('search', [SearchController::class, 'search']);
 Route::get('getAllCountries', [CountriesController::class, 'getAllCountries']);
 Route::get('getcmsdata', [CmsController::class, 'getcmsdata']);
+Route::get('updateCountry', [AuthController::class, 'updateCountry']);

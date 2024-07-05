@@ -13,7 +13,7 @@ class AllUser extends Model
     protected $collection = 'users';
 
     protected $fillable = [
-        'name', 'email', 'username', 'password', 'phone',
+        'name', 'email', 'username', 'password', 'phone', 'country',
     ];
 
     protected $hidden = [

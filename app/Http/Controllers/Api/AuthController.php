@@ -109,7 +109,7 @@ class AuthController extends Controller
             ], 200);
         }
         else if(!empty($request->phone)){
-            $user = AllUser::where('phone', $request->phone)->first();
+            $user = AllUser::where('phone', $request->phone)->where('country', $request->country)->first();
 
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json([
@@ -232,5 +232,10 @@ class AuthController extends Controller
                 'data' => (object) []
             ], 500);
         }
+    }
+    public function updateCountry()
+    {
+        AllUser::query()->update(['country' => 'India']);
+        return response()->json(['message' => 'Country updated to India for all users']);
     }
 }
