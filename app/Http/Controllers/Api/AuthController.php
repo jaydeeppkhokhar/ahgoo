@@ -18,7 +18,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'username' => 'required|string|max:255|unique:users',
-            'phone' => 'required|min:10|numeric|unique:phone',
+            'phone' => 'required|digits:10|numeric|unique:phone',
             'password' => 'required|string|min:8',
             // // 'dob' => 'required|string|max:255',
             'country' => 'required|string|max:255',
@@ -46,7 +46,7 @@ class AuthController extends Controller
                     $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
                 }
             
-                $formattedErrors = implode(', ', $allErrors); // Join all error messages with a comma
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
                 
                 return response()->json([
                     'status' => false,
