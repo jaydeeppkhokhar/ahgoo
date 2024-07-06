@@ -27,17 +27,33 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             // $errors = $validator->errors()->all();
-            $errors = $validator->errors()->toArray();
-            $formattedErrors = [];
-            foreach ($errors as $field => $messageArray) {
-                $formattedErrors[$field] = $messageArray[0]; // Get the first error message
-            }
+            // $errors = $validator->errors()->toArray();
+            // $formattedErrors = [];
+            // foreach ($errors as $field => $messageArray) {
+            //     $formattedErrors[$field] = $messageArray[0]; // Get the first error message
+            // }
             
-            return response()->json([
-                'status' => false,
-                'data' => (object) [],
-                'msg' => $formattedErrors
-            ], 422);
+            // return response()->json([
+            //     'status' => false,
+            //     'data' => (object) [],
+            //     'msg' => $formattedErrors
+            // ], 422);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(', ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
         }
 
         try {
@@ -157,7 +173,7 @@ class AuthController extends Controller
             $errors = $validator->errors()->all();
             return response()->json([
                 'status' => false,
-                'data' => array(),
+                'data' => (object) [],
                 'msg' => $errors[0]
             ], 422);
         }

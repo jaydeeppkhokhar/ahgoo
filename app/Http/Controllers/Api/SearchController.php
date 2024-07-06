@@ -20,7 +20,7 @@ class SearchController extends Controller
             $errors = $validator->errors()->all();
             return response()->json([
                 'status' => false,
-                'data' => array(),
+                'data' => (object) [],
                 'msg' => $errors
             ], 422);
         }
