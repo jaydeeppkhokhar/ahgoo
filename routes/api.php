@@ -20,3 +20,7 @@ Route::get('search', [SearchController::class, 'search']);
 Route::get('getAllCountries', [CountriesController::class, 'getAllCountries']);
 Route::get('getcmsdata', [CmsController::class, 'getcmsdata']);
 Route::get('updateCountry', [AuthController::class, 'updateCountry']);
+Route::post('forget_password', [AuthController::class, 'forget_password']);
+Route::post('send_otp', [AuthController::class, 'send_otp']);
+Route::post('verify_otp', [AuthController::class, 'verify_otp']);
+Route::post('change_password', [AuthController::class, 'change_password']);
