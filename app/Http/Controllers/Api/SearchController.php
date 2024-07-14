@@ -55,4 +55,68 @@ class SearchController extends Controller
             ], 500);
         }
     }
+    public function suggestions(Request $request)
+    {
+        if(!empty($request->user_id)){
+            $user = AllUser::where('_id', '!=', $request->user_id)->get();
+            foreach ($user as $usr) {
+                // Assuming you have methods to fetch followers and videos for a user
+                $usr->followers = 0; // Replace with your actual method to get followers
+                $usr->videos = 0; // Replace with your actual method to get videos
+                $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
+                $usr->profile_pic = 'http://34.207.97.193/ahgoo/public/storage/profile_pics/no_image.jpg';
+            }
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => "No Suggestions Found.",
+                    'data' => (object) []
+                ], 401);
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'All suggestions.',
+                'data' => $user
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please provide user id.',
+                'data' => (object) []
+            ], 422);
+        }
+    }
+    public function people_near_you(Request $request)
+    {
+        if(!empty($request->user_id)){
+            $myself = AllUser::where('_id', $request->user_id)->first();
+            $country = $myself->country;
+            $user = AllUser::where('_id', '!=', $request->user_id)->where('country',$country)->get();
+            foreach ($user as $usr) {
+                // Assuming you have methods to fetch followers and videos for a user
+                $usr->followers = 0; // Replace with your actual method to get followers
+                $usr->videos = 0; // Replace with your actual method to get videos
+                $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
+                $usr->profile_pic = 'http://34.207.97.193/ahgoo/public/storage/profile_pics/no_image.jpg';
+            }
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => "No nearby people found.",
+                    'data' => (object) []
+                ], 401);
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Nearby Peoples.',
+                'data' => $user
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please provide user id.',
+                'data' => (object) []
+            ], 422);
+        }
+    }
 }
