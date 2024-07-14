@@ -67,7 +67,7 @@ class ProfileController extends Controller
             $user->amount1 = '0$'; // Replace with your actual method to get followers
             $user->amount2 = '0$'; // Replace with your actual method to get videos
             $user->account_description = 'Love Yourself'; // Replace with your actual method to get videos
-            $user->profile_pic = 'http://34.207.97.193/ahgoo/public/storage/profile_pics/no_image.jpg';
+            $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
             if (!$user) {
                 return response()->json([
                     'status' => false,

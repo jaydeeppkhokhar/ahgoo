@@ -64,7 +64,7 @@ class SearchController extends Controller
                 $usr->followers = 0; // Replace with your actual method to get followers
                 $usr->videos = 0; // Replace with your actual method to get videos
                 $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
-                $usr->profile_pic = 'http://34.207.97.193/ahgoo/public/storage/profile_pics/no_image.jpg';
+                $usr->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
             }
             if (!$user) {
                 return response()->json([
@@ -97,7 +97,7 @@ class SearchController extends Controller
                 $usr->followers = 0; // Replace with your actual method to get followers
                 $usr->videos = 0; // Replace with your actual method to get videos
                 $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
-                $usr->profile_pic = 'http://34.207.97.193/ahgoo/public/storage/profile_pics/no_image.jpg';
+                $usr->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
             }
             if (!$user) {
                 return response()->json([
