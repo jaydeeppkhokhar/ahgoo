@@ -252,7 +252,8 @@ class AuthController extends Controller
     }
     public function updateCountry()
     {
-        AllUser::query()->update(['country' => 'India']);
+        // AllUser::query()->update(['country' => 'India']);
+        AllUser::query()->update(['user_type' => 1]);
         return response()->json(['message' => 'Country updated to India for all users']);
     }
     public function forget_password(Request $request)

@@ -34,6 +34,13 @@ class SearchController extends Controller
                         ->get();
 
             // Check if users were found
+            foreach ($users as $usr) {
+                // Assuming you have methods to fetch followers and videos for a user
+                $usr->followers = 0; // Replace with your actual method to get followers
+                $usr->videos = 0; // Replace with your actual method to get videos
+                $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
+                $usr->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
             if ($users->isEmpty()) {
                 return response()->json([
                     'status' => false,
