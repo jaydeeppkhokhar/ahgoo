@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AllUser;
 use App\Models\Followers;
+use App\Models\Countries;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -68,6 +69,13 @@ class ProfileController extends Controller
             $user->amount2 = '0$'; // Replace with your actual method to get videos
             $user->account_description = 'Love Yourself'; // Replace with your actual method to get videos
             $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+
+            $country =  $user->country;
+            $country_details = Countries::where('name', $country)->first();
+
+            $user->country_code = $country_details->phone_code;
+            $user->country_flag = $country_details->flag;
+
             if (!$user) {
                 return response()->json([
                     'status' => false,

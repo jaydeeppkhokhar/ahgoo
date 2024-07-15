@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\AllUser;
 use App\Models\Otp;
+use App\Models\Countries;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
@@ -103,6 +104,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Invalid',
+                'is_loggedin' => 0,
                 'data' => $errors
             ], 422);
         }
@@ -113,6 +115,7 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => false,
                     'msg' => 'Invalid credentials',
+                    'is_loggedin' => 0,
                     'data' => (object) []
                 ], 401);
             }
@@ -122,6 +125,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => true,
                 'msg' => 'Login successful',
+                'is_loggedin' => 1,
                 'data' => $user
             ], 200);
         }
@@ -132,6 +136,7 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => false,
                     'msg' => 'Invalid credentials',
+                    'is_loggedin' => 0,
                     'data' => (object) []
                 ], 401);
             }
@@ -141,12 +146,14 @@ class AuthController extends Controller
             return response()->json([
                 'status' => true,
                 'msg' => 'Login successful',
+                'is_loggedin' => 1,
                 'data' => $user
             ], 200);
         }else{
             return response()->json([
                 'status' => false,
                 'msg' => 'Please provide either email or phone.',
+                'is_loggedin' => 0,
                 'data' => (object) []
             ], 422);
         }
@@ -260,7 +267,6 @@ class AuthController extends Controller
     {
         if(!empty($request->email)){
             $user = AllUser::where('email', $request->email)->first();
-
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -268,7 +274,10 @@ class AuthController extends Controller
                     'data' => (object) []
                 ], 401);
             }
+            $country =  $user->country;
+            $country_details = Countries::where('name', $country)->first();
 
+            $user->country_code = $country_details->phone_code;
             // $token = $user->createToken('api-token')->plainTextToken;
 
             return response()->json([
