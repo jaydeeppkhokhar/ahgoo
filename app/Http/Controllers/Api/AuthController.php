@@ -299,7 +299,10 @@ class AuthController extends Controller
                 }
 
                 // $token = $user->createToken('api-token')->plainTextToken;
+                $country =  $user->country;
+                $country_details = Countries::where('name', $country)->first();
 
+                $user->country_code = $country_details->phone_code;
                 return response()->json([
                     'status' => true,
                     'msg' => 'User details below',
