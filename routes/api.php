@@ -28,4 +28,7 @@ Route::post('change_password', [AuthController::class, 'change_password']);
 Route::post('suggestion', [SearchController::class, 'suggestions']);
 Route::post('people_near_you', [SearchController::class, 'people_near_you']);
 Route::post('follow', [ProfileController::class, 'follow']);
+Route::post('unfollow', [ProfileController::class, 'unfollow']);
 Route::post('my_profiles', [ProfileController::class, 'my_profiles']);
+Route::post('my_followers', [ProfileController::class, 'my_followers']);
+Route::post('followings', [ProfileController::class, 'followings']);
