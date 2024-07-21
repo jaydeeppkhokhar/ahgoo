@@ -584,6 +584,12 @@ class ProfileController extends Controller
                 $user->is_already_followed = 0;
             }
             $user->is_already_freind = 0;
+            $is_followed = Friends::where('sent_to',$request->profile_id)->where('sent_by',$request->user_id)->first();
+            if(!empty($is_followed)){
+                $user->is_friend_req_sent = 1;
+            }else{
+                $user->is_friend_req_sent = 0;
+            }
             $user->friends = 0; // Replace with your actual method to get followers
             $user->videos = 0; // Replace with your actual method to get videos
             $user->amount1 = '0$'; // Replace with your actual method to get followers
