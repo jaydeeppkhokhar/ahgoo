@@ -112,10 +112,34 @@ class SearchController extends Controller
         if(!empty($request->user_id)){
             $myself = AllUser::where('_id', $request->user_id)->first();
             $country = $myself->country;
-            $user = AllUser::where('_id', '!=', $request->user_id)->where('country',$country)->get();
+            // $user = AllUser::where('_id', '!=', $request->user_id)->where('country',$country)->orderBy('created_at', 'desc')->limit(5)->get();
+            $user = AllUser::where('_id', '!=', $request->user_id)
+                ->where('country', $country)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
             foreach ($user as $usr) {
                 // Assuming you have methods to fetch followers and videos for a user
-                $usr->followers = 0; // Replace with your actual method to get followers
+                $followers_total = Followers::where('followed_to',$usr->_id)->get();
+                if(!empty($followers_total)){
+                    $usr->followers = count($followers_total);
+                }else{
+                    $usr->followers = 0;
+                }
+                $user->post = 0; // Replace with your actual method to get followers
+                $followed_total = Followers::where('followed_by',$usr->_id)->get();
+                if(!empty($followed_total)){
+                    $usr->followed = count($followed_total);
+                }else{
+                    $usr->followed = 0;
+                }
+                $is_followed = Followers::where('followed_to',$usr->_id)->where('followed_by',$request->user_id)->first();
+                if(!empty($is_followed)){
+                    $usr->is_already_followed = 1;
+                }else{
+                    $usr->is_already_followed = 0;
+                }
+                $usr->is_already_freind = 0;
                 $usr->videos = 0; // Replace with your actual method to get videos
                 $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
                 $usr->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
@@ -130,6 +154,120 @@ class SearchController extends Controller
             return response()->json([
                 'status' => true,
                 'msg' => 'Nearby Peoples.',
+                'data' => $user
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please provide user id.',
+                'data' => (object) []
+            ], 422);
+        }
+    }
+    public function country_of_origin(Request $request)
+    {
+        if(!empty($request->user_id)){
+            $myself = AllUser::where('_id', $request->user_id)->first();
+            $country = $myself->country;
+            // $user = AllUser::where('_id', '!=', $request->user_id)->where('country',$country)->orderBy('created_at', 'desc')->limit(5)->get();
+            $user = AllUser::where('_id', '!=', $request->user_id)
+                ->where('country', $country)
+                ->orderBy('created_at', 'asc')
+                ->limit(10)
+                ->get();
+            foreach ($user as $usr) {
+                // Assuming you have methods to fetch followers and videos for a user
+                $followers_total = Followers::where('followed_to',$usr->_id)->get();
+                if(!empty($followers_total)){
+                    $usr->followers = count($followers_total);
+                }else{
+                    $usr->followers = 0;
+                }
+                $user->post = 0; // Replace with your actual method to get followers
+                $followed_total = Followers::where('followed_by',$usr->_id)->get();
+                if(!empty($followed_total)){
+                    $usr->followed = count($followed_total);
+                }else{
+                    $usr->followed = 0;
+                }
+                $is_followed = Followers::where('followed_to',$usr->_id)->where('followed_by',$request->user_id)->first();
+                if(!empty($is_followed)){
+                    $usr->is_already_followed = 1;
+                }else{
+                    $usr->is_already_followed = 0;
+                }
+                $usr->is_already_freind = 0;
+                $usr->videos = 0; // Replace with your actual method to get videos
+                $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
+                $usr->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => "No people found.",
+                    'data' => (object) []
+                ], 401);
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Peoples.',
+                'data' => $user
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please provide user id.',
+                'data' => (object) []
+            ], 422);
+        }
+    }
+    public function influencers(Request $request)
+    {
+        if(!empty($request->user_id)){
+            $myself = AllUser::where('_id', $request->user_id)->first();
+            // $country = $myself->country;
+            // $user = AllUser::where('_id', '!=', $request->user_id)->where('country',$country)->orderBy('created_at', 'desc')->limit(5)->get();
+            $user = AllUser::where('_id', '!=', $request->user_id)
+                ->where('user_type', 2)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+            foreach ($user as $usr) {
+                // Assuming you have methods to fetch followers and videos for a user
+                $followers_total = Followers::where('followed_to',$usr->_id)->get();
+                if(!empty($followers_total)){
+                    $usr->followers = count($followers_total);
+                }else{
+                    $usr->followers = 0;
+                }
+                $user->post = 0; // Replace with your actual method to get followers
+                $followed_total = Followers::where('followed_by',$usr->_id)->get();
+                if(!empty($followed_total)){
+                    $usr->followed = count($followed_total);
+                }else{
+                    $usr->followed = 0;
+                }
+                $is_followed = Followers::where('followed_to',$usr->_id)->where('followed_by',$request->user_id)->first();
+                if(!empty($is_followed)){
+                    $usr->is_already_followed = 1;
+                }else{
+                    $usr->is_already_followed = 0;
+                }
+                $usr->is_already_freind = 0;
+                $usr->videos = 0; // Replace with your actual method to get videos
+                $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
+                $usr->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => "No influencers found.",
+                    'data' => (object) []
+                ], 401);
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'All Influencers.',
                 'data' => $user
             ], 200);
         }else{
