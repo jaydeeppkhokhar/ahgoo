@@ -8,9 +8,11 @@ use App\Models\Followers;
 use App\Models\Friends;
 use App\Models\Blocks;
 use App\Models\Countries;
+use App\Models\Notifications;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ProfileController extends Controller
 {
@@ -44,6 +46,15 @@ class ProfileController extends Controller
             $followed = Followers::create([
                 'followed_to' => $request->followed_to,
                 'followed_by' => $request->followed_by
+            ]);
+            $user = AllUser::where('_id', $request->followed_by)->first();
+            $notifications = Notifications::create([
+                'user_id' => $request->followed_to,
+                'relavant_id' => $request->followed_by,
+                'relavant_image' => 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg',
+                'message' => $user->name.' started following you',
+                'type' => 'follow',
+                'is_seen' => 0
             ]);
             return response()->json([
                 'status' => true,
@@ -621,6 +632,68 @@ class ProfileController extends Controller
                 'msg' => 'Please provide user id.',
                 'data' => (object) []
             ], 422);
+        }
+    }
+    public function notifications(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'last_days' => 'required|string|max:255',
+            'type' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $sevenDaysAgo = Carbon::now()->subDays($request->last_days);
+            if($request->type == 'all'){
+                $notifications = Notifications::where('user_id', $request->user_id)
+                                            ->where('created_at', '>=', $sevenDaysAgo)
+                                            ->get();
+            }else{
+                $notifications = Notifications::where('user_id',$request->user_id)->where('type',$request->type)->get();
+                $notifications = Notifications::where('user_id', $request->user_id)
+                                            ->where('type',$request->type)
+                                            ->where('created_at', '>=', $sevenDaysAgo)
+                                            ->get();
+            }
+            
+            if ($notifications->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'No notifications found.',
+                    'data' => (object) []
+                ], 404);
+            }
+        
+            return response()->json([
+                'status' => true,
+                'msg' => 'Notifications.',
+                'data' => $notifications
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
         }
     }
 }

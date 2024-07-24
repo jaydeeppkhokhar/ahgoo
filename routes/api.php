@@ -39,3 +39,4 @@ Route::post('user_profiles', [ProfileController::class, 'user_profiles']);
 Route::post('my_followers', [ProfileController::class, 'my_followers']);
 Route::post('followings', [ProfileController::class, 'followings']);
 Route::post('my_freinds', [ProfileController::class, 'my_freinds']);
+Route::post('notifications', [ProfileController::class, 'notifications']);
