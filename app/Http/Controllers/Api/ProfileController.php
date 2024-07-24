@@ -662,22 +662,23 @@ class ProfileController extends Controller
         }
 
         try {
-            if($request->last_days == 0){
-                $request->last_days = 30;
-            }
             $sevenDaysAgo = Carbon::now()->subDays($request->last_days);
             if($request->type == 'all'){
                 $notifications = Notifications::where('user_id', $request->user_id)
                                             ->where('created_at', '>=', $sevenDaysAgo)
+                                            ->where('is_seen', 1)
                                             ->get();
             }else{
-                $notifications = Notifications::where('user_id',$request->user_id)->where('type',$request->type)->get();
+                // $notifications = Notifications::where('user_id',$request->user_id)->where('type',$request->type)->get();
                 $notifications = Notifications::where('user_id', $request->user_id)
                                             ->where('type',$request->type)
+                                            ->where('is_seen', 1)
                                             ->where('created_at', '>=', $sevenDaysAgo)
                                             ->get();
             }
-            
+            $new_notifications = Notifications::where('user_id', $request->user_id)
+                                                ->where('is_seen', 0)
+                                                ->get();
             if ($notifications->isEmpty()) {
                 return response()->json([
                     'status' => false,
@@ -689,12 +690,53 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => true,
                 'msg' => 'Notifications.',
-                'data' => $notifications
+                'data' => ['new_notifications' =>$new_notifications, 'last_7days' =>$notifications,]
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function see_notifications(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'notification_id' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Notifications::where('user_id', $request->user_id)->where('_id', $request->notification_id)->update(['is_seen' => 1]);
+            return response()->json([
+                'status' => true,
+                'msg' => 'Notification Seen Successfully',
+                'data' => (object) [],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Password change failed',
                 'data' => (object) []
             ], 500);
         }
