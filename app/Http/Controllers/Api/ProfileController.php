@@ -662,6 +662,9 @@ class ProfileController extends Controller
         }
 
         try {
+            if($request->last_days == 0){
+                $request->last_days = 30;
+            }
             $sevenDaysAgo = Carbon::now()->subDays($request->last_days);
             if($request->type == 'all'){
                 $notifications = Notifications::where('user_id', $request->user_id)
