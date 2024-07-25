@@ -676,15 +676,27 @@ class ProfileController extends Controller
                                             ->where('created_at', '>=', $sevenDaysAgo)
                                             ->get();
             }
+            if(!empty($notifications)){
+                foreach($notifications as $not){
+                    $details = AllUser::where('_id', $not->relavant_id)->first();
+                    $not->relavant_name = $details->name;
+                }
+            }
             $new_notifications = Notifications::where('user_id', $request->user_id)
                                                 ->where('is_seen', 0)
                                                 ->get();
+            if(!empty($new_notifications)){
+                foreach($new_notifications as $noti){
+                    $details = AllUser::where('_id', $noti->relavant_id)->first();
+                    $noti->relavant_name = $details->name;
+                }
+            }
             if ($notifications->isEmpty()) {
                 return response()->json([
-                    'status' => false,
+                    'status' => true,
                     'msg' => 'No notifications found.',
-                    'data' => (object) []
-                ], 404);
+                    'data' => ['new_notifications' =>(object) [], 'last_7days' =>(object) [],]
+                ], 200);
             }
         
             return response()->json([
