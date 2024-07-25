@@ -695,7 +695,7 @@ class ProfileController extends Controller
                 return response()->json([
                     'status' => true,
                     'msg' => 'No notifications found.',
-                    'data' => ['new_notifications' =>(object) [], 'last_7days' =>(object) [],]
+                    'data' => ['new_notifications' =>[], 'last_7days' =>[],]
                 ], 200);
             }
         
