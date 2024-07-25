@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -749,6 +750,66 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Password change failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function profile_step_one(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'step' => 'required|string|max:255',
+            'profile_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'cover_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $profilePicPath = null;
+            if ($request->hasFile('profile_pic')) {
+                $profilePicPath = $request->file('profile_pic')->store('profile_pics', 'public');
+                $profilePicUrl = Storage::url($profilePicPath);
+            }
+            $coverPicPath = null;
+            if ($request->hasFile('cover_pic')) {
+                $coverPicPath = $request->file('cover_pic')->store('cover_pic', 'public');
+                $coverPicUrl = Storage::url($coverPicPath);
+            }
+            AllUser::where('_id', $request->user_id)->update([
+                'profile_pic' => $profilePicUrl,
+                'cover_pic' => $coverPicUrl,
+                'step' => $request->step,
+            ]);
+
+            // $token = $user->createToken('api-token')->plainTextToken;
+            $user_data = AllUser::where('_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Profile Updated Successfully',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
                 'data' => (object) []
             ], 500);
         }
