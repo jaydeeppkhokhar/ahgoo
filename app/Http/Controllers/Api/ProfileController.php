@@ -814,4 +814,107 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function profile_step_two(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'step' => 'required|string|max:255',
+            'country1' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            AllUser::where('_id', $request->user_id)->update([
+                'country1' => $request->country1,
+                'country2' => $request->country2 ?? '',
+                'country3' => $request->country3 ?? '',
+                'country4' => $request->country4 ?? '',
+                'country5' => $request->country5 ?? '',
+                'step' => $request->step,
+            ]);
+
+            // $token = $user->createToken('api-token')->plainTextToken;
+            $user_data = AllUser::where('_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Profile Updated Successfully',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function profile_step_three(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'step' => 'required|string|max:255',
+            'dob' => 'required|date_format:d/m/Y',
+            'gender' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $dob = Carbon::createFromFormat('d/m/Y', $request->dob)->format('Y-m-d');
+            AllUser::where('_id', $request->user_id)->update([
+                'dob' => $dob,
+                'gender' => $request->gender,
+                'step' => $request->step,
+            ]);
+
+            // $token = $user->createToken('api-token')->plainTextToken;
+            $user_data = AllUser::where('_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Profile Updated Successfully',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }

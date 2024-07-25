@@ -42,3 +42,5 @@ Route::post('my_freinds', [ProfileController::class, 'my_freinds']);
 Route::post('notifications', [ProfileController::class, 'notifications']);
 Route::post('see_notifications', [ProfileController::class, 'see_notifications']);
 Route::post('profile_step_one', [ProfileController::class, 'profile_step_one']);
+Route::post('profile_step_two', [ProfileController::class, 'profile_step_two']);
+Route::post('profile_step_three', [ProfileController::class, 'profile_step_three']);
