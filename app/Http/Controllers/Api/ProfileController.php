@@ -794,8 +794,8 @@ class ProfileController extends Controller
                 $coverPicUrl = Storage::url($coverPicPath);
             }
             AllUser::where('_id', $request->user_id)->update([
-                'profile_pic' => $profilePicUrl,
-                'cover_pic' => $coverPicUrl,
+                'profile_pic' => 'http://34.207.97.193/ahgoo/public/'.$profilePicUrl,
+                'cover_pic' => 'http://34.207.97.193/ahgoo/public/'.$coverPicUrl,
                 'step' => $request->step,
             ]);
 
