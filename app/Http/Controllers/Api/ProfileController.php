@@ -917,4 +917,56 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function profile_step_four(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'step' => 'required|string|max:255',
+            'hobby1' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            AllUser::where('_id', $request->user_id)->update([
+                'hobby1' => $request->hobby1,
+                'hobby2' => $request->hobby2 ?? '',
+                'hobby3' => $request->hobby3 ?? '',
+                'hobby4' => $request->hobby4 ?? '',
+                'hobby5' => $request->hobby5 ?? '',
+                'step' => $request->step,
+            ]);
+
+            // $token = $user->createToken('api-token')->plainTextToken;
+            $user_data = AllUser::where('_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Profile Updated Successfully',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }
