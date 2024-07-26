@@ -40,7 +40,9 @@ class SearchController extends Controller
                 $usr->followers = 0; // Replace with your actual method to get followers
                 $usr->videos = 0; // Replace with your actual method to get videos
                 $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
-                $usr->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                if(!isset($usr->profile_pic) OR empty($usr->profile_pic)){
+                    $usr->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                }
             }
             if ($users->isEmpty()) {
                 return response()->json([
@@ -99,7 +101,9 @@ class SearchController extends Controller
             $user->videos = 0; // Replace with actual method to get videos
             $user->freinds = 0; // Replace with actual method to get friends
             $user->account_description = 'Love Yourself'; // Replace with your actual method to get account description
+            if(!isset($user->profile_pic) OR empty($user->profile_pic)){
             $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
         }
 
         return response()->json([
@@ -169,7 +173,9 @@ class SearchController extends Controller
             $user->is_already_freind = 0; // Update as needed
             $user->videos = 0; // Replace with actual method to get videos
             $user->account_description = 'Love Yourself'; // Replace with your actual method to get account description
+            if(!isset($user->profile_pic) OR empty($user->profile_pic)){
             $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
         }
 
         return response()->json([
@@ -239,7 +245,9 @@ class SearchController extends Controller
             $user->is_already_freind = 0; // Update as needed
             $user->videos = 0; // Replace with actual method to get videos
             $user->account_description = 'Love Yourself'; // Replace with your actual method to get account description
+            if(!isset($user->profile_pic) OR empty($user->profile_pic)){
             $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
         }
 
         return response()->json([
@@ -284,7 +292,9 @@ class SearchController extends Controller
                 $usr->is_already_freind = 0;
                 $usr->videos = 0; // Replace with your actual method to get videos
                 $usr->account_description = 'Love Yourself'; // Replace with your actual method to get videos
+                if(!isset($user->profile_pic) OR empty($user->profile_pic)){
                 $usr->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                }
             }
             if (!$user) {
                 return response()->json([

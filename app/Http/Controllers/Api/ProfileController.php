@@ -92,8 +92,9 @@ class ProfileController extends Controller
             $user->amount1 = '0$'; // Replace with your actual method to get followers
             $user->amount2 = '0$'; // Replace with your actual method to get videos
             $user->account_description = 'Love Yourself'; // Replace with your actual method to get videos
-            $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
-
+            if(!isset($user->profile_pic) OR empty($user->profile_pic)){
+                $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
             $country =  $user->country;
             $country_details = Countries::where('name', $country)->first();
 
@@ -226,7 +227,9 @@ class ProfileController extends Controller
                     $follow->amount1 = '0$';
                     $follow->amount2 = '0$';
                     $follow->account_description = 'Love Yourself';
-                    $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    if(!isset($follow->profile_pic) OR empty($follow->profile_pic)){
+                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    }
                     $country =  $details->country;
                     $country_details = Countries::where('name', $country)->first();
                     if(!empty($country_details)){
@@ -315,7 +318,9 @@ class ProfileController extends Controller
                     $follow->amount1 = '0$';
                     $follow->amount2 = '0$';
                     $follow->account_description = 'Love Yourself';
-                    $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    if(!isset($follow->profile_pic) OR empty($follow->profile_pic)){
+                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    }
                     $country =  $details->country;
                     $country_details = Countries::where('name', $country)->first();
                     if(!empty($country_details)){
@@ -607,7 +612,9 @@ class ProfileController extends Controller
             $user->amount1 = '0$'; // Replace with your actual method to get followers
             $user->amount2 = '0$'; // Replace with your actual method to get videos
             $user->account_description = 'Love Yourself'; // Replace with your actual method to get videos
-            $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            if(!isset($user->profile_pic) OR empty($user->profile_pic)){
+                $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
 
             $country =  $user->country;
             $country_details = Countries::where('name', $country)->first();
