@@ -789,13 +789,13 @@ class ProfileController extends Controller
             if ($request->hasFile('profile_pic')) {
                 $profilePicPath = $request->file('profile_pic')->store('profile_pics', 'public');
                 $profilePicUrl = Storage::url($profilePicPath);
-                $updated_data['profile_pic'] => 'http://34.207.97.193/ahgoo/public'.$profilePicUrl;
+                $updated_data['profile_pic'] = 'http://34.207.97.193/ahgoo/public'.$profilePicUrl;
             }
             $coverPicPath = null;
             if ($request->hasFile('cover_pic')) {
                 $coverPicPath = $request->file('cover_pic')->store('cover_pic', 'public');
                 $coverPicUrl = Storage::url($coverPicPath);
-                $updated_data['cover_pic'] => 'http://34.207.97.193/ahgoo/public'.$coverPicUrl;
+                $updated_data['cover_pic'] = 'http://34.207.97.193/ahgoo/public'.$coverPicUrl;
             }
             AllUser::where('_id', $request->user_id)->update($updated_data);
 
