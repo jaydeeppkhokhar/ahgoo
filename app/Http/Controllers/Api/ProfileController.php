@@ -783,21 +783,21 @@ class ProfileController extends Controller
         }
 
         try {
+            $updated_data = array();
+            $updated_data['step'] = $request->step
             $profilePicPath = null;
             if ($request->hasFile('profile_pic')) {
                 $profilePicPath = $request->file('profile_pic')->store('profile_pics', 'public');
                 $profilePicUrl = Storage::url($profilePicPath);
+                $updated_data['profile_pic'] => 'http://34.207.97.193/ahgoo/public'.$profilePicUrl,
             }
             $coverPicPath = null;
             if ($request->hasFile('cover_pic')) {
                 $coverPicPath = $request->file('cover_pic')->store('cover_pic', 'public');
                 $coverPicUrl = Storage::url($coverPicPath);
+                $updated_data['cover_pic'] => 'http://34.207.97.193/ahgoo/public'.$coverPicUrl,
             }
-            AllUser::where('_id', $request->user_id)->update([
-                'profile_pic' => 'http://34.207.97.193/ahgoo/public/'.$profilePicUrl,
-                'cover_pic' => 'http://34.207.97.193/ahgoo/public/'.$coverPicUrl,
-                'step' => $request->step,
-            ]);
+            AllUser::where('_id', $request->user_id)->update($updated_data);
 
             // $token = $user->createToken('api-token')->plainTextToken;
             $user_data = AllUser::where('_id', $request->user_id)->first();
