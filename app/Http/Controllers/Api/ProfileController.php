@@ -1113,4 +1113,109 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function create_post(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'caption' => 'required|string|max:255',
+            'media' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,mkv'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $updated_data = array();
+            $updated_data['user_id'] = $request->user_id;
+            $updated_data['caption'] = $request->caption;
+            $updated_data['is_active'] = 1;
+            $updated_data['is_deleted'] = 0;
+            $profilePicPath = null;
+            if ($request->hasFile('media')) {
+                $mediaPath = $request->file('media')->store('media', 'public');
+                $mediaUrl = Storage::url($mediaPath);
+                $updated_data['media'] = 'http://34.207.97.193/ahgoo/public'.$mediaUrl;
+            }
+            Posts::where('_id', $request->user_id)->update($updated_data);
+            $user_data = Posts::where('user_id', $request->user_id)->get();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Post Added',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function home_page(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $posts = Posts::with(['user' => function($query) {
+                $query->select('_id', 'name', 'country_id');
+            }, 'user.country' => function($query) {
+                $query->select('_id', 'flag', 'mi_flag');
+            }])->get();    
+            if ($post_data->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'No post found',
+                    'data' => (object) []
+                ], 404);
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Post data follwed',
+                'data' => $posts
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'No Post Found',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }

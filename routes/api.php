@@ -50,3 +50,5 @@ Route::get('influencer_categories', [SearchController::class, 'influencer_catego
 Route::post('influencer_category_map', [ProfileController::class, 'influencer_category_map']);
 Route::post('influencer_acceptance', [ProfileController::class, 'influencer_acceptance']);
 Route::post('update_location', [ProfileController::class, 'update_location']);
+Route::post('create_post', [ProfileController::class, 'create_post']);
+Route::post('home_page', [ProfileController::class, 'home_page']);
