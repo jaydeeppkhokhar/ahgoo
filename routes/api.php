@@ -45,3 +45,8 @@ Route::post('profile_step_one', [ProfileController::class, 'profile_step_one']);
 Route::post('profile_step_two', [ProfileController::class, 'profile_step_two']);
 Route::post('profile_step_three', [ProfileController::class, 'profile_step_three']);
 Route::post('profile_step_four', [ProfileController::class, 'profile_step_four']);
+Route::get('hobbies', [SearchController::class, 'hobbies']);
+Route::get('influencer_categories', [SearchController::class, 'influencer_categories']);
+Route::post('influencer_category_map', [ProfileController::class, 'influencer_category_map']);
+Route::post('influencer_acceptance', [ProfileController::class, 'influencer_acceptance']);
+Route::post('update_location', [ProfileController::class, 'update_location']);

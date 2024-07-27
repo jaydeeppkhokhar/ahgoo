@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AllUser;
 use App\Models\Followers;
+use App\Models\Hobbies;
+use App\Models\InfluencerCat;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -315,5 +317,35 @@ class SearchController extends Controller
                 'data' => (object) []
             ], 422);
         }
+    }
+    public function hobbies(Request $request){
+        $hobbies = Hobbies::get();
+        if (!$hobbies) {
+            return response()->json([
+                'status' => false,
+                'msg' => "No Hobbies found.",
+                'data' => (object) []
+            ], 401);
+        }
+        return response()->json([
+            'status' => true,
+            'msg' => 'Hobbies Listing.',
+            'data' => $hobbies
+        ], 200);
+    }
+    public function influencer_categories(Request $request){
+        $infcat = InfluencerCat::get();
+        if (!$infcat) {
+            return response()->json([
+                'status' => false,
+                'msg' => "No Category found.",
+                'data' => (object) []
+            ], 401);
+        }
+        return response()->json([
+            'status' => true,
+            'msg' => 'Category Listing.',
+            'data' => $infcat
+        ], 200);
     }
 }

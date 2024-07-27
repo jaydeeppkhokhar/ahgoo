@@ -9,6 +9,7 @@ use App\Models\Friends;
 use App\Models\Blocks;
 use App\Models\Countries;
 use App\Models\Notifications;
+use App\Models\InfCatMap;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -966,6 +967,142 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => true,
                 'msg' => 'Profile Updated Successfully',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function influencer_category_map(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'categories' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+        try {
+            $categories = $request->categories;
+            if(!empty($categories)){
+                foreach($categories as $cat){
+                    $followed = InfCatMap::create([
+                        'user_id' => $request->user_id,
+                        'category' => $cat
+                    ]);
+                }
+            }
+            $cat = InfCatMap::where('user_id', $request->user_id)->get();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Category Added Successfully',
+                'data' => $cat
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function influencer_acceptance(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+        try {
+            AllUser::where('_id', $request->user_id)->update([
+                'user_type' => 2
+            ]);
+            $user_data = AllUser::where('_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Influencer Profile Created',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function update_location(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'latitude' => 'required|string|max:255',
+            'longitude' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+        try {
+            AllUser::where('_id', $request->user_id)->update([
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude
+            ]);
+            $user_data = AllUser::where('_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Location Updated Successfully',
                 'data' => $user_data
             ], 200);
         } catch (\Exception $e) {
