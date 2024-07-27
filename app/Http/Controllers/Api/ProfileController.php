@@ -1194,21 +1194,48 @@ class ProfileController extends Controller
         }
 
         try {
-            $posts = Posts::with(['user' => function($query) {
-                $query->select('_id', 'name', 'country_id');
-            }, 'user.country' => function($query) {
-                $query->select('_id', 'flag', 'mi_flag');
-            }])->get();    
-            if ($post_data->isEmpty()) {
+            // Step 1: Fetch all posts
+            $posts = Posts::all();
+
+            if ($posts->isEmpty()) {
                 return response()->json([
                     'status' => false,
                     'msg' => 'No post found',
                     'data' => (object) []
                 ], 404);
             }
+
+            // Step 2: Fetch all users based on user_ids from posts
+            $userIds = $posts->pluck('user_id')->unique();
+            $users = AllUser::whereIn('_id', $userIds)->get()->keyBy('_id');
+
+            // Step 3: Fetch all countries based on country_ids from users
+            $countryIds = $users->pluck('country')->unique();
+            $countries = Countries::whereIn('name', $countryIds)->get()->keyBy('name');
+
+            // Step 4: Add user and country data to each post
+            $posts = $posts->map(function($post) use ($users, $countries) {
+                $user = $users->get($post->user_id);
+                $country = $user ? $countries->get($user->country) : null;
+
+                return [
+                    '_id' => $post->_id,
+                    'user_id' => $post->user_id,
+                    'caption' => $post->caption,
+                    'is_active' => $post->is_active,
+                    'is_deleted' => $post->is_deleted,
+                    'media' => $post->media,
+                    'updated_at' => $post->updated_at,
+                    'created_at' => $post->created_at,
+                    'user_name' => $user ? $user->name : '',
+                    'flag' => $country ? $country->flag : '',
+                    'mi_flag' => $country ? $country->mi_flag : '',
+                ];
+            });
+
             return response()->json([
                 'status' => true,
-                'msg' => 'Post data follwed',
+                'msg' => 'Post data fetched',
                 'data' => $posts
             ], 200);
         } catch (\Exception $e) {

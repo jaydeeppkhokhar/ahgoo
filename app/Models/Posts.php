@@ -15,9 +15,4 @@ class Posts extends Model
     protected $fillable = [
         'user_id','caption','media','is_active','is_deleted'
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(AllUser::class, 'user_id', '_id');
-    }
 }
