@@ -1153,7 +1153,7 @@ class ProfileController extends Controller
                 $mediaUrl = Storage::url($mediaPath);
                 $updated_data['media'] = 'http://34.207.97.193/ahgoo/public'.$mediaUrl;
             }
-            Posts::where('_id', $request->user_id)->update($updated_data);
+            $Posts = Posts::create($updated_data);
             $user_data = Posts::where('user_id', $request->user_id)->get();
             return response()->json([
                 'status' => true,
