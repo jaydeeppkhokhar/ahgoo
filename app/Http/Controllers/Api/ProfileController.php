@@ -10,6 +10,7 @@ use App\Models\Blocks;
 use App\Models\Countries;
 use App\Models\Notifications;
 use App\Models\InfCatMap;
+use App\Models\Posts;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
