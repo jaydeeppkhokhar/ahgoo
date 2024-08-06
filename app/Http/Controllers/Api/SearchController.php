@@ -7,6 +7,7 @@ use App\Models\AllUser;
 use App\Models\Followers;
 use App\Models\Hobbies;
 use App\Models\InfluencerCat;
+use App\Models\Locations;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -346,6 +347,21 @@ class SearchController extends Controller
             'status' => true,
             'msg' => 'Category Listing.',
             'data' => $infcat
+        ], 200);
+    }
+    public function all_locations(Request $request){
+        $locations = Locations::get();
+        if (!$locations) {
+            return response()->json([
+                'status' => false,
+                'msg' => "No Locations found.",
+                'data' => (object) []
+            ], 401);
+        }
+        return response()->json([
+            'status' => true,
+            'msg' => 'Location Listing.',
+            'data' => $locations
         ], 200);
     }
 }

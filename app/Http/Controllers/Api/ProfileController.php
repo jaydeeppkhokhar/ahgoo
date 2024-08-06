@@ -11,6 +11,7 @@ use App\Models\Countries;
 use App\Models\Notifications;
 use App\Models\InfCatMap;
 use App\Models\Posts;
+use App\Models\Promotion;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -812,7 +813,7 @@ class ProfileController extends Controller
             $user_data = AllUser::where('_id', $request->user_id)->first();
             return response()->json([
                 'status' => true,
-                'msg' => 'Profile Updated Successfully',
+                'msg' => 'Picture Updated Successfully',
                 'data' => $user_data
             ], 200);
         } catch (\Exception $e) {
@@ -1242,6 +1243,293 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'No Post Found',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_promotion_1(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'post_id' => 'required|string|max:255',
+            'is_showing_event' => 'required|integer|in:0,1',
+            'type' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $promotion = Promotion::create([
+                'user_id' => $request->user_id,
+                'post_id' => $request->post_id,
+                'is_showing_event' => $request->is_showing_event,
+                'type' => $request->type
+            ]);
+            $insertedId = $promotion->_id;
+            // $token = $user->createToken('api-token')->plainTextToken;
+            $promo_data = Promotion::where('_id', $insertedId)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion added successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_promotion_2(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'promotion_id' => 'required|string|max:255',
+            'automatic_public' => 'required|integer|in:0,1'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Promotion::where('_id', $request->promotion_id)->update([
+                'automatic_public' => $request->automatic_public
+            ]);
+            $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_promotion_audience(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'promotion_id' => 'required|string|max:255',
+            'estimated_size' => 'required|string|max:255',
+            'name_of_audience' => 'required|string|max:255',
+            'age_from' => 'required|integer',
+            'age_to' => 'required|integer',
+            'gender' => 'required|string|max:255',
+            'location' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $locationJson = json_encode($request->location);
+            Promotion::where('_id', $request->promotion_id)->update([
+                'estimated_size' => $request->estimated_size,
+                'name_of_audience' => $request->name_of_audience,
+                'age_from' => $request->age_from,
+                'age_to' => $request->age_to,
+                'gender' => $request->gender,
+                'location' => $locationJson
+            ]);
+            $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_promotion_budget(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'promotion_id' => 'required|string|max:255',
+            'per_day_spent' => 'required|integer',
+            'total_days' => 'required|integer',
+            'event_location' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $locationJson = json_encode($request->location);
+            Promotion::where('_id', $request->promotion_id)->update([
+                'per_day_spent' => $request->per_day_spent,
+                'total_days' => $request->total_days,
+                'event_location' => $request->event_location
+            ]);
+            $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_promotion_confirm(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'promotion_id' => 'required|string|max:255',
+            'is_confirm' => 'required|integer|in:0,1'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $locationJson = json_encode($request->location);
+            Promotion::where('_id', $request->promotion_id)->update([
+                'is_confirm' => $request->is_confirm
+            ]);
+            $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function audience_name_check(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name_of_audience' => 'required|string|min:5',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' => false,
+                'data' => (object) [],
+                'msg' => $errors[0]
+            ], 422);
+        }
+        try {
+            $name_of_audience = $request->name_of_audience;
+
+            // Search for users where name, email, or username contains the keyword
+            $users = Promotion::where('name_of_audience', 'LIKE', "%{$name_of_audience}%")
+                        ->get();
+
+            // Check if users were found
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Audience name is available',
+                    'data' => (object) []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'msg' => 'Audience name not available.',
+                'data' => (object) []
+            ], 404);
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Failed!',
                 'data' => (object) []
             ], 500);
         }

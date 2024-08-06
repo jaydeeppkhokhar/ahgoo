@@ -52,3 +52,10 @@ Route::post('influencer_acceptance', [ProfileController::class, 'influencer_acce
 Route::post('update_location', [ProfileController::class, 'update_location']);
 Route::post('create_post', [ProfileController::class, 'create_post']);
 Route::post('home_page', [ProfileController::class, 'home_page']);
+Route::get('all_locations', [SearchController::class, 'all_locations']);
+Route::post('create_promotion_1', [ProfileController::class, 'create_promotion_1']);
+Route::post('create_promotion_2', [ProfileController::class, 'create_promotion_2']);
+Route::post('create_promotion_audience', [ProfileController::class, 'create_promotion_audience']);
+Route::post('create_promotion_budget', [ProfileController::class, 'create_promotion_budget']);
+Route::post('create_promotion_confirm', [ProfileController::class, 'create_promotion_confirm']);
+Route::post('audience_name_check', [ProfileController::class, 'audience_name_check']);
