@@ -1196,7 +1196,7 @@ class ProfileController extends Controller
 
         try {
             // Step 1: Fetch all posts
-            $posts = Posts::all();
+            $posts = Posts::orderBy('created_at', 'desc')->get();
 
             if ($posts->isEmpty()) {
                 return response()->json([
