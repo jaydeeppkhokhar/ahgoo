@@ -1218,7 +1218,11 @@ class ProfileController extends Controller
             $posts = $posts->map(function($post) use ($users, $countries) {
                 $user = $users->get($post->user_id);
                 $country = $user ? $countries->get($user->country) : null;
-
+                if(!isset($user->profile_pic) OR empty($user->profile_pic)){
+                    $profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                }else{
+                    $profile_pic = $user->profile_pic;
+                }
                 return [
                     '_id' => $post->_id,
                     'user_id' => $post->user_id,
@@ -1229,6 +1233,8 @@ class ProfileController extends Controller
                     'updated_at' => $post->updated_at,
                     'created_at' => $post->created_at,
                     'user_name' => $user ? $user->name : '',
+                    'profile_pic' => $profile_pic,
+                    'country' => $user ? $user->country : '',
                     'flag' => $country ? $country->flag : '',
                     'mi_flag' => $country ? $country->mi_flag : '',
                 ];
