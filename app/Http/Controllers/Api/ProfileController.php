@@ -1223,6 +1223,8 @@ class ProfileController extends Controller
                 }else{
                     $profile_pic = $user->profile_pic;
                 }
+                $promotion_det = Promotion::where("post_id",$post->_id)->get();
+                $is_promotion_added = $promotion_det->isEmpty() ? 0 : 1;         
                 return [
                     '_id' => $post->_id,
                     'user_id' => $post->user_id,
@@ -1237,6 +1239,8 @@ class ProfileController extends Controller
                     'country' => $user ? $user->country : '',
                     'flag' => $country ? $country->flag : '',
                     'mi_flag' => $country ? $country->mi_flag : '',
+                    'is_promotion_created' => $is_promotion_added,
+                    'thumbnail_img' => 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg'
                 ];
             });
 
