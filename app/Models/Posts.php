@@ -13,6 +13,6 @@ class Posts extends Model
     protected $collection = 'posts';
 
     protected $fillable = [
-        'user_id','caption','media','is_active','is_deleted'
+        'user_id','caption','media','thumbnail_img','is_active','is_deleted'
     ];
 }

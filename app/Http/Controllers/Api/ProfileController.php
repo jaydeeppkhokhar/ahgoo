@@ -1120,7 +1120,8 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|string|max:255',
             'caption' => 'required|string|max:255',
-            'media' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,mkv'
+            'media' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,mkv',
+            'thumbnail_img' =>'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         if ($validator->fails()) {
@@ -1153,6 +1154,11 @@ class ProfileController extends Controller
                 $mediaPath = $request->file('media')->store('media', 'public');
                 $mediaUrl = Storage::url($mediaPath);
                 $updated_data['media'] = 'http://34.207.97.193/ahgoo/public'.$mediaUrl;
+            }
+            if ($request->hasFile('thumbnail_img')) {
+                $thumbPicPath = $request->file('thumbnail_img')->store('thumbnail_img', 'public');
+                $thumbPicUrl = Storage::url($thumbPicPath);
+                $updated_data['thumbnail_img'] = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
             }
             $Posts = Posts::create($updated_data);
             $user_data = Posts::where('user_id', $request->user_id)->get();
@@ -1224,7 +1230,12 @@ class ProfileController extends Controller
                     $profile_pic = $user->profile_pic;
                 }
                 $promotion_det = Promotion::where("post_id",$post->_id)->get();
-                $is_promotion_added = $promotion_det->isEmpty() ? 0 : 1;         
+                $is_promotion_added = $promotion_det->isEmpty() ? 0 : 1;   
+                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
+                    $thumbnail_img = 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
+                }else{
+                    $thumbnail_img = $post->thumbnail_img
+                }     
                 return [
                     '_id' => $post->_id,
                     'user_id' => $post->user_id,
@@ -1240,7 +1251,7 @@ class ProfileController extends Controller
                     'flag' => $country ? $country->flag : '',
                     'mi_flag' => $country ? $country->mi_flag : '',
                     'is_promotion_created' => $is_promotion_added,
-                    'thumbnail_img' => 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg'
+                    'thumbnail_img' => $thumbnail_img
                 ];
             });
 
@@ -1542,6 +1553,78 @@ class ProfileController extends Controller
                 'msg' => 'Failed!',
                 'data' => (object) []
             ], 500);
+        }
+    }
+    public function delete_promotion(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'promotion_id' => 'required|string|max:255',
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Promotion::where('_id', $request->promotion_id)
+                       ->where('user_id', $request->user_id)
+                       ->delete();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion deleted successfully',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function my_posts(Request $request)
+    {
+        if(!empty($request->user_id)){
+            $posts = Posts::where('user_id', $request->user_id)->get();
+            if ($posts->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => "No posts found.",
+                    'data' => (object) []
+                ], 401);
+            }
+            foreach($posts as $post){
+                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
+                    $post->thumbnail_img = 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
+                }
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Posts below',
+                'data' => $posts
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please provide user id.',
+                'data' => (object) []
+            ], 422);
         }
     }
 }

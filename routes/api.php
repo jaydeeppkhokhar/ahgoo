@@ -59,3 +59,5 @@ Route::post('create_promotion_audience', [ProfileController::class, 'create_prom
 Route::post('create_promotion_budget', [ProfileController::class, 'create_promotion_budget']);
 Route::post('create_promotion_confirm', [ProfileController::class, 'create_promotion_confirm']);
 Route::post('audience_name_check', [ProfileController::class, 'audience_name_check']);
+Route::post('delete_promotion', [ProfileController::class, 'delete_promotion']);
+Route::post('my_posts', [ProfileController::class, 'my_posts']);
