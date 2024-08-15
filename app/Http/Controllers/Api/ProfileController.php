@@ -1234,7 +1234,7 @@ class ProfileController extends Controller
                 if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
                     $thumbnail_img = 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
                 }else{
-                    $thumbnail_img = $post->thumbnail_img
+                    $thumbnail_img = $post->thumbnail_img;
                 }     
                 return [
                     '_id' => $post->_id,
