@@ -1161,7 +1161,9 @@ class ProfileController extends Controller
                 $updated_data['thumbnail_img'] = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
             }
             $Posts = Posts::create($updated_data);
-            $user_data = Posts::where('user_id', $request->user_id)->get();
+            // $user_data = Posts::where('user_id', $request->user_id)->get();
+            $insertedId = $Posts->_id;
+            $user_data = Posts::where('_id', $insertedId)->first();
             return response()->json([
                 'status' => true,
                 'msg' => 'Post Added',
