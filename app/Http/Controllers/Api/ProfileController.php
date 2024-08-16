@@ -1663,7 +1663,7 @@ class ProfileController extends Controller
                 $updated_data['thumbnail_img'] = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
             }
             $Posts = Posts::where('user_id', $request->user_id)->where('_id', $request->post_id)->update($updated_data);
-            $user_data = Posts::where('user_id', $request->user_id)->get();
+            $user_data = Posts::where('_id', $request->post_id)->first();
             return response()->json([
                 'status' => true,
                 'msg' => 'Thumbnail Image Added',
