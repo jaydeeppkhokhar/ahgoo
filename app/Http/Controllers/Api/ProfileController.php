@@ -1627,4 +1627,54 @@ class ProfileController extends Controller
             ], 422);
         }
     }
+    public function create_post_thumbnail(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'post_id' => 'required|string|max:255',
+            'thumbnail_img' =>'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $updated_data = array();
+            $profilePicPath = null;
+            if ($request->hasFile('thumbnail_img')) {
+                $thumbPicPath = $request->file('thumbnail_img')->store('thumbnail_img', 'public');
+                $thumbPicUrl = Storage::url($thumbPicPath);
+                $updated_data['thumbnail_img'] = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
+            }
+            $Posts = Posts::where('user_id', $request->user_id)->where('_id', $request->post_id)->update($updated_data);
+            $user_data = Posts::where('user_id', $request->user_id)->get();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Thumbnail Image Added',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }

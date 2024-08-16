@@ -61,3 +61,4 @@ Route::post('create_promotion_confirm', [ProfileController::class, 'create_promo
 Route::post('audience_name_check', [ProfileController::class, 'audience_name_check']);
 Route::post('delete_promotion', [ProfileController::class, 'delete_promotion']);
 Route::post('my_posts', [ProfileController::class, 'my_posts']);
+Route::post('create_post_thumbnail', [ProfileController::class, 'create_post_thumbnail']);
