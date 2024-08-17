@@ -5,10 +5,12 @@ namespace App\Models;
 use MongoDB\Laravel\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
-class Admin extends Model
+class Admin extends Model implements AuthenticatableContract
 {
-    use HasApiTokens, Notifiable;
+    use Authenticatable;
 
     protected $connection = 'mongodb';
     protected $collection = 'admin';

@@ -1,36 +1,12 @@
 <?php
-
-// use App\Http\Controllers\ProfileController;
-// use Illuminate\Support\Facades\Route;
-// use App\Http\Controllers\AdminAuthController;
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
-// Route::prefix('admin')->group(function () {
-//     Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-//     Route::post('login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
-//     Route::post('logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
-
-//     Route::get('dashboard', [AdminAuthController::class, 'showDashboard'])->name('admin.dashboard')->middleware('auth:admin');
-// });
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-
+use App\Http\Controllers\AdminLoginController;
 Route::get('/admin', function () {
     return redirect('/admin/login');
 });
-
+Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AdminLoginController::class, 'login']);
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->middleware('auth:admin');
 
 Route::get('/admin/logout', function () {
@@ -40,3 +16,7 @@ Route::get('/admin/logout', function () {
 
 
 require __DIR__.'/auth.php';
+
+// Auth::routes();
+
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
