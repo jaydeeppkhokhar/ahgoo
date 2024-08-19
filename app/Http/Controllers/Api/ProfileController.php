@@ -1679,4 +1679,258 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function home_search_for_you(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'keyword' => 'nullable|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            // Step 1: Fetch all posts
+            if(!empty($request->keyword)){
+                $posts = Posts::where('caption', 'LIKE', "%{$request->keyword}%")->orderBy('created_at', 'desc')->get();
+            }else{
+                $posts = Posts::orderBy('created_at', 'desc')->get();
+            }
+            
+
+            if ($posts->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'No post found',
+                    'data' => (object) []
+                ], 404);
+            }
+
+            // Step 2: Fetch all users based on user_ids from posts
+            $userIds = $posts->pluck('user_id')->unique();
+            $users = AllUser::whereIn('_id', $userIds)->get()->keyBy('_id');
+
+            // Step 3: Fetch all countries based on country_ids from users
+            $countryIds = $users->pluck('country')->unique();
+            $countries = Countries::whereIn('name', $countryIds)->get()->keyBy('name');
+
+            // Step 4: Add user and country data to each post
+            $posts = $posts->map(function($post) use ($users, $countries) {
+                $user = $users->get($post->user_id);
+                $country = $user ? $countries->get($user->country) : null;
+                if(!isset($user->profile_pic) OR empty($user->profile_pic)){
+                    $profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                }else{
+                    $profile_pic = $user->profile_pic;
+                }
+                $promotion_det = Promotion::where("post_id",$post->_id)->get();
+                $is_promotion_added = $promotion_det->isEmpty() ? 0 : 1;   
+                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
+                    $thumbnail_img = 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
+                }else{
+                    $thumbnail_img = $post->thumbnail_img;
+                }     
+                return [
+                    '_id' => $post->_id,
+                    'user_id' => $post->user_id,
+                    'caption' => $post->caption,
+                    'is_active' => $post->is_active,
+                    'is_deleted' => $post->is_deleted,
+                    'media' => $post->media,
+                    'updated_at' => $post->updated_at,
+                    'created_at' => $post->created_at,
+                    'user_name' => $user ? $user->name : '',
+                    'profile_pic' => $profile_pic,
+                    'country' => $user ? $user->country : '',
+                    'flag' => $country ? $country->flag : '',
+                    'mi_flag' => $country ? $country->mi_flag : '',
+                    'is_promotion_created' => $is_promotion_added,
+                    'thumbnail_img' => $thumbnail_img
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Post data fetched',
+                'data' => $posts
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'No Post Found',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function home_search_accounts(Request $request)
+    {
+        if (empty($request->user_id)) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please provide user id.',
+                'data' => (object) []
+            ], 422);
+        }
+
+        // Fetch all users except the one with the specified user_id
+        if(!empty($request->keyword)){
+            $users = AllUser::where('_id', '!=', $request->user_id)
+                    ->where('name', 'LIKE', "%{$request->keyword}%")
+                    ->orWhere('email', 'LIKE', "%{$request->keyword}%")
+                    ->orWhere('username', 'LIKE', "%{$request->keyword}%")
+                    ->get();
+        }else{
+            $users = AllUser::where('_id', '!=', $request->user_id)->get();
+        }
+        
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'msg' => "No Account Found.",
+                'data' => (object) []
+            ], 401);
+        }
+
+        // Fetch all follower relationships where the followed_to is in the user list
+        $followerIds = $users->pluck('_id')->toArray();
+        $followers = Followers::whereIn('followed_to', $followerIds)->get();
+
+        // Pre-compute user follow statuses
+        $followedStatuses = $followers->where('followed_by', $request->user_id)->pluck('followed_to')->toArray();
+        $followerCounts = $followers->groupBy('followed_to')->map->count();
+
+        foreach ($users as $user) {
+            $user->is_already_followed = in_array($user->_id, $followedStatuses) ? 1 : 0;
+            $user->is_already_freind = 0; // Assuming you will update this as needed
+            $user->followers = $followerCounts[$user->_id] ?? 0;
+            $user->videos = 0; // Replace with actual method to get videos
+            $user->freinds = 0; // Replace with actual method to get friends
+            $user->account_description = 'Love Yourself'; // Replace with your actual method to get account description
+            if(!isset($user->profile_pic) OR empty($user->profile_pic)){
+            $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'msg' => 'All Accounts.',
+            'data' => $users
+        ], 200);
+    }
+    public function home_search_videos(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'keyword' => 'nullable|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            // Step 1: Fetch all posts
+            if(!empty($request->keyword)){
+                $posts = Posts::where('caption', 'LIKE', "%{$request->keyword}%")->orderBy('created_at', 'desc')->get();
+            }else{
+                $posts = Posts::orderBy('created_at', 'desc')->get();
+            }
+            
+
+            if ($posts->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'No post found',
+                    'data' => (object) []
+                ], 404);
+            }
+
+            // Step 2: Fetch all users based on user_ids from posts
+            $userIds = $posts->pluck('user_id')->unique();
+            $users = AllUser::whereIn('_id', $userIds)->get()->keyBy('_id');
+
+            // Step 3: Fetch all countries based on country_ids from users
+            $countryIds = $users->pluck('country')->unique();
+            $countries = Countries::whereIn('name', $countryIds)->get()->keyBy('name');
+
+            // Step 4: Add user and country data to each post
+            $posts = $posts->map(function($post) use ($users, $countries) {
+                $user = $users->get($post->user_id);
+                $country = $user ? $countries->get($user->country) : null;
+                if(!isset($user->profile_pic) OR empty($user->profile_pic)){
+                    $profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                }else{
+                    $profile_pic = $user->profile_pic;
+                }
+                $promotion_det = Promotion::where("post_id",$post->_id)->get();
+                $is_promotion_added = $promotion_det->isEmpty() ? 0 : 1;   
+                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
+                    $thumbnail_img = 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
+                }else{
+                    $thumbnail_img = $post->thumbnail_img;
+                }     
+                return [
+                    '_id' => $post->_id,
+                    'user_id' => $post->user_id,
+                    'caption' => $post->caption,
+                    'is_active' => $post->is_active,
+                    'is_deleted' => $post->is_deleted,
+                    'media' => $post->media,
+                    'updated_at' => $post->updated_at,
+                    'created_at' => $post->created_at,
+                    'user_name' => $user ? $user->name : '',
+                    'profile_pic' => $profile_pic,
+                    'country' => $user ? $user->country : '',
+                    'flag' => $country ? $country->flag : '',
+                    'mi_flag' => $country ? $country->mi_flag : '',
+                    'is_promotion_created' => $is_promotion_added,
+                    'thumbnail_img' => $thumbnail_img
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Post data fetched',
+                'data' => $posts
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'No Post Found',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }

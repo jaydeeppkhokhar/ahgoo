@@ -62,3 +62,6 @@ Route::post('audience_name_check', [ProfileController::class, 'audience_name_che
 Route::post('delete_promotion', [ProfileController::class, 'delete_promotion']);
 Route::post('my_posts', [ProfileController::class, 'my_posts']);
 Route::post('create_post_thumbnail', [ProfileController::class, 'create_post_thumbnail']);
+Route::post('home_search_for_you', [ProfileController::class, 'home_search_for_you']);
+Route::post('home_search_accounts', [ProfileController::class, 'home_search_accounts']);
+Route::post('home_search_videos', [ProfileController::class, 'home_search_videos']);
