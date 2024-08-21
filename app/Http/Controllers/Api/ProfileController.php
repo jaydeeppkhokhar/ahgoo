@@ -12,6 +12,8 @@ use App\Models\Notifications;
 use App\Models\InfCatMap;
 use App\Models\Posts;
 use App\Models\Promotion;
+use App\Models\ProfileViewLog;
+use App\Models\KeywordSearchLog;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -632,6 +634,13 @@ class ProfileController extends Controller
                     'data' => (object) []
                 ], 401);
             }
+            ProfileViewLog::where('user_id', $request->user_id)
+                       ->where('profile_id', $request->profile_id)
+                       ->delete();
+            $log_create = ProfileViewLog::create([
+                'user_id' => $request->user_id,
+                'profile_id' => $request->profile_id,
+            ]);
             return response()->json([
                 'status' => true,
                 'msg' => 'Profile Data.',
@@ -1706,8 +1715,13 @@ class ProfileController extends Controller
         }
 
         try {
+
             // Step 1: Fetch all posts
             if(!empty($request->keyword)){
+                KeywordSearchLog::create([
+                    'user_id' => $request->user_id,
+                    'keyword' => $request->keyword
+                ]);
                 $posts = Posts::where('caption', 'LIKE', "%{$request->keyword}%")->orderBy('created_at', 'desc')->get();
             }else{
                 $posts = Posts::orderBy('created_at', 'desc')->get();
@@ -1764,7 +1778,6 @@ class ProfileController extends Controller
                     'thumbnail_img' => $thumbnail_img
                 ];
             });
-
             return response()->json([
                 'status' => true,
                 'msg' => 'Post data fetched',
@@ -1790,6 +1803,10 @@ class ProfileController extends Controller
 
         // Fetch all users except the one with the specified user_id
         if(!empty($request->keyword)){
+            KeywordSearchLog::create([
+                'user_id' => $request->user_id,
+                'keyword' => $request->keyword
+            ]);
             $users = AllUser::where('_id', '!=', $request->user_id)
                     ->where('name', 'LIKE', "%{$request->keyword}%")
                     ->orWhere('email', 'LIKE', "%{$request->keyword}%")
@@ -1827,7 +1844,6 @@ class ProfileController extends Controller
             $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
             }
         }
-
         return response()->json([
             'status' => true,
             'msg' => 'All Accounts.',
@@ -1863,6 +1879,10 @@ class ProfileController extends Controller
         try {
             // Step 1: Fetch all posts
             if(!empty($request->keyword)){
+                KeywordSearchLog::create([
+                    'user_id' => $request->user_id,
+                    'keyword' => $request->keyword
+                ]);
                 $posts = Posts::where('caption', 'LIKE', "%{$request->keyword}%")->orderBy('created_at', 'desc')->get();
             }else{
                 $posts = Posts::orderBy('created_at', 'desc')->get();
@@ -1919,7 +1939,6 @@ class ProfileController extends Controller
                     'thumbnail_img' => $thumbnail_img
                 ];
             });
-
             return response()->json([
                 'status' => true,
                 'msg' => 'Post data fetched',
@@ -1929,6 +1948,142 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'No Post Found',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function latest_profile_views(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $all_profs = ProfileViewLog::where('user_id',$request->user_id)->orderBy('created_at', 'desc')->limit(5)->get();
+            if (!$all_profs) {
+                return response()->json([
+                    'status' => true,
+                    'msg' => "No data found.",
+                    'data' => (object) []
+                ], 401);
+            }
+            foreach ($all_profs as $user) {
+                $u_id = $request->user_id;
+                
+                // Fetch the AllUser object but don't reassign it to $user
+                $allUser = AllUser::where('_id', $user->profile_id)->first();
+                
+                // Update the current $user object with properties from the fetched AllUser object
+                if ($allUser) {
+                    $user->user_name = $allUser->name;
+                    $user->profile_pic = $allUser->profile_pic ?? 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    $user->country = $allUser->country;
+                }
+                
+                // Get followers count
+                $followers_total = Followers::where('followed_to', $user->profile_id)->count();
+                $user->followers = $followers_total;
+            
+                // Static or placeholder values
+                $user->post = 0;
+                
+                // Get followed count
+                $followed_total = Followers::where('followed_by', $user->profile_id)->count();
+                $user->followed = $followed_total;
+            
+                // Check if the user is already followed
+                $is_followed = Followers::where('followed_to', $user->profile_id)->where('followed_by', $request->user_id)->exists();
+                $user->is_already_followed = $is_followed ? 1 : 0;
+            
+                // Friend request status
+                $is_friend_req_sent = Friends::where('sent_to', $user->profile_id)->where('sent_by', $request->user_id)->exists();
+                $user->is_friend_req_sent = $is_friend_req_sent ? 1 : 0;
+            
+                // Additional static or placeholder values
+                $user->friends = 0;
+                $user->videos = 0;
+                $user->amount1 = '0$';
+                $user->amount2 = '0$';
+                $user->account_description = 'Love Yourself';
+            
+                // Set country-related data
+                $country_details = Countries::where('name', $user->country)->first();
+                if ($country_details) {
+                    $user->country_code = $country_details->phone_code;
+                    $user->country_flag = $country_details->flag;
+                } else {
+                    $user->country_code = null;
+                    $user->country_flag = null;
+                }
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Latest Profile Views',
+                'data' => $all_profs
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'No Details Found',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function latest_keyword_search(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $keyword = KeywordSearchLog::where('user_id',$request->user_id)->orderBy('created_at', 'desc')->limit(10)->get();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Latest Profile Views',
+                'data' => $keyword
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'No Details Found',
                 'data' => (object) []
             ], 500);
         }
