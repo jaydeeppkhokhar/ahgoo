@@ -67,3 +67,5 @@ Route::post('home_search_accounts', [ProfileController::class, 'home_search_acco
 Route::post('home_search_videos', [ProfileController::class, 'home_search_videos']);
 Route::post('latest_profile_views', [ProfileController::class, 'latest_profile_views']);
 Route::post('latest_keyword_search', [ProfileController::class, 'latest_keyword_search']);
+Route::post('like_post', [ProfileController::class, 'like_post']);
+Route::post('dislike_post', [ProfileController::class, 'dislike_post']);

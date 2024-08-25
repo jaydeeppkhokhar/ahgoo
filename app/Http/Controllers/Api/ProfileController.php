@@ -14,6 +14,7 @@ use App\Models\Posts;
 use App\Models\Promotion;
 use App\Models\ProfileViewLog;
 use App\Models\KeywordSearchLog;
+use App\Models\PostLikes;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -1223,30 +1224,40 @@ class ProfileController extends Controller
                 ], 404);
             }
 
-            // Step 2: Fetch all users based on user_ids from posts
+            // Step 2: Fetch all users based on user_ids from posts in one query
             $userIds = $posts->pluck('user_id')->unique();
             $users = AllUser::whereIn('_id', $userIds)->get()->keyBy('_id');
 
-            // Step 3: Fetch all countries based on country_ids from users
+            // Step 3: Fetch all countries based on country_ids from users in one query
             $countryIds = $users->pluck('country')->unique();
             $countries = Countries::whereIn('name', $countryIds)->get()->keyBy('name');
 
-            // Step 4: Add user and country data to each post
-            $posts = $posts->map(function($post) use ($users, $countries) {
+            // Step 4: Fetch promotion details for all posts in one query
+            $promotionDetails = Promotion::whereIn('post_id', $posts->pluck('_id'))->get()->groupBy('post_id');
+
+            // Step 5: Fetch all likes for the posts in one query
+            $postLikes = PostLikes::whereIn('post_id', $posts->pluck('_id'))
+                        ->whereIn('user_id', $userIds)
+                        ->get()
+                        ->groupBy('post_id');
+
+            // Step 6: Add user, country, promotion, and like data to each post
+            $posts = $posts->map(function($post) use ($users, $countries, $promotionDetails, $postLikes) {
                 $user = $users->get($post->user_id);
                 $country = $user ? $countries->get($user->country) : null;
-                if(!isset($user->profile_pic) OR empty($user->profile_pic)){
-                    $profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
-                }else{
-                    $profile_pic = $user->profile_pic;
-                }
-                $promotion_det = Promotion::where("post_id",$post->_id)->get();
-                $is_promotion_added = $promotion_det->isEmpty() ? 0 : 1;   
-                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
-                    $thumbnail_img = 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
-                }else{
-                    $thumbnail_img = $post->thumbnail_img;
-                }     
+
+                $profile_pic = $user && !empty($user->profile_pic) 
+                                ? $user->profile_pic 
+                                : 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                
+                $is_promotion_added = isset($promotionDetails[$post->_id]) && !$promotionDetails[$post->_id]->isEmpty() ? 1 : 0;
+
+                $thumbnail_img = !empty($post->thumbnail_img) 
+                                ? $post->thumbnail_img 
+                                : 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
+
+                $is_already_liked = isset($postLikes[$post->_id]) && !$postLikes[$post->_id]->isEmpty() ? 1 : 0;
+
                 return [
                     '_id' => $post->_id,
                     'user_id' => $post->user_id,
@@ -1262,7 +1273,8 @@ class ProfileController extends Controller
                     'flag' => $country ? $country->flag : '',
                     'mi_flag' => $country ? $country->mi_flag : '',
                     'is_promotion_created' => $is_promotion_added,
-                    'thumbnail_img' => $thumbnail_img
+                    'thumbnail_img' => $thumbnail_img,
+                    'is_already_liked' => $is_already_liked
                 ];
             });
 
@@ -2084,6 +2096,96 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'No Details Found',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function like_post(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'post_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $delete = PostLikes::where('user_id', $request->user_id)
+                                ->where('post_id', $request->post_id)
+                                ->delete();
+            $like = PostLikes::create([
+                'user_id' => $request->user_id,
+                'post_id' => $request->post_id
+            ]);
+            return response()->json([
+                'status' => true,
+                'msg' => 'Post Liked Successfully',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function dislike_post(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'post_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $delete = PostLikes::where('user_id', $request->user_id)
+                                ->where('post_id', $request->post_id)
+                                ->delete();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Post Disliked Successfully',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
                 'data' => (object) []
             ], 500);
         }
