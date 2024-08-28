@@ -15,6 +15,7 @@ use App\Models\Promotion;
 use App\Models\ProfileViewLog;
 use App\Models\KeywordSearchLog;
 use App\Models\PostLikes;
+use App\Models\Backgrounds;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -2186,6 +2187,144 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function event_background_videos(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $video = Backgrounds::inRandomOrder()->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Background videos follows',
+                'data' => $videos
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function recent_events(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $promotions = Promotion::select('_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
+            foreach($promotions as $promo){
+                $promo->event_name = $promo->name_of_audience;
+                $promo->event_description = 'Come Join Us';
+                $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
+                // $promo->users = AllUser::whereNotNull('profile_pic')
+                //                 ->inRandomOrder()
+                //                 ->take(4)
+                //                 ->get();
+                $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Recent Events Below',
+                'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function upload_background_videos(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'media' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,mkv'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $updated_data = array();
+            $profilePicPath = null;
+            if ($request->hasFile('media')) {
+                $profilePicPath = $request->file('media')->store('background_videos', 'public');
+                $profilePicUrl = Storage::url($profilePicPath);
+                $updated_data['media'] = 'http://34.207.97.193/ahgoo/public'.$profilePicUrl;
+            }
+            Backgrounds::create($updated_data);
+            return response()->json([
+                'status' => true,
+                'msg' => 'Video Uploaded',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
                 'data' => (object) []
             ], 500);
         }

@@ -69,3 +69,5 @@ Route::post('latest_profile_views', [ProfileController::class, 'latest_profile_v
 Route::post('latest_keyword_search', [ProfileController::class, 'latest_keyword_search']);
 Route::post('like_post', [ProfileController::class, 'like_post']);
 Route::post('dislike_post', [ProfileController::class, 'dislike_post']);
+Route::post('event_background_videos', [ProfileController::class, 'event_background_videos']);
+Route::post('recent_events', [ProfileController::class, 'recent_events']);
