@@ -71,3 +71,4 @@ Route::post('like_post', [ProfileController::class, 'like_post']);
 Route::post('dislike_post', [ProfileController::class, 'dislike_post']);
 Route::post('event_background_videos', [ProfileController::class, 'event_background_videos']);
 Route::post('recent_events', [ProfileController::class, 'recent_events']);
+Route::post('upload_background_videos', [ProfileController::class, 'upload_background_videos']);

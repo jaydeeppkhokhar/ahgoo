@@ -2221,7 +2221,7 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => true,
                 'msg' => 'Background videos follows',
-                'data' => $videos
+                'data' => $video
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
