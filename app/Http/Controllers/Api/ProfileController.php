@@ -2217,11 +2217,16 @@ class ProfileController extends Controller
         }
 
         try {
-            $video = Backgrounds::inRandomOrder()->first();
+            $videos = Backgrounds::all();
+
+            if ($videos->isNotEmpty()) {
+                $randomVideo = $videos->random(); // Laravel's Collection random method
+                // You now have a random video from the collection
+            }
             return response()->json([
                 'status' => true,
                 'msg' => 'Background videos follows',
-                'data' => $video
+                'data' => $randomVideo
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
