@@ -16,6 +16,7 @@ use App\Models\ProfileViewLog;
 use App\Models\KeywordSearchLog;
 use App\Models\PostLikes;
 use App\Models\Backgrounds;
+use App\Models\EventConfirm;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -2330,6 +2331,303 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function event_suggesstion_posts(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            // Step 1: Fetch all posts
+            $posts = Posts::orderBy('created_at', 'desc')->limit(4)->get();
+
+            if ($posts->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'No post found',
+                    'data' => (object) []
+                ], 404);
+            }
+
+            // Step 2: Fetch all users based on user_ids from posts in one query
+            $userIds = $posts->pluck('user_id')->unique();
+            $users = AllUser::whereIn('_id', $userIds)->get()->keyBy('_id');
+
+            // Step 3: Fetch all countries based on country_ids from users in one query
+            $countryIds = $users->pluck('country')->unique();
+            $countries = Countries::whereIn('name', $countryIds)->get()->keyBy('name');
+
+            // Step 4: Fetch promotion details for all posts in one query
+            $promotionDetails = Promotion::whereIn('post_id', $posts->pluck('_id'))->get()->groupBy('post_id');
+
+            // Step 5: Fetch all likes for the posts in one query
+            $postLikes = PostLikes::whereIn('post_id', $posts->pluck('_id'))
+                        ->whereIn('user_id', $userIds)
+                        ->get()
+                        ->groupBy('post_id');
+
+            // Step 6: Add user, country, promotion, and like data to each post
+            $posts = $posts->map(function($post) use ($users, $countries, $promotionDetails, $postLikes) {
+                $user = $users->get($post->user_id);
+                $country = $user ? $countries->get($user->country) : null;
+
+                $profile_pic = $user && !empty($user->profile_pic) 
+                                ? $user->profile_pic 
+                                : 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                
+                $is_promotion_added = isset($promotionDetails[$post->_id]) && !$promotionDetails[$post->_id]->isEmpty() ? 1 : 0;
+
+                $thumbnail_img = !empty($post->thumbnail_img) 
+                                ? $post->thumbnail_img 
+                                : 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
+
+                $is_already_liked = isset($postLikes[$post->_id]) && !$postLikes[$post->_id]->isEmpty() ? 1 : 0;
+
+                return [
+                    '_id' => $post->_id,
+                    'user_id' => $post->user_id,
+                    'caption' => $post->caption,
+                    'is_active' => $post->is_active,
+                    'is_deleted' => $post->is_deleted,
+                    'media' => $post->media,
+                    'updated_at' => $post->updated_at,
+                    'created_at' => $post->created_at,
+                    'user_name' => $user ? $user->name : '',
+                    'profile_pic' => $profile_pic,
+                    'country' => $user ? $user->country : '',
+                    'flag' => $country ? $country->flag : '',
+                    'mi_flag' => $country ? $country->mi_flag : '',
+                    'is_promotion_created' => $is_promotion_added,
+                    'thumbnail_img' => $thumbnail_img,
+                    'is_already_liked' => $is_already_liked
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Post data fetched',
+                'data' => $posts
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'No Post Found',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function recent_events_your_countries(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $promotions = Promotion::select('_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
+            foreach($promotions as $promo){
+                $promo->event_name = $promo->name_of_audience;
+                $promo->event_description = 'Come Join Us';
+                $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
+                // $promo->users = AllUser::whereNotNull('profile_pic')
+                //                 ->inRandomOrder()
+                //                 ->take(4)
+                //                 ->get();
+                $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Recent Events Below',
+                'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function recent_events_near_you(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $promotions = Promotion::select('_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
+            foreach($promotions as $promo){
+                $promo->event_name = $promo->name_of_audience;
+                $promo->event_description = 'Come Join Us';
+                $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
+                // $promo->users = AllUser::whereNotNull('profile_pic')
+                //                 ->inRandomOrder()
+                //                 ->take(4)
+                //                 ->get();
+                $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Recent Events Below',
+                'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function event_details(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $promo = Promotion::select('_id','name_of_audience','created_at','event_location','per_day_spent','total_days')->where('_id',$request->event_id)->first();
+            $promo->event_name = $promo->name_of_audience;
+            $promo->event_description = 'Come Join Us';
+            $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+            $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
+            $promo->formatted_event_date_time = Carbon::parse($promo->created_at)->format('d M - H:i');
+            $promo->total_amount = $promo->per_day_spent * $promo->total_days;
+            $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+            return response()->json([
+                'status' => true,
+                'msg' => 'Recent Events Below',
+                'data' => $promo
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function event_confirm(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'event_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $create = EventConfirm::create([
+                'user_id' => $request->user_id,
+                'event_id' => $request->event_id
+            ]);
+            return response()->json([
+                'status' => true,
+                'msg' => 'Successfully joined the event.',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
                 'data' => (object) []
             ], 500);
         }
