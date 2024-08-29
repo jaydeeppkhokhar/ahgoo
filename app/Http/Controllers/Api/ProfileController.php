@@ -2263,11 +2263,17 @@ class ProfileController extends Controller
         }
 
         try {
-            $promotions = Promotion::select('_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
+            $promotions = Promotion::select('_id','post_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
             foreach($promotions as $promo){
                 $promo->event_name = $promo->name_of_audience;
                 $promo->event_description = 'Come Join Us';
-                $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                $post = Posts::where('_id', $promo->post_id)->first();
+                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
+                    $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                }else{
+                    $promo->images = $post->thumbnail_img;
+                }
+                // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
                 // $promo->users = AllUser::whereNotNull('profile_pic')
                 //                 ->inRandomOrder()
@@ -2465,11 +2471,16 @@ class ProfileController extends Controller
         }
 
         try {
-            $promotions = Promotion::select('_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
+            $promotions = Promotion::select('_id','post_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
             foreach($promotions as $promo){
                 $promo->event_name = $promo->name_of_audience;
                 $promo->event_description = 'Come Join Us';
-                $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                $post = Posts::where('_id', $promo->post_id)->first();
+                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
+                    $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                }else{
+                    $promo->images = $post->thumbnail_img;
+                }
                 $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
                 // $promo->users = AllUser::whereNotNull('profile_pic')
                 //                 ->inRandomOrder()
@@ -2516,11 +2527,16 @@ class ProfileController extends Controller
         }
 
         try {
-            $promotions = Promotion::select('_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
+            $promotions = Promotion::select('_id','post_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
             foreach($promotions as $promo){
                 $promo->event_name = $promo->name_of_audience;
                 $promo->event_description = 'Come Join Us';
-                $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                $post = Posts::where('_id', $promo->post_id)->first();
+                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
+                    $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                }else{
+                    $promo->images = $post->thumbnail_img;
+                }
                 $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
                 // $promo->users = AllUser::whereNotNull('profile_pic')
                 //                 ->inRandomOrder()
@@ -2568,10 +2584,15 @@ class ProfileController extends Controller
         }
 
         try {
-            $promo = Promotion::select('_id','user_id','name_of_audience','created_at','event_location','per_day_spent','total_days')->where('_id',$request->event_id)->first();
+            $promo = Promotion::select('_id','post_id','user_id','name_of_audience','created_at','event_location','per_day_spent','total_days')->where('_id',$request->event_id)->first();
             $promo->event_name = $promo->name_of_audience;
             $promo->event_description = 'Come Join Us';
-            $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+            $post = Posts::where('_id', $promo->post_id)->first();
+            if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
+                $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+            }else{
+                $promo->images = $post->thumbnail_img;
+            }
             $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
             $promo->formatted_event_date_time = Carbon::parse($promo->created_at)->format('d M - H:i');
             $promo->total_amount = $promo->per_day_spent * $promo->total_days;
