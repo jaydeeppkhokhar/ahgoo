@@ -2672,4 +2672,62 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function upload_flag_image(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|string|max:255',
+            'flag' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'mi_flag' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $updated_data = array();
+            $flagPicPath = null;
+            if ($request->hasFile('flag')) {
+                $flagPicPath = $request->file('flag')->store('flags', 'public');
+                $flagPicUrl = Storage::url($flagPicPath);
+                $updated_data['flag'] = 'http://34.207.97.193/ahgoo/public'.$flagPicUrl;
+            }
+            $miflagPicPath = null;
+            if ($request->hasFile('mi_flag')) {
+                $miflagPicPath = $request->file('mi_flag')->store('flags', 'public');
+                $miflagPicUrl = Storage::url($miflagPicPath);
+                $updated_data['mi_flag'] = 'http://34.207.97.193/ahgoo/public'.$miflagPicUrl;
+            }
+            Countries::where('_id', $request->id)->update($updated_data);
+
+            // $token = $user->createToken('api-token')->plainTextToken;
+            $user_data = Countries::where('_id', $request->id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Picture Updated Successfully',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }
