@@ -359,6 +359,101 @@ function messagealert(title,text,type){
 				</a>
 				<!--end:Menu link-->
 			</div>
+            <div class="menu-item">
+				<!--begin:Menu link-->
+				<a class="menu-link" href="{{ url('/admin/cms') }}">
+					<span class="menu-icon">
+						<!--begin::Svg Icon | path: icons/duotune/general/gen014.svg-->
+						<span class="svg-icon svg-icon-2">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="2" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="13" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="2" y="13" width="9" height="9" rx="2" fill="currentColor" />
+							</svg>
+						</span>
+						<!--end::Svg Icon-->
+					</span>
+					<span class="menu-title">CMS</span>
+				</a>
+				<!--end:Menu link-->
+			</div>
+            <div class="menu-item">
+				<!--begin:Menu link-->
+				<a class="menu-link" href="{{ url('/admin/hobbies') }}">
+					<span class="menu-icon">
+						<!--begin::Svg Icon | path: icons/duotune/general/gen014.svg-->
+						<span class="svg-icon svg-icon-2">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="2" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="13" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="2" y="13" width="9" height="9" rx="2" fill="currentColor" />
+							</svg>
+						</span>
+						<!--end::Svg Icon-->
+					</span>
+					<span class="menu-title">Hobbies</span>
+				</a>
+				<!--end:Menu link-->
+			</div>
+            <div class="menu-item">
+				<!--begin:Menu link-->
+				<a class="menu-link" href="{{ url('/admin/influencer_categories') }}">
+					<span class="menu-icon">
+						<!--begin::Svg Icon | path: icons/duotune/general/gen014.svg-->
+						<span class="svg-icon svg-icon-2">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="2" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="13" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="2" y="13" width="9" height="9" rx="2" fill="currentColor" />
+							</svg>
+						</span>
+						<!--end::Svg Icon-->
+					</span>
+					<span class="menu-title">Influence Category</span>
+				</a>
+				<!--end:Menu link-->
+			</div>
+            <div class="menu-item">
+				<!--begin:Menu link-->
+				<a class="menu-link" href="{{ url('/admin/locations') }}">
+					<span class="menu-icon">
+						<!--begin::Svg Icon | path: icons/duotune/general/gen014.svg-->
+						<span class="svg-icon svg-icon-2">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="2" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="13" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="2" y="13" width="9" height="9" rx="2" fill="currentColor" />
+							</svg>
+						</span>
+						<!--end::Svg Icon-->
+					</span>
+					<span class="menu-title">Locations</span>
+				</a>
+				<!--end:Menu link-->
+			</div>
+            <div class="menu-item">
+				<!--begin:Menu link-->
+				<a class="menu-link" href="{{ url('/admin/posts') }}">
+					<span class="menu-icon">
+						<!--begin::Svg Icon | path: icons/duotune/general/gen014.svg-->
+						<span class="svg-icon svg-icon-2">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="2" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="2" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="13" y="13" width="9" height="9" rx="2" fill="currentColor" />
+								<rect opacity="0.3" x="2" y="13" width="9" height="9" rx="2" fill="currentColor" />
+							</svg>
+						</span>
+						<!--end::Svg Icon-->
+					</span>
+					<span class="menu-title">Posts</span>
+				</a>
+				<!--end:Menu link-->
+			</div>
 			<!--begin:Menu item-->
 			<?php /*(<div data-kt-menu-trigger="click" class="menu-item menu-accordion">
 				<!--begin:Menu link-->

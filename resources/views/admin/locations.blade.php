@@ -10,7 +10,7 @@
 				<div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
 					<!--begin::Title-->
 					<h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
-						Countries List</h1>
+						Location List</h1>
 					<!--end::Title-->
 					<!--begin::Breadcrumb-->
 					<ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -25,7 +25,7 @@
 						</li>
 						<!--end::Item-->
 						<!--begin::Item-->
-						<li class="breadcrumb-item text-muted">Countries</li>
+						<li class="breadcrumb-item text-muted">Locations</li>
 						<!--end::Item-->
 					</ul>
 					<!--end::Breadcrumb-->
@@ -62,7 +62,7 @@
 									</svg>
 								</span>
 								<!--end::Svg Icon-->
-								<input type="text" data-kt-customer-table-filter="search" class="form-control form-control-solid w-250px ps-15" placeholder="Search Countries" />
+								<input type="text" data-kt-customer-table-filter="search" class="form-control form-control-solid w-250px ps-15" placeholder="Search Location" />
 							</div>
 							<!--end::Search-->
 						</div>
@@ -199,11 +199,9 @@
 											<input class="form-check-input" type="checkbox" data-kt-check="true" data-kt-check-target="#kt_customers_table .form-check-input" value="1" />
 										</div>
 									</th>
+									<th class="min-w-125px">City</th>
+									<th class="min-w-125px">County</th>
 									<th class="min-w-125px">Name</th>
-									<th class="min-w-125px">Code</th>
-									<th class="min-w-125px">Phone Code</th>
-									<th class="min-w-125px">Flag</th>
-									<th class="min-w-125px">Heart Flag</th>
 									<th class="text-end min-w-70px">Actions</th>
 								</tr>
 								<!--end::Table row-->
@@ -211,21 +209,19 @@
 							<!--end::Table head-->
 							<!--begin::Table body-->
 							<tbody class="fw-semibold text-gray-600">
-								<?php if(!empty($countries)){
+								<?php if(!empty($locations)){
 									$i = 1;
-									foreach($countries as $cntry){?>
+									foreach($locations as $loc){?>
 								<tr>
 									<!--begin::Checkbox-->
 									<td>
 										<div class="form-check form-check-sm form-check-custom form-check-solid">
-											<input class="form-check-input" type="checkbox" value="<?=$cntry->_id?>" />
+											<input class="form-check-input" type="checkbox" value="<?=$loc->_id?>" />
 										</div>
 									</td>
-									<td><?=$cntry->name?></td>
-									<td><?=$cntry->country_code?></td>
-									<td><?=$cntry->phone_code?></td>
-									<td><img src="<?=$cntry->flag?>" height="50" width="50"></td>
-									<td><img src="<?=$cntry->mi_flag?>" height="50" width="50"></td>
+									<td><?=$loc->city?></td>
+									<td><?=$loc->county?></td>
+									<td><?=$loc->name?></td>
 									<td class="text-end">
 										<a href="#" class="btn btn-sm btn-light btn-active-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
 											<!--begin::Svg Icon | path: icons/duotune/arrows/arr072.svg-->

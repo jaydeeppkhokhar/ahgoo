@@ -10,6 +10,11 @@ Route::post('/admin/login', [AdminLoginController::class, 'login']);
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->middleware('auth:admin');
 Route::get('/admin/users', [AdminController::class, 'users'])->middleware('auth:admin');
 Route::get('/admin/countries', [AdminController::class, 'countries'])->middleware('auth:admin');
+Route::get('/admin/cms', [AdminController::class, 'cms'])->middleware('auth:admin');
+Route::get('/admin/hobbies', [AdminController::class, 'hobbies'])->middleware('auth:admin');
+Route::get('/admin/influencer_categories', [AdminController::class, 'influencer_categories'])->middleware('auth:admin');
+Route::get('/admin/locations', [AdminController::class, 'locations'])->middleware('auth:admin');
+Route::get('/admin/posts', [AdminController::class, 'posts'])->middleware('auth:admin');
 
 Route::get('/admin/logout', function () {
     Auth::guard('admin')->logout();

@@ -16,6 +16,10 @@ use App\Models\KeywordSearchLog;
 use App\Models\PostLikes;
 use App\Models\Backgrounds;
 use App\Models\EventConfirm;
+use App\Models\Cms;
+use App\Models\Hobbies;
+use App\Models\InfluencerCat;
+use App\Models\Locations;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
@@ -34,5 +38,33 @@ class AdminController extends Controller
     public function countries(){
         $data['countries'] = Countries::get();
         return view('admin.countries',$data);
+    }
+    public function cms(){
+        $data['cms'] = Cms::get();
+        return view('admin.cms',$data);
+    }
+    public function hobbies(){
+        $data['hobbies'] = Hobbies::get();
+        return view('admin.hobbies',$data);
+    }
+    public function influencer_categories(){
+        $data['influencer_categories'] = InfluencerCat::get();
+        return view('admin.influencer_categories',$data);
+    }
+    public function locations(){
+        $data['locations'] = Locations::get();
+        return view('admin.locations',$data);
+    }
+    public function posts(){
+        $posts = Posts::orderBy('created_at', 'desc')->get();
+        foreach($posts as $post){
+            $user = AllUser::where('_id', $post->user_id)->first();
+            $post->post_by = $user->name;
+            $post->thumb = !empty($post->thumbnail_img) 
+                                ? $post->thumbnail_img 
+                                : 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
+        }
+        $data['posts'] = $posts;
+        return view('admin.posts',$data);
     }
 }
