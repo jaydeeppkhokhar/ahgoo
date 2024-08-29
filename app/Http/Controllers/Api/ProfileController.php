@@ -2544,7 +2544,8 @@ class ProfileController extends Controller
     public function event_details(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'event_id' => 'required|string|max:255'
+            'event_id' => 'required|string|max:255',
+            'user_id' => 'required|string|max:255'
         ]);
 
         if ($validator->fails()) {
@@ -2567,13 +2568,31 @@ class ProfileController extends Controller
         }
 
         try {
-            $promo = Promotion::select('_id','name_of_audience','created_at','event_location','per_day_spent','total_days')->where('_id',$request->event_id)->first();
+            $promo = Promotion::select('_id','user_id','name_of_audience','created_at','event_location','per_day_spent','total_days')->where('_id',$request->event_id)->first();
             $promo->event_name = $promo->name_of_audience;
             $promo->event_description = 'Come Join Us';
             $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
             $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
             $promo->formatted_event_date_time = Carbon::parse($promo->created_at)->format('d M - H:i');
             $promo->total_amount = $promo->per_day_spent * $promo->total_days;
+            $user = AllUser::where('_id', $promo->user_id)->first();
+            if(!isset($user->profile_pic) OR empty($user->profile_pic)){
+                $user->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }
+            $promo->name_of_user = $user->name;
+            $promo->profile_pic = $user->profile_pic;
+            $is_followed = Followers::where('followed_to',$promo->user_id)->where('followed_by',$request->user_id)->first();
+            if(!empty($is_followed)){
+                $promo->is_already_followed = 1;
+            }else{
+                $promo->is_already_followed = 0;
+            }
+            $is_booked = EventConfirm::where('event_id',$promo->_id)->where('user_id',$request->user_id)->first();
+            if(!empty($is_booked)){
+                $promo->is_already_booked = 1;
+            }else{
+                $promo->is_already_booked = 0;
+            }
             $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
             return response()->json([
                 'status' => true,
