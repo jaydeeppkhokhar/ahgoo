@@ -78,3 +78,9 @@ Route::post('recent_events_near_you', [ProfileController::class, 'recent_events_
 Route::post('event_details', [ProfileController::class, 'event_details']);
 Route::post('event_confirm', [ProfileController::class, 'event_confirm']);
 Route::post('upload_flag_image', [ProfileController::class, 'upload_flag_image']);
+Route::post('friend_request_list', [ProfileController::class, 'friend_request_list']);
+Route::post('pending_friend_request_list', [ProfileController::class, 'pending_friend_request_list']);
+Route::post('accept_friend_request', [ProfileController::class, 'accept_friend_request']);
+Route::post('reject_friend_request', [ProfileController::class, 'reject_friend_request']);
+Route::post('delete_friend_request', [ProfileController::class, 'delete_friend_request']);
+Route::post('notification_count', [ProfileController::class, 'notification_count']);

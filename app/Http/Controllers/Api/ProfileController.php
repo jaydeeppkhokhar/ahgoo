@@ -480,6 +480,15 @@ class ProfileController extends Controller
                 'sent_by' => $request->sent_by,
                 'is_accepted' => 0
             ]);
+            $user = AllUser::where('_id', $request->sent_by)->first();
+            $notifications = Notifications::create([
+                'user_id' => $request->sent_to,
+                'relavant_id' => $request->sent_by,
+                'relavant_image' => $user->profile_pic,
+                'message' => $user->name.' sent you friend request',
+                'type' => 'friend',
+                'is_seen' => 0
+            ]);
             return response()->json([
                 'status' => true,
                 'msg' => 'Friend Request Sent Successfully',
@@ -2726,6 +2735,282 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function friend_request_list(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $all_list = Friends::where('sent_to', $request->user_id)->where('is_accepted', 0)->orderBy('created_at', 'desc')->get();
+            foreach($all_list as $list){
+                $details = AllUser::where('_id', $list->sent_by)->first();
+                $list->time_ago = Carbon::parse($list->created_at)->diffForHumans();
+                $list->user_id = $details->_id;
+                $list->name = $details->name;
+                $list->email = $details->email;
+                $list->username = $details->username;
+                $list->phone = $details->phone;
+                $list->country = $details->country;
+                if(!isset($details->profile_pic) OR empty($details->profile_pic)){
+                    $list->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                }else{
+                    $list->profile_pic = $details->profile_pic;
+                }
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Friend Request List.',
+                'data' => $all_list
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function pending_friend_request_list(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $all_list = Friends::where('sent_by', $request->user_id)->where('is_accepted', 0)->orderBy('created_at', 'desc')->get();
+            foreach($all_list as $list){
+                $details = AllUser::where('_id', $list->sent_to)->first();
+                $list->time_ago = Carbon::parse($list->created_at)->diffForHumans();
+                $list->user_id = $details->_id;
+                $list->name = $details->name;
+                $list->email = $details->email;
+                $list->username = $details->username;
+                $list->phone = $details->phone;
+                $list->country = $details->country;
+                if(!isset($details->profile_pic) OR empty($details->profile_pic)){
+                    $list->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                }else{
+                    $list->profile_pic = $details->profile_pic;
+                }
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Pending Friend Request List.',
+                'data' => $all_list
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function accept_friend_request(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'accepted_by' => 'required|string|max:255',
+            'accepted_to' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $accept = Friends::where('sent_to', $request->accepted_by)->where('sent_by', $request->accepted_to)->update(['is_accepted' => 1]);
+            return response()->json([
+                'status' => true,
+                'msg' => 'Friend Request Accepted Successfully.',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function reject_friend_request(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'rejected_by' => 'required|string|max:255',
+            'rejected_to' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $accept = Friends::where('sent_to', $request->rejected_by)->where('sent_by', $request->rejected_to)->update(['is_accepted' => 2]);
+            return response()->json([
+                'status' => true,
+                'msg' => 'Friend Request Rejected Successfully.',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function delete_friend_request(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'deleted_by' => 'required|string|max:255',
+            'deleted_to' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $accept = Friends::where('sent_to', $request->deleted_by)->where('sent_by', $request->deleted_to)->delete();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Friend Request Deleted Successfully.',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function notification_count(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $all_not = Notifications::where('user_id', $request->user_id)->get();
+            $friend_not = Notifications::where('user_id', $request->user_id)->where('type', 'friend')->get();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Notification Count',
+                'all_notification' => COUNT($all_not),
+                'freind_request' => COUNT($friend_not),
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
                 'data' => (object) []
             ], 500);
         }

@@ -121,7 +121,9 @@ class AuthController extends Controller
             }
 
             // $token = $user->createToken('api-token')->plainTextToken;
-
+            $country_details = Countries::where('name', $user->country)->first();
+            $user->flag = $country_details->flag;
+            $user->mi_flag = $country_details->mi_flag;
             return response()->json([
                 'status' => true,
                 'msg' => 'Login successful',
@@ -142,7 +144,9 @@ class AuthController extends Controller
             }
 
             // $token = $user->createToken('api-token')->plainTextToken;
-
+            $country_details = Countries::where('name', $user->country)->first();
+            $user->flag = $country_details->flag;
+            $user->mi_flag = $country_details->mi_flag;
             return response()->json([
                 'status' => true,
                 'msg' => 'Login successful',
