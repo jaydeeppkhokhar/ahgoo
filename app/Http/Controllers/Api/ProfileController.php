@@ -1638,7 +1638,7 @@ class ProfileController extends Controller
             $posts = Posts::where('user_id', $request->user_id)->get();
             if ($posts->isEmpty()) {
                 return response()->json([
-                    'status' => false,
+                    'status' => true,
                     'msg' => "No posts found.",
                     'data' => (object) []
                 ], 401);
