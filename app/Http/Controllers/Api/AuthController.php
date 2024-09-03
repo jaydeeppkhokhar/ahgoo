@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\AllUser;
 use App\Models\Otp;
 use App\Models\Countries;
+use App\Models\Notifications;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
@@ -127,10 +128,14 @@ class AuthController extends Controller
             $country_details = Countries::where('name', $user->country)->first();
             $user->flag = $country_details->flag;
             $user->mi_flag = $country_details->mi_flag;
+            $all_not = Notifications::where('user_id', $user->_id)->get();
+            $friend_not = Notifications::where('user_id', $user->_id)->where('type', 'friend')->get();
             return response()->json([
                 'status' => true,
                 'msg' => 'Login successful',
                 'is_loggedin' => 1,
+                'all_notification' => COUNT($all_not),
+                'freind_request' => COUNT($friend_not),
                 'data' => $user
             ], 200);
         }

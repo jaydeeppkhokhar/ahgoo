@@ -386,59 +386,61 @@ class ProfileController extends Controller
         }
 
         try {
-            // if($request->order == 'old'){
-            //     $followers = Followers::where('followed_to', $request->user_id)->orderBy('created_at', 'asc')->get();
-            // }else if($request->order == 'recent'){
-            //     $followers = Followers::where('followed_to', $request->user_id)->orderBy('created_at', 'desc')->get();
-            // }else{
-            //     $followers = Followers::where('followed_to',$request->user_id)->get();
-            // }
-            // echo '<pre>';print_r($followers);exit;
-            // if(!empty($followers)){
-            //     foreach($followers as $follow){
-            //         $details = AllUser::where('_id', $follow->followed_by)->first();
-            //         $follow->_id = $details->_id;
-            //         $follow->name = $details->name;
-            //         $follow->email = $details->email;
-            //         $follow->username = $details->username;
-            //         $follow->phone = $details->phone;
-            //         $follow->country = $details->country;
-            //         $follow->user_type = $details->user_type;
-            //         $followers_total = Followers::where('followed_to',$details->_id)->get();
-            //         if(!empty($followers_total)){
-            //             $follow->followers = count($followers_total);
-            //         }else{
-            //             $follow->followers = 0;
-            //         }
-            //         $follow->post = 0;
-            //         $follow->followed = 0;
-            //         $follow->friends = 0;
-            //         $follow->videos = 0;
-            //         $follow->amount1 = '0$';
-            //         $follow->amount2 = '0$';
-            //         $follow->account_description = 'Love Yourself';
-            //         $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
-            //         $country =  $details->country;
-            //         $country_details = Countries::where('name', $country)->first();
-            //         if(!empty($country_details)){
-            //             $follow->country_code = $country_details->phone_code;
-            //             $follow->country_flag = $country_details->flag;
-            //         }else{
-            //             $follow->country_code = '';
-            //             $follow->country_flag = '';
-            //         }
-            //     }
-            //     return response()->json([
-            //         'status' => true,
-            //         'msg' => 'Follower below',
-            //         'data' => $followers
-            //     ], 200);
-            // }else{
-                return response()->json([
-                    'status' => false,
-                    'data' => (object) [],
-                    'msg' => 'No Followers Found'
-                ], 422);
+            if($request->order == 'all'){
+                $all_list = Friends::where(function($query) use ($request) {
+                    $query->where('is_accepted', 1)
+                          ->where(function($query) use ($request) {
+                              $query->where('sent_to', $request->user_id)
+                                    ->orWhere('sent_by', $request->user_id);
+                          });
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+            }else if($request->order == 'close'){
+                $all_list = Friends::where(function($query) use ($request) {
+                    $query->where('is_accepted', 1)
+                          ->where(function($query) use ($request) {
+                              $query->where('sent_to', $request->user_id)
+                                    ->orWhere('sent_by', $request->user_id);
+                          });
+                })->orderBy('created_at', 'asc')->get();
+            }else if($request->order == 'birthday'){
+                $all_list = Friends::where(function($query) use ($request) {
+                    $query->where('is_accepted', 1)
+                          ->where(function($query) use ($request) {
+                              $query->where('sent_to', $request->user_id)
+                                    ->orWhere('sent_by', $request->user_id);
+                          });
+                })->orderBy('created_at', 'desc')->get();
+            }else{
+                $all_list = Friends::where(function($query) use ($request) {
+                    $query->where('is_accepted', 1)
+                          ->where(function($query) use ($request) {
+                              $query->where('sent_to', $request->user_id)
+                                    ->orWhere('sent_by', $request->user_id);
+                          });
+                })->orderBy('created_at', 'desc')->get();
+            }
+            foreach($all_list as $list){
+                $details = AllUser::where('_id', $list->sent_to)->first();
+                $list->time_ago = Carbon::parse($list->created_at)->diffForHumans();
+                $list->user_id = $details->_id;
+                $list->name = $details->name;
+                $list->email = $details->email;
+                $list->username = $details->username;
+                $list->phone = $details->phone;
+                $list->country = $details->country;
+                if(!isset($details->profile_pic) OR empty($details->profile_pic)){
+                    $list->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                }else{
+                    $list->profile_pic = $details->profile_pic;
+                }
+            }
+            return response()->json([
+                'status' => true,
+                'data' => $all_list,
+                'msg' => 'Frinds Below'
+            ], 200);
             // }
         } catch (\Exception $e) {
             return response()->json([
