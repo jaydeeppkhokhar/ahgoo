@@ -78,6 +78,9 @@ class AuthController extends Controller
 
             // $token = $user->createToken('api-token')->plainTextToken;
             $user_data = AllUser::where('email', $request->email)->first();
+            $country_details = Countries::where('name', $user_data->country)->first();
+            $user_data->flag = $country_details->flag;
+            $user_data->mi_flag = $country_details->mi_flag;
             return response()->json([
                 'status' => true,
                 'msg' => 'User registered successfully',
