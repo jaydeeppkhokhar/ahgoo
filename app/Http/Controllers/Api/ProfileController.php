@@ -626,7 +626,14 @@ class ProfileController extends Controller
             }else{
                 $user->is_friend_req_sent = 0;
             }
-            $user->friends = 0; // Replace with your actual method to get followers
+            $friends = Friends::where('is_accepted', 1)
+                ->where(function($query) use ($request) {
+                    $query->where('sent_to', $request->profile_id)
+                        ->orWhere('sent_by', $request->profile_id);
+                })
+                ->get();
+
+            $user->friends = count($friends);
             $user->videos = 0; // Replace with your actual method to get videos
             $user->amount1 = '0$'; // Replace with your actual method to get followers
             $user->amount2 = '0$'; // Replace with your actual method to get videos
