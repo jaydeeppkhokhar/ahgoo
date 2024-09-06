@@ -422,7 +422,12 @@ class ProfileController extends Controller
                 })->orderBy('created_at', 'desc')->get();
             }
             foreach($all_list as $list){
-                $details = AllUser::where('_id', $list->sent_to)->first();
+                if($list->sent_to == $request->user_id){
+                    $profile_id = $list->sent_by;
+                }else{
+                    $profile_id = $list->sent_to;
+                }
+                $details = AllUser::where('_id', $profile_id)->first();
                 $list->time_ago = Carbon::parse($list->created_at)->diffForHumans();
                 $list->user_id = $details->_id;
                 $list->name = $details->name;
