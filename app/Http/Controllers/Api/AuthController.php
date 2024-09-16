@@ -128,8 +128,8 @@ class AuthController extends Controller
             $country_details = Countries::where('name', $user->country)->first();
             $user->flag = $country_details->flag;
             $user->mi_flag = $country_details->mi_flag;
-            $all_not = Notifications::where('user_id', $user->_id)->get();
-            $friend_not = Notifications::where('user_id', $user->_id)->where('type', 'friend')->get();
+            $all_not = Notifications::where('user_id', $user->_id)->where('is_seen', 0)->get();
+            $friend_not = Notifications::where('user_id', $user->_id)->where('type', 'friend')->where('is_seen', 0)->get();
             return response()->json([
                 'status' => true,
                 'msg' => 'Login successful',

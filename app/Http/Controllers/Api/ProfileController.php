@@ -3012,8 +3012,8 @@ class ProfileController extends Controller
         }
 
         try {
-            $all_not = Notifications::where('user_id', $request->user_id)->get();
-            $friend_not = Notifications::where('user_id', $request->user_id)->where('type', 'friend')->get();
+            $all_not = Notifications::where('user_id', $request->user_id)->where('is_seen', 0)->get();
+            $friend_not = Notifications::where('user_id', $request->user_id)->where('type', 'friend')->where('is_seen', 0)->get();
             return response()->json([
                 'status' => true,
                 'msg' => 'Notification Count',
