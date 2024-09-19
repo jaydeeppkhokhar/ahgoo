@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\CountriesController;
 use App\Http\Controllers\Api\CmsController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\AgoraTokenController;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -84,3 +85,4 @@ Route::post('accept_friend_request', [ProfileController::class, 'accept_friend_r
 Route::post('reject_friend_request', [ProfileController::class, 'reject_friend_request']);
 Route::post('delete_friend_request', [ProfileController::class, 'delete_friend_request']);
 Route::post('notification_count', [ProfileController::class, 'notification_count']);
+Route::post('generate-agora-token', [AgoraTokenController::class, 'generateToken']);
