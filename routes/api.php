@@ -86,3 +86,5 @@ Route::post('reject_friend_request', [ProfileController::class, 'reject_friend_r
 Route::post('delete_friend_request', [ProfileController::class, 'delete_friend_request']);
 Route::post('notification_count', [ProfileController::class, 'notification_count']);
 Route::post('generate-agora-token', [AgoraTokenController::class, 'generateToken']);
+Route::post('update_profile_summary', [ProfileController::class, 'update_profile_summary']);
+Route::post('switch_profile', [ProfileController::class, 'switch_profile']);
