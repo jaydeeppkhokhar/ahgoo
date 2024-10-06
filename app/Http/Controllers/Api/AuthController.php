@@ -9,6 +9,7 @@ use App\Models\AllUser;
 use App\Models\Otp;
 use App\Models\Countries;
 use App\Models\Notifications;
+use App\Models\Promotion;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
@@ -272,8 +273,8 @@ class AuthController extends Controller
     public function updateCountry()
     {
         // AllUser::query()->update(['country' => 'India']);
-        AllUser::query()->update(['profile_pic' => '','cover_pic' => '']);
-        return response()->json(['message' => 'Country updated to India for all users']);
+        Promotion::query()->update(['event_type' => 2]);
+        return response()->json(['message' => 'Event Type Updated']);
     }
     public function forget_password(Request $request)
     {

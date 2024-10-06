@@ -88,3 +88,5 @@ Route::post('notification_count', [ProfileController::class, 'notification_count
 Route::post('generate-agora-token', [AgoraTokenController::class, 'generateToken']);
 Route::post('update_profile_summary', [ProfileController::class, 'update_profile_summary']);
 Route::post('switch_profile', [ProfileController::class, 'switch_profile']);
+Route::post('uploadEventImages', [ProfileController::class, 'uploadEventImages']);
+Route::post('uploadEventVideo', [ProfileController::class, 'uploadEventVideo']);

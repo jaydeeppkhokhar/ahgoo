@@ -17,6 +17,7 @@ use App\Models\KeywordSearchLog;
 use App\Models\PostLikes;
 use App\Models\Backgrounds;
 use App\Models\EventConfirm;
+use App\Models\EventMedia;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -1345,11 +1346,17 @@ class ProfileController extends Controller
         }
 
         try {
+            if(isset($request->event_type) && !empty($request->event_type)){
+                $e_type = $request->event_type;
+            }else{
+                $e_type = 2;
+            }
             $promotion = Promotion::create([
                 'user_id' => $request->user_id,
                 'post_id' => $request->post_id,
                 'is_showing_event' => $request->is_showing_event,
-                'type' => $request->type
+                'type' => $request->type,
+                'event_type' => $e_type
             ]);
             $insertedId = $promotion->_id;
             // $token = $user->createToken('api-token')->plainTextToken;
@@ -1645,6 +1652,73 @@ class ProfileController extends Controller
                 'data' => (object) []
             ], 500);
         }
+    }
+    public function uploadEventImages(Request $request)
+    {
+        $request->validate([
+            'images' => 'required|array|size:5',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+        $event_id = $request->event_id;
+        $uploadedImages = [];
+
+        foreach ($request->file('images') as $image) {
+            $path = $image->store('event_media', 'public');
+            $thumbPicUrl = Storage::url($path);
+            $pth = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
+            $uploadedImages[] = EventMedia::create([
+                'event_id' => $event_id,
+                'media_path' => $pth,
+                'media_type' => 'image',
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'msg' => 'Images uploaded successfully',
+            'data' => $uploadedImages
+        ], 201);
+    }
+
+    public function uploadEventVideo(Request $request)
+    {
+        $request->validate([
+            'video' => 'required|file|mimetypes:video/avi,video/mpeg,video/mp4|max:20480', // Max 20MB
+        ]);
+        $event_id = $request->event_id;
+        $video = $request->file('video');
+        $path = $video->store('event_media', 'public');
+
+        // Check video duration
+        // $ffmpeg = FFMpeg::create();
+        // $videoFile = $ffmpeg->open(Storage::disk('public')->path($path));
+        // $duration = $videoFile->getFormat()->get('duration');
+
+        // if ($duration > 15) {
+        //     // Delete the uploaded file if it exceeds the duration limit
+        //     Storage::disk('public')->delete($path);
+
+        //     return response()->json([
+        //         'status' => false,
+        //         'msg' => 'Video duration exceeds 15 seconds',
+        //         'data' => (object)[]
+        //     ], 400);
+        // }
+        $thumbPicUrl = Storage::url($path);
+        $pth = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
+        $uploadedVideo = EventMedia::create([
+            'event_id' => $event_id,
+            'media_path' => $pth,
+            'media_type' => 'video',
+            // 'video_duration' => $duration,
+            'video_duration' => '',
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'msg' => 'Video uploaded successfully',
+            'data' => $uploadedVideo
+        ], 201);
     }
     public function my_posts(Request $request)
     {

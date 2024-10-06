@@ -14,6 +14,6 @@ class Promotion extends Model
     protected $collection = 'promotions';
 
     protected $fillable = [
-        'user_id', 'post_id', 'is_showing_event', 'type', 'automatic_public', 'estimated_size', 'name_of_audience', 'age_from', 'age_to', 'gender', 'location', 'per_day_spent', 'total_days', 'event_location', 'is_confirm'
+        'user_id', 'post_id', 'is_showing_event', 'type', 'automatic_public', 'estimated_size', 'name_of_audience', 'age_from', 'age_to', 'gender', 'location', 'per_day_spent', 'total_days', 'event_location', 'is_confirm', 'event_type'
     ];
 }

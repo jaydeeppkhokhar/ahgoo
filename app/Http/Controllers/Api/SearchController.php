@@ -28,7 +28,7 @@ class SearchController extends Controller
                 'msg' => $errors
             ], 422);
         }
-        try {
+        // try {
             $keyword = $request->keyword;
 
             // Search for users where name, email, or username contains the keyword
@@ -60,13 +60,13 @@ class SearchController extends Controller
                 'msg' => 'Users found',
                 'data' => $users
             ], 200);
-        }catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'msg' => 'Failed!',
-                'data' => (object) []
-            ], 500);
-        }
+        // }catch (\Exception $e) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'msg' => 'Failed!',
+        //         'data' => (object) []
+        //     ], 500);
+        // }
     }
     public function suggestions(Request $request)
     {

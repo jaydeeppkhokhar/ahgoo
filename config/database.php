@@ -112,8 +112,8 @@ return [
         ],
         'mongodb' => [
             'driver'   => 'mongodb',
-            'dsn'      => env('MONGODB_URI'),
-            'database' => env('DB_DATABASE'),
+            'dsn'      => env('MONGODB_URI','mongodb+srv://ahgoodeveloper:9NX43UlxeaKi4o2q@ahgoo.eheunur.mongodb.net/'),
+            'database' => env('DB_DATABASE','ahgoo_db'),
         ],
 
     ],
