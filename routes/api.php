@@ -90,3 +90,8 @@ Route::post('update_profile_summary', [ProfileController::class, 'update_profile
 Route::post('switch_profile', [ProfileController::class, 'switch_profile']);
 Route::post('uploadEventImages', [ProfileController::class, 'uploadEventImages']);
 Route::post('uploadEventVideo', [ProfileController::class, 'uploadEventVideo']);
+Route::post('create_event_1', [ProfileController::class, 'create_event_1']);
+Route::post('create_event_2', [ProfileController::class, 'create_event_2']);
+Route::post('create_event_budget', [ProfileController::class, 'create_event_budget']);
+Route::post('create_events_confirm', [ProfileController::class, 'create_events_confirm']);
+Route::post('uploadEventCoverImage', [ProfileController::class, 'uploadEventCoverImage']);

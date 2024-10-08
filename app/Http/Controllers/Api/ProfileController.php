@@ -12,6 +12,7 @@ use App\Models\Notifications;
 use App\Models\InfCatMap;
 use App\Models\Posts;
 use App\Models\Promotion;
+use App\Models\Events;
 use App\Models\ProfileViewLog;
 use App\Models\KeywordSearchLog;
 use App\Models\PostLikes;
@@ -1659,13 +1660,23 @@ class ProfileController extends Controller
             'images' => 'required|array|size:5',
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-        $event_id = $request->event_id;
+
+        // Check if event_id is passed and not empty, if not, create a new Event
+        if ($request->has('event_id') && !empty($request->event_id)) {
+            $event_id = $request->event_id;
+        } else {
+            $event = Events::create([
+                // Add any necessary default values for the new Event here
+            ]);
+            $event_id = $event->_id;
+        }
+
         $uploadedImages = [];
 
         foreach ($request->file('images') as $image) {
             $path = $image->store('event_media', 'public');
             $thumbPicUrl = Storage::url($path);
-            $pth = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
+            $pth = 'http://34.207.97.193/ahgoo/public' . $thumbPicUrl;
             $uploadedImages[] = EventMedia::create([
                 'event_id' => $event_id,
                 'media_path' => $pth,
@@ -1680,38 +1691,51 @@ class ProfileController extends Controller
         ], 201);
     }
 
+
     public function uploadEventVideo(Request $request)
     {
         $request->validate([
             'video' => 'required|file|mimetypes:video/avi,video/mpeg,video/mp4|max:20480', // Max 20MB
         ]);
-        $event_id = $request->event_id;
+
+        // Check if event_id is passed and not empty, if not, create a new Event
+        if ($request->has('event_id') && !empty($request->event_id)) {
+            $event_id = $request->event_id;
+        } else {
+            $event = Events::create([
+                // Add any necessary default values for the new Event here
+            ]);
+            $event_id = $event->_id;
+        }
+
         $video = $request->file('video');
         $path = $video->store('event_media', 'public');
 
-        // Check video duration
-        // $ffmpeg = FFMpeg::create();
-        // $videoFile = $ffmpeg->open(Storage::disk('public')->path($path));
-        // $duration = $videoFile->getFormat()->get('duration');
+        // Check video duration (uncomment and adjust this section if FFMpeg is installed)
+        /*
+        $ffmpeg = FFMpeg::create();
+        $videoFile = $ffmpeg->open(Storage::disk('public')->path($path));
+        $duration = $videoFile->getFormat()->get('duration');
 
-        // if ($duration > 15) {
-        //     // Delete the uploaded file if it exceeds the duration limit
-        //     Storage::disk('public')->delete($path);
+        if ($duration > 15) {
+            // Delete the uploaded file if it exceeds the duration limit
+            Storage::disk('public')->delete($path);
 
-        //     return response()->json([
-        //         'status' => false,
-        //         'msg' => 'Video duration exceeds 15 seconds',
-        //         'data' => (object)[]
-        //     ], 400);
-        // }
+            return response()->json([
+                'status' => false,
+                'msg' => 'Video duration exceeds 15 seconds',
+                'data' => (object)[]
+            ], 400);
+        }
+        */
+
         $thumbPicUrl = Storage::url($path);
-        $pth = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
+        $pth = 'http://34.207.97.193/ahgoo/public' . $thumbPicUrl;
         $uploadedVideo = EventMedia::create([
             'event_id' => $event_id,
             'media_path' => $pth,
             'media_type' => 'video',
-            // 'video_duration' => $duration,
-            'video_duration' => '',
+            'video_duration' => '', // Replace with $duration if FFMpeg is used
         ]);
 
         return response()->json([
@@ -1720,35 +1744,7 @@ class ProfileController extends Controller
             'data' => $uploadedVideo
         ], 201);
     }
-    public function my_posts(Request $request)
-    {
-        if(!empty($request->user_id)){
-            $posts = Posts::where('user_id', $request->user_id)->get();
-            if ($posts->isEmpty()) {
-                return response()->json([
-                    'status' => true,
-                    'msg' => "No posts found.",
-                    'data' => (object) []
-                ], 401);
-            }
-            foreach($posts as $post){
-                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
-                    $post->thumbnail_img = 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
-                }
-            }
-            return response()->json([
-                'status' => true,
-                'msg' => 'Posts below',
-                'data' => $posts
-            ], 200);
-        }else{
-            return response()->json([
-                'status' => false,
-                'msg' => 'Please provide user id.',
-                'data' => (object) []
-            ], 422);
-        }
-    }
+
     public function create_post_thumbnail(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -3195,4 +3191,233 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function create_event_1(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'user_id' => 'required|string|max:255',
+            'is_showing_event' => 'required|integer|in:0,1',
+            'type' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            if(isset($request->event_type) && !empty($request->event_type)){
+                $e_type = $request->event_type;
+            }else{
+                $e_type = 2;
+            }
+            $eventData = [
+                'user_id' => $request->user_id,
+                'post_id' => $request->post_id,
+                'is_showing_event' => $request->is_showing_event,
+                'type' => $request->type,
+                'event_name' => $request->event_name ?? '',
+                'event_start' => $request->event_start ?? '',
+                'location' => $request->location ?? '',
+            ];
+        
+            $event = Events::updateOrCreate(
+                ['_id' => $request->event_id],
+                $eventData
+            );
+        
+            $event_id = $event->_id;
+            // $token = $user->createToken('api-token')->plainTextToken;
+            $promo_data = Events::where('_id', $event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_event_2(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'automatic_public' => 'required|integer|in:0,1'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Events::where('_id', $request->event_id)->update([
+                'automatic_public' => $request->automatic_public
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_event_budget(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'per_day_spent' => 'required|integer',
+            'total_days' => 'required|integer',
+            'event_location' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $locationJson = json_encode($request->location);
+            Events::where('_id', $request->event_id)->update([
+                'per_day_spent' => $request->per_day_spent,
+                'total_days' => $request->total_days,
+                'event_location' => $request->event_location
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_events_confirm(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'is_confirm' => 'required|integer|in:0,1'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $locationJson = json_encode($request->location);
+            Events::where('_id', $request->event_id)->update([
+                'is_confirm' => $request->is_confirm
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event confirmed successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function uploadEventCoverImage(Request $request)
+    {
+        $request->validate([
+            'event_id' => 'required|string|max:255',
+            'cover_pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+        $event_id = $request->event_id;
+
+        // Store the cover image
+        $coverImage = $request->file('cover_pic');
+        $path = $coverImage->store('event_media', 'public');
+        $thumbPicUrl = Storage::url($path);
+        $pth = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
+
+        // Update or create cover image entry in the EventMedia model
+        Events::where('_id', $request->event_id)->update([
+            'cover_pic' => $pth
+        ]);
+        $promo_data = Events::where('_id', $request->event_id)->first();
+        return response()->json([
+            'status' => true,
+            'msg' => 'Cover image uploaded successfully',
+            'data' => $promo_data
+        ], 201);
+    }
+
 }
