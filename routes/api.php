@@ -95,3 +95,4 @@ Route::post('create_event_2', [ProfileController::class, 'create_event_2']);
 Route::post('create_event_budget', [ProfileController::class, 'create_event_budget']);
 Route::post('create_events_confirm', [ProfileController::class, 'create_events_confirm']);
 Route::post('uploadEventCoverImage', [ProfileController::class, 'uploadEventCoverImage']);
+Route::post('update_profile_details', [ProfileController::class, 'update_profile_details']);

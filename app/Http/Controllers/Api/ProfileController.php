@@ -1744,7 +1744,35 @@ class ProfileController extends Controller
             'data' => $uploadedVideo
         ], 201);
     }
-
+    public function my_posts(Request $request)
+    {
+        if(!empty($request->user_id)){
+            $posts = Posts::where('user_id', $request->user_id)->get();
+            if ($posts->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'msg' => "No posts found.",
+                    'data' => (object) []
+                ], 401);
+            }
+            foreach($posts as $post){
+                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
+                    $post->thumbnail_img = 'http://34.207.97.193/ahgoo/storage/profile_pics/video_thum.jpg';
+                }
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Posts below',
+                'data' => $posts
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please provide user id.',
+                'data' => (object) []
+            ], 422);
+        }
+    }
     public function create_post_thumbnail(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -3418,6 +3446,53 @@ class ProfileController extends Controller
             'msg' => 'Cover image uploaded successfully',
             'data' => $promo_data
         ], 201);
+    }
+    public function update_profile_details(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'profile_details' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            AllUser::where('_id', $request->user_id)->update([
+                'profile_details' => $request->profile_details,
+                'website' => $request->website ?? ''
+            ]);
+
+            // $token = $user->createToken('api-token')->plainTextToken;
+            $user_data = AllUser::where('_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Profile Updated Successfully',
+                'data' => $user_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
     }
 
 }
