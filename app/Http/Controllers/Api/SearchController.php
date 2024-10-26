@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AllUser;
 use App\Models\Followers;
 use App\Models\Hobbies;
+use App\Models\EventCategories;
 use App\Models\InfluencerCat;
 use App\Models\Locations;
 use Illuminate\Support\Facades\Validator;
@@ -362,6 +363,21 @@ class SearchController extends Controller
             'status' => true,
             'msg' => 'Location Listing.',
             'data' => $locations
+        ], 200);
+    }
+    public function eventCategories(Request $request){
+        $categories = EventCategories::get();
+        if (!$categories) {
+            return response()->json([
+                'status' => false,
+                'msg' => "No Event Categories found.",
+                'data' => (object) []
+            ], 401);
+        }
+        return response()->json([
+            'status' => true,
+            'msg' => 'Event Categories Listing.',
+            'data' => $categories
         ], 200);
     }
 }

@@ -3494,5 +3494,149 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function create_event_type(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'event_type' => 'required|integer|in:1,2'
+        ]);
 
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $event = Events::create([
+                'event_type' => $request->event_type,
+                'user_id' => $request->user_id
+                // Add any necessary default values for the new Event here
+            ]);
+            $event_id = $event->_id;
+            $promo_data = Events::where('_id', $event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event added successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Addition Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_event_slide_2(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'event_name' => 'required|string|max:255',
+            'event_description' => 'required|string',
+            'is_permanent' => 'nullable|in:0,1'
+            // 'event_date' => 'required|string|max:255',
+            // 'duration' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Events::where('_id', $request->event_id)->update([
+                'event_name' => $request->event_name,
+                'event_description' => $request->event_description,
+                'is_permanent' => $request->is_permanent ?? 0,
+                'event_date' => $request->event_date ?? '',
+                'duration' => $request->duration ?? ''
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Addition Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_event_slide_4(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'event_category' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Events::where('_id', $request->event_id)->update([
+                'location' => $request->location,
+                'event_category' => $request->event_category
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Addition Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }

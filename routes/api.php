@@ -47,6 +47,7 @@ Route::post('profile_step_two', [ProfileController::class, 'profile_step_two']);
 Route::post('profile_step_three', [ProfileController::class, 'profile_step_three']);
 Route::post('profile_step_four', [ProfileController::class, 'profile_step_four']);
 Route::get('hobbies', [SearchController::class, 'hobbies']);
+Route::get('eventCategories', [SearchController::class, 'eventCategories']);
 Route::get('influencer_categories', [SearchController::class, 'influencer_categories']);
 Route::post('influencer_category_map', [ProfileController::class, 'influencer_category_map']);
 Route::post('influencer_acceptance', [ProfileController::class, 'influencer_acceptance']);
@@ -96,3 +97,6 @@ Route::post('create_event_budget', [ProfileController::class, 'create_event_budg
 Route::post('create_events_confirm', [ProfileController::class, 'create_events_confirm']);
 Route::post('uploadEventCoverImage', [ProfileController::class, 'uploadEventCoverImage']);
 Route::post('update_profile_details', [ProfileController::class, 'update_profile_details']);
+Route::post('create_event_type', [ProfileController::class, 'create_event_type']);
+Route::post('create_event_slide_2', [ProfileController::class, 'create_event_slide_2']);
+Route::post('create_event_slide_4', [ProfileController::class, 'create_event_slide_4']);
