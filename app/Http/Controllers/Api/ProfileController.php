@@ -19,6 +19,7 @@ use App\Models\PostLikes;
 use App\Models\Backgrounds;
 use App\Models\EventConfirm;
 use App\Models\EventMedia;
+use App\Models\Cms;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -3409,10 +3410,15 @@ class ProfileController extends Controller
                 'is_confirm' => $request->is_confirm
             ]);
             $promo_data = Events::where('_id', $request->event_id)->first();
+            $slug = 'event_confirmation';
+            $cms_data = Cms::where('slug', 'LIKE', "%{$slug}%")
+                        ->first();
             return response()->json([
                 'status' => true,
                 'msg' => 'Event confirmed successfully',
-                'data' => $promo_data
+                'data' => $promo_data,
+                'popup_cms_title' => $cms_data->title,
+                'popup_cms_content' => $cms_data->content,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -3546,6 +3552,7 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'event_id' => 'required|string|max:255',
             'event_name' => 'required|string|max:255',
+            'event_subtitle' => 'required|string|max:255',
             'event_description' => 'required|string',
             'is_permanent' => 'nullable|in:0,1'
             // 'event_date' => 'required|string|max:255',
@@ -3574,6 +3581,7 @@ class ProfileController extends Controller
         try {
             Events::where('_id', $request->event_id)->update([
                 'event_name' => $request->event_name,
+                'event_subtitle' => $request->event_subtitle,
                 'event_description' => $request->event_description,
                 'is_permanent' => $request->is_permanent ?? 0,
                 'event_date' => $request->event_date ?? '',
@@ -3598,7 +3606,8 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'event_id' => 'required|string|max:255',
             'location' => 'required|string|max:255',
-            'event_category' => 'required|string'
+            'event_category' => 'required|string',
+            'cover_pic' => 'required|string'
         ]);
 
         if ($validator->fails()) {
@@ -3623,7 +3632,8 @@ class ProfileController extends Controller
         try {
             Events::where('_id', $request->event_id)->update([
                 'location' => $request->location,
-                'event_category' => $request->event_category
+                'event_category' => $request->event_category,
+                'cover_pic' => $request->cover_pic
             ]);
             $promo_data = Events::where('_id', $request->event_id)->first();
             return response()->json([
@@ -3638,5 +3648,112 @@ class ProfileController extends Controller
                 'data' => (object) []
             ], 500);
         }
+    }
+    public function event_name_checking(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_name' => 'required|string|min:5',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' => false,
+                'data' => (object) [],
+                'msg' => $errors[0]
+            ], 422);
+        }
+        try {
+            $event_name = $request->event_name;
+            $users = Events::where('event_name', $event_name)
+                        ->get();
+
+            // Check if users were found
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Event Title is available',
+                    'data' => (object) []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'msg' => 'Event Title not available.',
+                'data' => (object) []
+            ], 404);
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Failed!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function event_subtitle_checking(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_subtitle' => 'required|string|min:5',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' => false,
+                'data' => (object) [],
+                'msg' => $errors[0]
+            ], 422);
+        }
+        try {
+            $event_subtitle = $request->event_subtitle;
+            $users = Events::where('event_subtitle', $event_subtitle)
+                        ->get();
+
+            // Check if users were found
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Event Subtitle is available',
+                    'data' => (object) []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'msg' => 'Event Subtitle not available.',
+                'data' => (object) []
+            ], 404);
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Failed!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function replaceEventImage(Request $request)
+    {
+        $request->validate([
+            'image_id' => 'required|string|max:255',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+        $image_id = $request->image_id;
+
+        // Store the cover image
+        $coverImage = $request->file('image');
+        $path = $coverImage->store('event_media', 'public');
+        $thumbPicUrl = Storage::url($path);
+        $pth = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
+
+        // Update or create cover image entry in the EventMedia model
+        EventMedia::where('_id', $request->image_id)->update([
+            'media_path' => $pth
+        ]);
+        $promo_data = EventMedia::where('_id', $request->image_id)->first();
+        return response()->json([
+            'status' => true,
+            'msg' => 'Image Replaced Successfully',
+            'data' => $promo_data
+        ], 201);
     }
 }

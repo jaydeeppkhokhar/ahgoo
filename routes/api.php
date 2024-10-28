@@ -100,3 +100,6 @@ Route::post('update_profile_details', [ProfileController::class, 'update_profile
 Route::post('create_event_type', [ProfileController::class, 'create_event_type']);
 Route::post('create_event_slide_2', [ProfileController::class, 'create_event_slide_2']);
 Route::post('create_event_slide_4', [ProfileController::class, 'create_event_slide_4']);
+Route::post('event_name_checking', [ProfileController::class, 'event_name_checking']);
+Route::post('event_subtitle_checking', [ProfileController::class, 'event_subtitle_checking']);
+Route::post('replaceEventImage', [ProfileController::class, 'replaceEventImage']);
