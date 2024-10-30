@@ -1682,8 +1682,7 @@ class ProfileController extends Controller
             }
 
             $uploadedImages = [];
-            // delete previous images
-            $delete = EventMedia::where('event_id', $event_id)->where('media_type', 'image')->delete();
+
             foreach ($request->file('images') as $image) {
                 $path = $image->store('event_media', 'public');
                 $thumbPicUrl = Storage::url($path);
@@ -1708,7 +1707,6 @@ class ProfileController extends Controller
         //     ], 500);
         // }
     }
-
 
     public function uploadEventVideo(Request $request)
     {
