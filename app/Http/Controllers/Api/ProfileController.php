@@ -4076,44 +4076,63 @@ class ProfileController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'event_id' => 'required|string|max:255',
-            'user_id' => 'required|string|max:255',
+            'user_id' => 'required|array',
+            'user_id.*' => 'required|string|max:255',
             'invited_by' => 'required|string|max:255'
         ]);
 
         if ($validator->fails()) {
-            if ($validator->fails()) {
-                $errors = $validator->errors()->toArray();
-                $allErrors = [];
-            
-                foreach ($errors as $messageArray) {
-                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
-                }
-            
-                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
-                
-                return response()->json([
-                    'status' => false,
-                    'data' => (object) [],
-                    'msg' => $formattedErrors
-                ], 422);
+            $errors = $validator->errors()->toArray();
+            $allErrors = [];
+
+            foreach ($errors as $messageArray) {
+                $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
             }
+
+            $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+
+            return response()->json([
+                'status' => false,
+                'data' => (object) [],
+                'msg' => $formattedErrors
+            ], 422);
         }
 
         try {
-            $followed = EventInvites::create([
-                'event_id' => $request->event_id,
-                'user_id' => $request->user_id,
-                'invited_by' => $request->invited_by
-            ]);
-            // $user = AllUser::where('_id', $request->followed_by)->first();
-            // $notifications = Notifications::create([
-            //     'user_id' => $request->followed_to,
-            //     'relavant_id' => $request->followed_by,
-            //     'relavant_image' => 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg',
-            //     'message' => $user->name.' started following you',
-            //     'type' => 'follow',
-            //     'is_seen' => 0
-            // ]);
+            $userIds = $request->user_id;
+            $event_id = $request->event_id;
+            $invited_by = $request->invited_by;
+            $user = AllUser::where('_id', $invited_by)->first();
+
+            foreach ($userIds as $user_id) {
+                // Check if the invite already exists
+                $existingInvite = EventInvites::where('event_id', $event_id)
+                    ->where('user_id', $user_id)
+                    ->where('invited_by', $invited_by)
+                    ->first();
+
+                if ($existingInvite) {
+                    continue; // Skip if invite already exists
+                }
+
+                // Create event invite
+                EventInvites::create([
+                    'event_id' => $event_id,
+                    'user_id' => $user_id,
+                    'invited_by' => $invited_by
+                ]);
+
+                // Create notification
+                Notifications::create([
+                    'user_id' => $user_id,
+                    'relavant_id' => $event_id,
+                    'relavant_image' => 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg',
+                    'message' => $user->name . ' sent you a event invite',
+                    'type' => 'event',
+                    'is_seen' => 0
+                ]);
+            }
+
             return response()->json([
                 'status' => true,
                 'msg' => 'Invited Successfully',
