@@ -104,3 +104,7 @@ Route::post('event_name_checking', [ProfileController::class, 'event_name_checki
 Route::post('event_subtitle_checking', [ProfileController::class, 'event_subtitle_checking']);
 Route::post('replaceEventImage', [ProfileController::class, 'replaceEventImage']);
 Route::post('my_event_followers', [ProfileController::class, 'my_event_followers']);
+Route::post('my_event_followings', [ProfileController::class, 'my_event_followings']);
+Route::post('my_event_friends', [ProfileController::class, 'my_event_friends']);
+Route::post('my_event_all_inv', [ProfileController::class, 'my_event_all_inv']);
+Route::post('sent_event_invite', [ProfileController::class, 'sent_event_invite']);

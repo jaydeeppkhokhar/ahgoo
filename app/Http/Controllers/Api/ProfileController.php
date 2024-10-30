@@ -3814,9 +3814,17 @@ class ProfileController extends Controller
                     }
                     $follow->videos = 0;
                     $follow->profile_details = $details->profile_details;
-                    $follow->account_description = 'Love Yourself';
-                    if(!isset($follow->profile_pic) OR empty($follow->profile_pic)){
+                    // $follow->account_description = 'Love Yourself';
+                    if(!isset($details->profile_pic) OR empty($details->profile_pic)){
                         $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    }else{
+                        $follow->profile_pic = $details->profile_pic;
+                    }
+                    $invites = EventInvites::where('user_id',$details->_id)->where('event_id',$request->event_id)->get();
+                    if ($invites->isEmpty()) {
+                        $follow->is_already_invited = 0;
+                    } else {
+                        $follow->is_already_invited = 1;
                     }
                 }
                 return response()->json([
@@ -3831,6 +3839,286 @@ class ProfileController extends Controller
                     'msg' => 'No Followers Found'
                 ], 422);
             }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function my_event_followings(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'event_id' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $followers = Followers::where('followed_by', $request->user_id)->orderBy('created_at', 'desc')->get();
+            // echo '<pre>';print_r($followers);exit;
+            if(!empty($followers)){
+                foreach($followers as $follow){
+                    $details = AllUser::where('_id', $follow->followed_by)->first();
+                    $follow->_id = $details->_id;
+                    $follow->name = $details->name;
+                    $followers_total = Followers::where('followed_to',$details->_id)->get();
+                    if(!empty($followers_total)){
+                        $follow->followers = count($followers_total);
+                    }else{
+                        $follow->followers = 0;
+                    }
+                    $follow->videos = 0;
+                    $follow->profile_details = $details->profile_details;
+                    // $follow->account_description = 'Love Yourself';
+                    if(!isset($details->profile_pic) OR empty($details->profile_pic)){
+                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    }else{
+                        $follow->profile_pic = $details->profile_pic;
+                    }
+                    $invites = EventInvites::where('user_id',$details->_id)->where('event_id',$request->event_id)->get();
+                    if ($invites->isEmpty()) {
+                        $follow->is_already_invited = 0;
+                    } else {
+                        $follow->is_already_invited = 1;
+                    }
+                }
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Following below',
+                    'data' => $followers
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => 'No Following Found'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function my_event_friends(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'event_id' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $followers = Followers::where('followed_by', $request->user_id)->orderBy('created_at', 'desc')->get();
+            // echo '<pre>';print_r($followers);exit;
+            if(!empty($followers)){
+                foreach($followers as $follow){
+                    $details = AllUser::where('_id', $follow->followed_by)->first();
+                    $follow->_id = $details->_id;
+                    $follow->name = $details->name;
+                    $followers_total = Followers::where('followed_to',$details->_id)->get();
+                    if(!empty($followers_total)){
+                        $follow->followers = count($followers_total);
+                    }else{
+                        $follow->followers = 0;
+                    }
+                    $follow->videos = 0;
+                    $follow->profile_details = $details->profile_details;
+                    // $follow->account_description = 'Love Yourself';
+                    if(!isset($details->profile_pic) OR empty($details->profile_pic)){
+                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    }else{
+                        $follow->profile_pic = $details->profile_pic;
+                    }
+                    $invites = EventInvites::where('user_id',$details->_id)->where('event_id',$request->event_id)->get();
+                    if ($invites->isEmpty()) {
+                        $follow->is_already_invited = 0;
+                    } else {
+                        $follow->is_already_invited = 1;
+                    }
+                }
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Freinds below',
+                    'data' => $followers
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => 'No Friends Found'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function my_event_all_inv(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'event_id' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $followers = Followers::where('followed_to', $request->user_id)->orderBy('created_at', 'desc')->get();
+            // echo '<pre>';print_r($followers);exit;
+            if(!empty($followers)){
+                foreach($followers as $follow){
+                    $details = AllUser::where('_id', $follow->followed_by)->first();
+                    $follow->_id = $details->_id;
+                    $follow->name = $details->name;
+                    $followers_total = Followers::where('followed_to',$details->_id)->get();
+                    if(!empty($followers_total)){
+                        $follow->followers = count($followers_total);
+                    }else{
+                        $follow->followers = 0;
+                    }
+                    $follow->videos = 0;
+                    $follow->profile_details = $details->profile_details;
+                    // $follow->account_description = 'Love Yourself';
+                    if(!isset($details->profile_pic) OR empty($details->profile_pic)){
+                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    }else{
+                        $follow->profile_pic = $details->profile_pic;
+                    }
+                    $invites = EventInvites::where('user_id',$details->_id)->where('event_id',$request->event_id)->get();
+                    if ($invites->isEmpty()) {
+                        $follow->is_already_invited = 0;
+                    } else {
+                        $follow->is_already_invited = 1;
+                    }
+                }
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'List below',
+                    'data' => $followers
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => 'No List Found'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function sent_event_invite(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'user_id' => 'required|string|max:255',
+            'invited_by' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $followed = EventInvites::create([
+                'event_id' => $request->event_id,
+                'user_id' => $request->user_id,
+                'invited_by' => $request->invited_by
+            ]);
+            // $user = AllUser::where('_id', $request->followed_by)->first();
+            // $notifications = Notifications::create([
+            //     'user_id' => $request->followed_to,
+            //     'relavant_id' => $request->followed_by,
+            //     'relavant_image' => 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg',
+            //     'message' => $user->name.' started following you',
+            //     'type' => 'follow',
+            //     'is_seen' => 0
+            // ]);
+            return response()->json([
+                'status' => true,
+                'msg' => 'Invited Successfully',
+                'data' => (object) []
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
