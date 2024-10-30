@@ -19,6 +19,7 @@ use App\Models\PostLikes;
 use App\Models\Backgrounds;
 use App\Models\EventConfirm;
 use App\Models\EventMedia;
+use App\Models\EventInvites;
 use App\Models\Cms;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -1657,39 +1658,54 @@ class ProfileController extends Controller
     }
     public function uploadEventImages(Request $request)
     {
-        $request->validate([
-            'images' => 'required|array|size:5',
+        $validator = Validator::make($request->all(), [
+            'images' => 'required|array|size:1',
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $errors[0]
+                ], 422);
+            }
+        try {
+            // Check if event_id is passed and not empty, if not, create a new Event
+            if ($request->has('event_id') && !empty($request->event_id)) {
+                $event_id = $request->event_id;
+            } else {
+                $event = Events::create([
+                    // Add any necessary default values for the new Event here
+                ]);
+                $event_id = $event->_id;
+            }
 
-        // Check if event_id is passed and not empty, if not, create a new Event
-        if ($request->has('event_id') && !empty($request->event_id)) {
-            $event_id = $request->event_id;
-        } else {
-            $event = Events::create([
-                // Add any necessary default values for the new Event here
-            ]);
-            $event_id = $event->_id;
+            $uploadedImages = [];
+
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('event_media', 'public');
+                $thumbPicUrl = Storage::url($path);
+                $pth = 'http://34.207.97.193/ahgoo/public' . $thumbPicUrl;
+                $uploadedImages[] = EventMedia::create([
+                    'event_id' => $event_id,
+                    'media_path' => $pth,
+                    'media_type' => 'image',
+                ]);
+            }
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Images uploaded successfully',
+                'data' => $uploadedImages
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
         }
-
-        $uploadedImages = [];
-
-        foreach ($request->file('images') as $image) {
-            $path = $image->store('event_media', 'public');
-            $thumbPicUrl = Storage::url($path);
-            $pth = 'http://34.207.97.193/ahgoo/public' . $thumbPicUrl;
-            $uploadedImages[] = EventMedia::create([
-                'event_id' => $event_id,
-                'media_path' => $pth,
-                'media_type' => 'image',
-            ]);
-        }
-
-        return response()->json([
-            'status' => true,
-            'msg' => 'Images uploaded successfully',
-            'data' => $uploadedImages
-        ], 201);
     }
 
 
@@ -3755,5 +3771,72 @@ class ProfileController extends Controller
             'msg' => 'Image Replaced Successfully',
             'data' => $promo_data
         ], 201);
+    }
+    public function my_event_followers(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'event_id' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $followers = Followers::where('followed_to', $request->user_id)->orderBy('created_at', 'desc')->get();
+            // echo '<pre>';print_r($followers);exit;
+            if(!empty($followers)){
+                foreach($followers as $follow){
+                    $details = AllUser::where('_id', $follow->followed_by)->first();
+                    $follow->_id = $details->_id;
+                    $follow->name = $details->name;
+                    $followers_total = Followers::where('followed_to',$details->_id)->get();
+                    if(!empty($followers_total)){
+                        $follow->followers = count($followers_total);
+                    }else{
+                        $follow->followers = 0;
+                    }
+                    $follow->videos = 0;
+                    $follow->profile_details = $details->profile_details;
+                    $follow->account_description = 'Love Yourself';
+                    if(!isset($follow->profile_pic) OR empty($follow->profile_pic)){
+                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    }
+                }
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Follower below',
+                    'data' => $followers
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => 'No Followers Found'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
     }
 }

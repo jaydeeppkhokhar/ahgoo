@@ -103,3 +103,4 @@ Route::post('create_event_slide_4', [ProfileController::class, 'create_event_sli
 Route::post('event_name_checking', [ProfileController::class, 'event_name_checking']);
 Route::post('event_subtitle_checking', [ProfileController::class, 'event_subtitle_checking']);
 Route::post('replaceEventImage', [ProfileController::class, 'replaceEventImage']);
+Route::post('my_event_followers', [ProfileController::class, 'my_event_followers']);
