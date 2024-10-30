@@ -1682,7 +1682,8 @@ class ProfileController extends Controller
             }
 
             $uploadedImages = [];
-
+            // delete previous images
+            $delete = EventMedia::where('event_id', $event_id)->where('media_type', 'image')->delete();
             foreach ($request->file('images') as $image) {
                 $path = $image->store('event_media', 'public');
                 $thumbPicUrl = Storage::url($path);
@@ -4142,6 +4143,178 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function event_all_details(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $event_details = Events::where('_id',$request->event_id)->first();
+            $event_details->event_date_formatted = Carbon::parse($event_details->event_date)->format('d M');
+            $user = AllUser::where('_id',$event_details->user_id)->first();
+            $event_details->event_created_by = $user->name;
+
+            $followers_total = Followers::where('followed_to',$event_details->user_id)->get();
+            if(!empty($followers_total)){
+                $event_details->event_created_by_followers = count($followers_total);
+            }else{
+                $event_details->event_created_by_followers = 0;
+            }
+            if(!isset($user->profile_pic) OR empty($user->profile_pic)){
+                $event_details->event_created_by_profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }else{
+                $event_details->event_created_by_profile_pic = $user->profile_pic;
+            }
+            
+            $inv_cnt = EventInvites::where('event_id',$request->event_id)->get();
+            if(!$inv_cnt->isEmpty()){
+                $event_details->event_invites_count = count($inv_cnt);
+                $event_details->event_invites1 = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                $event_details->event_invites2 = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+            }else{
+                $event_details->event_invites_count = 0;
+                $event_details->event_invites1 = '';
+                $event_details->event_invites2 = '';
+            }
+            $event_details->event_created_by = $user->name;
+            $event_details->event_created_by = $user->name;
+            $slug = 'delete_event';
+            $cms_data = Cms::where('slug', 'LIKE', "%{$slug}%")
+                        ->first();
+            $event_details->delete_cms_title = $cms_data->title;
+            $event_details->delete_cms_content = $cms_data->content;
+            $event_details->event_media = EventMedia::select('_id','media_path')->where('event_id',$request->event_id)->get();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event Details Below',
+                'data' => $event_details
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    function event_edit_information(Request $request){
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'event_name' => 'required|string|max:255',
+            'event_description' => 'required|string',
+            'cover_pic' => 'required|string'
+            // 'event_date' => 'required|string|max:255',
+            // 'duration' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Events::where('_id', $request->event_id)->update([
+                'event_name' => $request->event_name,
+                'event_description' => $request->event_description,
+                'cover_pic' => $request->cover_pic,
+                'event_date' => $request->event_date ?? '',
+                'duration' => $request->duration ?? ''
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Addition Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function delete_event(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $event_delete = Events::where('_id', $request->event_id)
+                       ->where('user_id', $request->user_id)
+                       ->delete();
+            if($event_delete){
+                EventMedia::where('event_id', $request->event_id)->delete();
+                EventInvites::where('event_id', $request->event_id)->delete();
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event deleted successfully',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
                 'data' => (object) []
             ], 500);
         }

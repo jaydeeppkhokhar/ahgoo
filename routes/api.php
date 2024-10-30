@@ -108,3 +108,6 @@ Route::post('my_event_followings', [ProfileController::class, 'my_event_followin
 Route::post('my_event_friends', [ProfileController::class, 'my_event_friends']);
 Route::post('my_event_all_inv', [ProfileController::class, 'my_event_all_inv']);
 Route::post('sent_event_invite', [ProfileController::class, 'sent_event_invite']);
+Route::post('event_all_details', [ProfileController::class, 'event_all_details']);
+Route::post('event_edit_information', [ProfileController::class, 'event_edit_information']);
+Route::post('delete_event', [ProfileController::class, 'delete_event']);
