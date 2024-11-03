@@ -3798,40 +3798,45 @@ class ProfileController extends Controller
         }
 
         try {
-            $followers = Followers::where('followed_to', $request->user_id)->orderBy('created_at', 'desc')->get();
-            // echo '<pre>';print_r($followers);exit;
-            if(!empty($followers)){
-                foreach($followers as $follow){
+            $followersQuery = Followers::where('followed_to', $request->user_id);
+
+            // Check if the keyword is passed in the request
+            if ($request->has('keyword') && !empty($request->keyword)) {
+                $keyword = $request->keyword;
+                
+                // Find users matching the keyword in name, username, or email
+                $matchingUsers = AllUser::where('name', 'like', "%$keyword%")
+                                        ->orWhere('username', 'like', "%$keyword%")
+                                        ->orWhere('email', 'like', "%$keyword%")
+                                        ->pluck('_id');
+                
+                // Filter followers by matching user IDs
+                $followersQuery->whereIn('followed_by', $matchingUsers);
+            }
+
+            $followers = $followersQuery->orderBy('created_at', 'desc')->get();
+
+            if (!$followers->isEmpty()) {
+                foreach ($followers as $follow) {
                     $details = AllUser::where('_id', $follow->followed_by)->first();
                     $follow->_id = $details->_id;
                     $follow->name = $details->name;
-                    $followers_total = Followers::where('followed_to',$details->_id)->get();
-                    if(!empty($followers_total)){
-                        $follow->followers = count($followers_total);
-                    }else{
-                        $follow->followers = 0;
-                    }
+                    $followers_total = Followers::where('followed_to', $details->_id)->get();
+                    $follow->followers = $followers_total->isEmpty() ? 0 : count($followers_total);
                     $follow->videos = 0;
                     $follow->profile_details = $details->profile_details;
-                    // $follow->account_description = 'Love Yourself';
-                    if(!isset($details->profile_pic) OR empty($details->profile_pic)){
-                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
-                    }else{
-                        $follow->profile_pic = $details->profile_pic;
-                    }
-                    $invites = EventInvites::where('user_id',$details->_id)->where('event_id',$request->event_id)->get();
-                    if ($invites->isEmpty()) {
-                        $follow->is_already_invited = 0;
-                    } else {
-                        $follow->is_already_invited = 1;
-                    }
+                    $follow->profile_pic = empty($details->profile_pic) ? 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg' : $details->profile_pic;
+                    
+                    $invites = EventInvites::where('user_id', $details->_id)->where('event_id', $request->event_id)->get();
+                    $follow->is_already_invited = $invites->isEmpty() ? 0 : 1;
                 }
+                
                 return response()->json([
                     'status' => true,
-                    'msg' => 'Follower below',
+                    'msg' => 'Followers below',
                     'data' => $followers
                 ], 200);
-            }else{
+            } else {
                 return response()->json([
                     'status' => false,
                     'data' => (object) [],
@@ -3873,40 +3878,45 @@ class ProfileController extends Controller
         }
 
         try {
-            $followers = Followers::where('followed_by', $request->user_id)->orderBy('created_at', 'desc')->get();
-            // echo '<pre>';print_r($followers);exit;
-            if(!empty($followers)){
-                foreach($followers as $follow){
-                    $details = AllUser::where('_id', $follow->followed_by)->first();
+            $followingQuery = Followers::where('followed_by', $request->user_id);
+
+            // Check if the keyword is passed in the request
+            if ($request->has('keyword') && !empty($request->keyword)) {
+                $keyword = $request->keyword;
+                
+                // Find users matching the keyword in name, username, or email
+                $matchingUsers = AllUser::where('name', 'like', "%$keyword%")
+                                        ->orWhere('username', 'like', "%$keyword%")
+                                        ->orWhere('email', 'like', "%$keyword%")
+                                        ->pluck('_id');
+                
+                // Filter following by matching user IDs
+                $followingQuery->whereIn('followed_to', $matchingUsers);
+            }
+
+            $followers = $followingQuery->orderBy('created_at', 'desc')->get();
+
+            if (!$followers->isEmpty()) {
+                foreach ($followers as $follow) {
+                    $details = AllUser::where('_id', $follow->followed_to)->first();
                     $follow->_id = $details->_id;
                     $follow->name = $details->name;
-                    $followers_total = Followers::where('followed_to',$details->_id)->get();
-                    if(!empty($followers_total)){
-                        $follow->followers = count($followers_total);
-                    }else{
-                        $follow->followers = 0;
-                    }
+                    $followers_total = Followers::where('followed_to', $details->_id)->get();
+                    $follow->followers = $followers_total->isEmpty() ? 0 : count($followers_total);
                     $follow->videos = 0;
                     $follow->profile_details = $details->profile_details;
-                    // $follow->account_description = 'Love Yourself';
-                    if(!isset($details->profile_pic) OR empty($details->profile_pic)){
-                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
-                    }else{
-                        $follow->profile_pic = $details->profile_pic;
-                    }
-                    $invites = EventInvites::where('user_id',$details->_id)->where('event_id',$request->event_id)->get();
-                    if ($invites->isEmpty()) {
-                        $follow->is_already_invited = 0;
-                    } else {
-                        $follow->is_already_invited = 1;
-                    }
+                    $follow->profile_pic = empty($details->profile_pic) ? 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg' : $details->profile_pic;
+                    
+                    $invites = EventInvites::where('user_id', $details->_id)->where('event_id', $request->event_id)->get();
+                    $follow->is_already_invited = $invites->isEmpty() ? 0 : 1;
                 }
+                
                 return response()->json([
                     'status' => true,
                     'msg' => 'Following below',
                     'data' => $followers
                 ], 200);
-            }else{
+            } else {
                 return response()->json([
                     'status' => false,
                     'data' => (object) [],
@@ -3948,40 +3958,63 @@ class ProfileController extends Controller
         }
 
         try {
-            $followers = Followers::where('followed_by', $request->user_id)->orderBy('created_at', 'desc')->get();
-            // echo '<pre>';print_r($followers);exit;
-            if(!empty($followers)){
-                foreach($followers as $follow){
-                    $details = AllUser::where('_id', $follow->followed_by)->first();
+            $friendsQuery = Friends::where(function($query) use ($request) {
+                $query->where('is_accepted', 1)
+                        ->where(function($query) use ($request) {
+                            $query->where('sent_to', $request->user_id)
+                                ->orWhere('sent_by', $request->user_id);
+                        });
+            });
+        
+            // Check if the keyword is passed in the request
+            if ($request->has('keyword') && !empty($request->keyword)) {
+                $keyword = $request->keyword;
+                
+                // Find users matching the keyword in name, username, or email
+                $matchingUsers = AllUser::where('name', 'like', "%$keyword%")
+                                        ->orWhere('username', 'like', "%$keyword%")
+                                        ->orWhere('email', 'like', "%$keyword%")
+                                        ->pluck('_id');
+                
+                // Filter friends by matching user IDs
+                $friendsQuery->where(function($query) use ($matchingUsers) {
+                    $query->whereIn('sent_to', $matchingUsers)
+                            ->orWhereIn('sent_by', $matchingUsers);
+                });
+            }
+        
+            $followers = $friendsQuery->orderBy('created_at', 'desc')
+                                        ->get()
+                                        ->unique(function ($item) {
+                                            return $item['sent_to'] . $item['sent_by'];
+                                        })
+                                        ->values();
+        
+            if (!$followers->isEmpty()) {
+                foreach ($followers as $follow) {
+                    if ($follow->sent_to == $request->user_id) {
+                        $details = AllUser::where('_id', $follow->sent_by)->first();
+                    } else {
+                        $details = AllUser::where('_id', $follow->sent_to)->first();
+                    }
                     $follow->_id = $details->_id;
                     $follow->name = $details->name;
-                    $followers_total = Followers::where('followed_to',$details->_id)->get();
-                    if(!empty($followers_total)){
-                        $follow->followers = count($followers_total);
-                    }else{
-                        $follow->followers = 0;
-                    }
+                    $followers_total = Followers::where('followed_to', $details->_id)->get();
+                    $follow->followers = $followers_total->isEmpty() ? 0 : count($followers_total);
                     $follow->videos = 0;
                     $follow->profile_details = $details->profile_details;
-                    // $follow->account_description = 'Love Yourself';
-                    if(!isset($details->profile_pic) OR empty($details->profile_pic)){
-                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
-                    }else{
-                        $follow->profile_pic = $details->profile_pic;
-                    }
-                    $invites = EventInvites::where('user_id',$details->_id)->where('event_id',$request->event_id)->get();
-                    if ($invites->isEmpty()) {
-                        $follow->is_already_invited = 0;
-                    } else {
-                        $follow->is_already_invited = 1;
-                    }
+                    $follow->profile_pic = empty($details->profile_pic) ? 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg' : $details->profile_pic;
+        
+                    $invites = EventInvites::where('user_id', $details->_id)->where('event_id', $request->event_id)->get();
+                    $follow->is_already_invited = $invites->isEmpty() ? 0 : 1;
                 }
+        
                 return response()->json([
                     'status' => true,
-                    'msg' => 'Freinds below',
+                    'msg' => 'Friends below',
                     'data' => $followers
                 ], 200);
-            }else{
+            } else {
                 return response()->json([
                     'status' => false,
                     'data' => (object) [],
@@ -4023,46 +4056,89 @@ class ProfileController extends Controller
         }
 
         try {
-            $followers = Followers::where('followed_to', $request->user_id)->orderBy('created_at', 'desc')->get();
-            // echo '<pre>';print_r($followers);exit;
-            if(!empty($followers)){
-                foreach($followers as $follow){
-                    $details = AllUser::where('_id', $follow->followed_by)->first();
-                    $follow->_id = $details->_id;
-                    $follow->name = $details->name;
-                    $followers_total = Followers::where('followed_to',$details->_id)->get();
-                    if(!empty($followers_total)){
-                        $follow->followers = count($followers_total);
-                    }else{
-                        $follow->followers = 0;
-                    }
-                    $follow->videos = 0;
-                    $follow->profile_details = $details->profile_details;
-                    // $follow->account_description = 'Love Yourself';
-                    if(!isset($details->profile_pic) OR empty($details->profile_pic)){
-                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
-                    }else{
-                        $follow->profile_pic = $details->profile_pic;
-                    }
-                    $invites = EventInvites::where('user_id',$details->_id)->where('event_id',$request->event_id)->get();
-                    if ($invites->isEmpty()) {
-                        $follow->is_already_invited = 0;
-                    } else {
-                        $follow->is_already_invited = 1;
-                    }
-                }
-                return response()->json([
-                    'status' => true,
-                    'msg' => 'List below',
-                    'data' => $followers
-                ], 200);
-            }else{
-                return response()->json([
-                    'status' => false,
-                    'data' => (object) [],
-                    'msg' => 'No List Found'
-                ], 422);
+            $user_id = $request->user_id;
+            $keyword = $request->keyword;
+
+            // Function to get user details and followers count
+            $getUserDetails = function ($user) use ($request) {
+                $user_details = AllUser::where('_id', $user)->first();
+                $followers_total = Followers::where('followed_to', $user_details->_id)->count();
+                return [
+                    '_id' => $user_details->_id,
+                    'name' => $user_details->name,
+                    'followers' => $followers_total,
+                    'videos' => 0,
+                    'profile_details' => $user_details->profile_details,
+                    // 'profile_pic' => $user_details->profile_pic ?? 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg',
+                    'profile_pic' => empty($user_details->profile_pic) ? 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg' : $user_details->profile_pic,
+                    'is_already_invited' => EventInvites::where('user_id', $user_details->_id)->where('event_id', $request->event_id)->exists() ? 1 : 0,
+                ];
+            };
+
+            // Query for followers
+            $followersQuery = Followers::where('followed_to', $user_id);
+
+            // Query for followings
+            $followingsQuery = Followers::where('followed_by', $user_id);
+
+            // Query for friends
+            $friendsQuery = Friends::where(function($query) use ($user_id) {
+                $query->where('is_accepted', 1)
+                    ->where(function($query) use ($user_id) {
+                        $query->where('sent_to', $user_id)
+                                ->orWhere('sent_by', $user_id);
+                    });
+            });
+
+            // Apply keyword search to all queries if keyword is provided
+            if (!empty($keyword)) {
+                $matchingUsers = AllUser::where('name', 'like', "%$keyword%")
+                                        ->orWhere('username', 'like', "%$keyword%")
+                                        ->orWhere('email', 'like', "%$keyword%")
+                                        ->pluck('_id');
+
+                $followersQuery->whereIn('followed_by', $matchingUsers);
+                $followingsQuery->whereIn('followed_to', $matchingUsers);
+                $friendsQuery->where(function($query) use ($matchingUsers) {
+                    $query->whereIn('sent_to', $matchingUsers)
+                        ->orWhereIn('sent_by', $matchingUsers);
+                });
             }
+
+            // Get followers, followings, and friends
+            $followers = $followersQuery->orderBy('created_at', 'desc')->get();
+            $followings = $followingsQuery->orderBy('created_at', 'desc')->get();
+            $friends = $friendsQuery->orderBy('created_at', 'desc')
+                                    ->get()
+                                    ->unique(function ($item) {
+                                        return $item['sent_to'] . $item['sent_by'];
+                                    })
+                                    ->values();
+
+            // Compile all details
+            $allConnections = [];
+
+            foreach ($followers as $follower) {
+                $allConnections[] = $getUserDetails($follower->followed_by);
+            }
+
+            foreach ($followings as $following) {
+                $allConnections[] = $getUserDetails($following->followed_to);
+            }
+
+            foreach ($friends as $friend) {
+                $user_id_to_get_details = ($friend->sent_to == $user_id) ? $friend->sent_by : $friend->sent_to;
+                $allConnections[] = $getUserDetails($user_id_to_get_details);
+            }
+
+            // Remove duplicate entries by _id
+            $allConnections = collect($allConnections)->unique('_id')->values();
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'All connections below',
+                'data' => $allConnections
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
