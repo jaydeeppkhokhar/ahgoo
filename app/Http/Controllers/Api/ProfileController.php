@@ -1658,19 +1658,21 @@ class ProfileController extends Controller
     }
     public function uploadEventImages(Request $request)
     {
-        // $validator = Validator::make($request->all(), [
-        //     'images' => 'required|array|size:1',
-        //     'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        // ]);
-        //     if ($validator->fails()) {
-        //         $errors = $validator->errors()->all();
-        //         return response()->json([
-        //             'status' => false,
-        //             'data' => (object) [],
-        //             'msg' => $errors[0]
-        //         ], 422);
-        //     }
-        // try {
+        $validator = Validator::make($request->all(), [
+            'images' => 'required|array|min:1|max:5',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' => false,
+                'data' => (object) [],
+                'msg' => $errors[0]
+            ], 422);
+        }
+
+        try {
             // Check if event_id is passed and not empty, if not, create a new Event
             if ($request->has('event_id') && !empty($request->event_id)) {
                 $event_id = $request->event_id;
@@ -1699,13 +1701,13 @@ class ProfileController extends Controller
                 'msg' => 'Images uploaded successfully',
                 'data' => $uploadedImages
             ], 201);
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'msg' => 'Updation Failed',
-        //         'data' => (object) []
-        //     ], 500);
-        // }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
     }
 
     public function uploadEventVideo(Request $request)
