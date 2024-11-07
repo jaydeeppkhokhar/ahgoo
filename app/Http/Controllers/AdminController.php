@@ -46,6 +46,10 @@ class AdminController extends Controller
         $data['cms'] = Cms::get();
         return view('admin.cms',$data);
     }
+    public function edit_cms(Request $request){
+        $data['cms'] = Cms::where('_id',$request->id);
+        return view('admin.edit_cms',$data);
+    }
     public function hobbies(){
         $data['hobbies'] = Hobbies::get();
         return view('admin.hobbies',$data);

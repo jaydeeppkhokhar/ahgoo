@@ -34,7 +34,7 @@
 				<!--begin::Actions-->
 				<div class="d-flex align-items-center gap-2 gap-lg-3">
 					<!--begin::Primary button-->
-					<!-- <a href="#" class="btn btn-sm fw-bold btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_customer">Create</a> -->
+					<a href="{{ route('cms.create') }}" class="btn btn-sm fw-bold btn-primary">Create</a>
 					<!--end::Primary button-->
 				</div>
 				<!--end::Actions-->
@@ -208,9 +208,9 @@
 							<!--end::Table head-->
 							<!--begin::Table body-->
 							<tbody class="fw-semibold text-gray-600">
-								<?php if(!empty($cms)){
+								<?php if(!empty($pages)){
 									$i = 1;
-									foreach($cms as $ccm){?>
+									foreach($pages as $ccm){?>
 								<tr>
 									<!--begin::Checkbox-->
 									<td>
@@ -234,12 +234,12 @@
 										<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
 											<!--begin::Menu item-->
 											<div class="menu-item px-3">
-												<a href="#" class="menu-link px-3">Edit</a>
+												<a href="{{ route('cms.edit', $ccm->id) }}" class="menu-link px-3">Edit</a>
 											</div>
 											<!--end::Menu item-->
 											<!--begin::Menu item-->
 											<div class="menu-item px-3">
-												<a href="" class="menu-link px-3 custom-delete" data-kt-customer-table-filter="delete_row">Delete</a>
+												<a href="{{ route('cms.destroy', $ccm->id) }}" class="menu-link px-3 custom-delete" data-kt-customer-table-filter="delete_row">Delete</a>
 											</div>
 											<!--end::Menu item-->
 										</div>
