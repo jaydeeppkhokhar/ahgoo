@@ -111,3 +111,10 @@ Route::post('sent_event_invite', [ProfileController::class, 'sent_event_invite']
 Route::post('event_all_details', [ProfileController::class, 'event_all_details']);
 Route::post('event_edit_information', [ProfileController::class, 'event_edit_information']);
 Route::post('delete_event', [ProfileController::class, 'delete_event']);
+Route::post('paid_events_slide_4', [ProfileController::class, 'paid_events_slide_4']);
+Route::post('paid_event_create_audience', [ProfileController::class, 'paid_event_create_audience']);
+Route::post('paid_event_audience_name_check', [ProfileController::class, 'paid_event_audience_name_check']);
+Route::post('paid_events_about_the_atendees', [ProfileController::class, 'paid_events_about_the_atendees']);
+Route::post('paid_events_add_web_address', [ProfileController::class, 'paid_events_add_web_address']);
+Route::post('paid_event_budget', [ProfileController::class, 'paid_event_budget']);
+Route::post('paid_event_payment_method', [ProfileController::class, 'paid_event_payment_method']);

@@ -4396,4 +4396,348 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function paid_events_slide_4(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'automatic_public' => 'required|integer|in:0,1'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Events::where('_id', $request->event_id)->update([
+                'automatic_public' => $request->automatic_public,
+                'is_name_public_already_created' => $request->automatic_public
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function paid_event_create_audience(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'estimated_size' => 'required|string|max:255',
+            'name_of_audience' => 'required|string|max:255',
+            'age_from' => 'required|integer',
+            'age_to' => 'required|integer',
+            'gender' => 'required|string|max:255',
+            'audience_location' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $locationJson = json_encode($request->audience_location);
+            Events::where('_id', $request->event_id)->update([
+                'estimated_size' => $request->estimated_size,
+                'name_of_audience' => $request->name_of_audience,
+                'age_from' => $request->age_from,
+                'age_to' => $request->age_to,
+                'gender' => $request->gender,
+                'audience_location' => $locationJson
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function paid_event_audience_name_check(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name_of_audience' => 'required|string|min:5',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' => false,
+                'data' => (object) [],
+                'msg' => $errors[0]
+            ], 422);
+        }
+        try {
+            $name_of_audience = $request->name_of_audience;
+
+            // Search for users where name, email, or username contains the keyword
+            $users = Events::where('name_of_audience', 'LIKE', "%{$name_of_audience}%")
+                        ->get();
+
+            // Check if users were found
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Audience name is available',
+                    'data' => (object) []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'msg' => 'Audience name not available.',
+                'data' => (object) []
+            ], 404);
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Failed!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function paid_events_about_the_atendees(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'create_group_chat' => 'nullable|in:0,1',
+            'show_my_website' => 'nullable|in:0,1'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Events::where('_id', $request->event_id)->update([
+                'create_group_chat' => $request->create_group_chat ?? 0,
+                'show_my_website' => $request->show_my_website ?? 0,
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function paid_events_add_web_address(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'web_address' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $web_address = $request->web_address;
+
+            // Search for users where name, email, or username contains the keyword
+            $users = Events::where('web_address', 'LIKE', "%{$web_address}%")
+                        ->get();
+
+            // Check if users were found
+            if ($users->isEmpty()) {
+                Events::where('_id', $request->event_id)->update([
+                    'web_address' => $request->web_address
+                ]);
+                $promo_data = Events::where('_id', $request->event_id)->first();
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Web address added',
+                    'data' => $promo_data
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'msg' => 'Web address already used.',
+                'data' => (object) []
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function paid_event_budget(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'per_day_spent' => 'required|integer',
+            'total_days' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Events::where('_id', $request->event_id)->update([
+                'per_day_spent' => $request->per_day_spent,
+                'total_days' => $request->total_days,
+                'total_amount' => $request->per_day_spent * $request->total_days
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function paid_event_payment_method(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255',
+            'payment_method' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Events::where('_id', $request->event_id)->update([
+                'payment_method' => $request->payment_method
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+            $slug = 'paid_event_cofirm';
+            $cms_data = Cms::where('slug', 'LIKE', "%{$slug}%")
+                        ->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event updated successfully',
+                'data' => $promo_data,
+                'popup_cms_title' => $cms_data->title,
+                'popup_cms_content' => $cms_data->content
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }
