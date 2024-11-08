@@ -4333,6 +4333,7 @@ class ProfileController extends Controller
                 'event_description' => $request->event_description,
                 'cover_pic' => $request->cover_pic,
                 'event_date' => $request->event_date ?? '',
+                'event_end_date' => $request->event_end_date ?? '',
                 'duration' => $request->duration ?? ''
             ]);
             $promo_data = Events::where('_id', $request->event_id)->first();
