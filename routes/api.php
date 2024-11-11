@@ -118,3 +118,4 @@ Route::post('paid_events_about_the_atendees', [ProfileController::class, 'paid_e
 Route::post('paid_events_add_web_address', [ProfileController::class, 'paid_events_add_web_address']);
 Route::post('paid_event_budget', [ProfileController::class, 'paid_event_budget']);
 Route::post('paid_event_payment_method', [ProfileController::class, 'paid_event_payment_method']);
+Route::post('test', [ProfileController::class, 'test']);

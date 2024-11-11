@@ -4741,4 +4741,11 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    function test(Request $request){
+        $name = $request->name;
+        return response()->json([
+            'status' => true,
+            'msg' => 'Hello '.$name.'! Welcome to the site.'
+        ], 200);
+    }
 }
