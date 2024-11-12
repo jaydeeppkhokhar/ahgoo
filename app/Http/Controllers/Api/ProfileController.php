@@ -4571,6 +4571,7 @@ class ProfileController extends Controller
             Events::where('_id', $request->event_id)->update([
                 'create_group_chat' => $request->create_group_chat ?? 0,
                 'show_my_website' => $request->show_my_website ?? 0,
+                'web_address' => $request->web_address ?? ''
             ]);
             $promo_data = Events::where('_id', $request->event_id)->first();
             return response()->json([
