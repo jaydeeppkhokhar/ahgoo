@@ -3499,7 +3499,8 @@ class ProfileController extends Controller
         try {
             AllUser::where('_id', $request->user_id)->update([
                 'profile_details' => $request->profile_details,
-                'website' => $request->website ?? ''
+                'website' => $request->website ?? '',
+                'profile_summary' => $request->profile_summary ?? ''
             ]);
 
             // $token = $user->createToken('api-token')->plainTextToken;
