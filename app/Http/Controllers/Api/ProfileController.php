@@ -1325,6 +1325,7 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|string|max:255',
             'post_id' => 'required|string|max:255',
+            'cover_pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'is_showing_event' => 'required|integer|in:0,1',
             'type' => 'required|string|max:255'
         ]);
@@ -1349,17 +1350,24 @@ class ProfileController extends Controller
         }
 
         try {
-            if(isset($request->event_type) && !empty($request->event_type)){
-                $e_type = $request->event_type;
-            }else{
-                $e_type = 2;
-            }
+            // if(isset($request->event_type) && !empty($request->event_type)){
+            //     $e_type = $request->event_type;
+            // }else{
+            //     $e_type = 2;
+            // }
+            // Store the cover image
+            $coverImage = $request->file('cover_pic');
+            $path = $coverImage->store('event_media', 'public');
+            $thumbPicUrl = Storage::url($path);
+            $pth = 'http://34.207.97.193/ahgoo/public'.$thumbPicUrl;
+
             $promotion = Promotion::create([
                 'user_id' => $request->user_id,
                 'post_id' => $request->post_id,
                 'is_showing_event' => $request->is_showing_event,
                 'type' => $request->type,
-                'event_type' => $e_type
+                'web_address' => $request->web_address ?? '',
+                'cover_pic' => $pth
             ]);
             $insertedId = $promotion->_id;
             // $token = $user->createToken('api-token')->plainTextToken;
@@ -1381,7 +1389,8 @@ class ProfileController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'promotion_id' => 'required|string|max:255',
-            'automatic_public' => 'required|integer|in:0,1'
+            'automatic_public' => 'required|integer|in:0,1',
+            'is_name_public_already_created' => 'required|integer|in:0,1'
         ]);
 
         if ($validator->fails()) {
@@ -1405,7 +1414,8 @@ class ProfileController extends Controller
 
         try {
             Promotion::where('_id', $request->promotion_id)->update([
-                'automatic_public' => $request->automatic_public
+                'automatic_public' => $request->automatic_public,
+                'is_name_public_already_created' => $request->is_name_public_already_created ?? 0
             ]);
             $promo_data = Promotion::where('_id', $request->promotion_id)->first();
             return response()->json([
@@ -1481,8 +1491,8 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'promotion_id' => 'required|string|max:255',
             'per_day_spent' => 'required|integer',
-            'total_days' => 'required|integer',
-            'event_location' => 'required|string|max:255'
+            'total_days' => 'required|integer'
+            // 'event_location' => 'required|string|max:255'
         ]);
 
         if ($validator->fails()) {
@@ -1509,13 +1519,63 @@ class ProfileController extends Controller
             Promotion::where('_id', $request->promotion_id)->update([
                 'per_day_spent' => $request->per_day_spent,
                 'total_days' => $request->total_days,
-                'event_location' => $request->event_location
+                'total_cost' => $request->per_day_spent*$request->total_days
+                // 'event_location' => $request->event_location
             ]);
             $promo_data = Promotion::where('_id', $request->promotion_id)->first();
             return response()->json([
                 'status' => true,
                 'msg' => 'Promotion updated successfully',
                 'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_promotion_payment_method(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'promotion_id' => 'required|string|max:255',
+            'payment_method' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            Promotion::where('_id', $request->promotion_id)->update([
+                'payment_method' => $request->payment_method
+            ]);
+            $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+            $slug = 'promotion_confirmation';
+            $cms_data = Cms::where('slug', 'LIKE', "%{$slug}%")
+                        ->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion updated successfully',
+                'data' => $promo_data,
+                'popup_cms_title' => $cms_data->title,
+                'popup_cms_content' => $cms_data->content
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

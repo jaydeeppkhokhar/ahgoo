@@ -59,6 +59,7 @@ Route::post('create_promotion_1', [ProfileController::class, 'create_promotion_1
 Route::post('create_promotion_2', [ProfileController::class, 'create_promotion_2']);
 Route::post('create_promotion_audience', [ProfileController::class, 'create_promotion_audience']);
 Route::post('create_promotion_budget', [ProfileController::class, 'create_promotion_budget']);
+Route::post('create_promotion_payment_method', [ProfileController::class, 'create_promotion_payment_method']);
 Route::post('create_promotion_confirm', [ProfileController::class, 'create_promotion_confirm']);
 Route::post('audience_name_check', [ProfileController::class, 'audience_name_check']);
 Route::post('delete_promotion', [ProfileController::class, 'delete_promotion']);
