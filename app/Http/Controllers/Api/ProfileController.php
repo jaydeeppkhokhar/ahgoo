@@ -1742,7 +1742,7 @@ class ProfileController extends Controller
         }
 
         try {
-            $promo_data = Promotion::where('_id', $request->promotion_id)->first;
+            $promo_data = Promotion::where('_id', $request->promotion_id)->first();
             return response()->json([
                 'status' => true,
                 'msg' => 'Promotion details below',
