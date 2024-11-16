@@ -1716,6 +1716,46 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function promotion_details(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'promotion_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $promo_data = Promotion::where('_id', $request->promotion_id)->first;
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion details below',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
     public function uploadEventImages(Request $request)
     {
         $validator = Validator::make($request->all(), [
