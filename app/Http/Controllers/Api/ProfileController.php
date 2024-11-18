@@ -1262,7 +1262,13 @@ class ProfileController extends Controller
             $countries = Countries::whereIn('name', $countryIds)->get()->keyBy('name');
 
             // Step 4: Fetch promotion details for all posts in one query
-            $promotionDetails = Promotion::whereIn('post_id', $posts->pluck('_id'))->get()->groupBy('post_id');
+            // echo '<pre>';print_r($posts->pluck('_id'));
+            $promotionDetails = Promotion::where('user_id', $request->user_id)
+                                ->whereIn('post_id', $posts->pluck('_id'))
+                                ->whereIn('is_confirm', ['1', '2', '3'])
+                                ->get()
+                                ->groupBy('post_id');
+            // echo '<pre>';print_r($promotionDetails);exit;
 
             // Step 5: Fetch all likes for the posts in one query
             $postLikes = PostLikes::whereIn('post_id', $posts->pluck('_id'))
@@ -1279,7 +1285,12 @@ class ProfileController extends Controller
                                 ? $user->profile_pic 
                                 : 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
                 
-                $is_promotion_added = isset($promotionDetails[$post->_id]) && !$promotionDetails[$post->_id]->isEmpty() ? 1 : 0;
+                $is_promotion_added = isset($promotionDetails[$post->_id]) && !$promotionDetails[$post->_id]->isEmpty() 
+                                ? $promotionDetails[$post->_id]->first()->is_confirm 
+                                : 0;
+                $promotion_id = isset($promotionDetails[$post->_id]) && !$promotionDetails[$post->_id]->isEmpty() 
+                                ? $promotionDetails[$post->_id]->first()->_id 
+                                : 0;
 
                 $thumbnail_img = !empty($post->thumbnail_img) 
                                 ? $post->thumbnail_img 
@@ -1302,6 +1313,7 @@ class ProfileController extends Controller
                     'flag' => $country ? $country->flag : '',
                     'mi_flag' => $country ? $country->mi_flag : '',
                     'is_promotion_created' => $is_promotion_added,
+                    'promotion_id' => $promotion_id,
                     'thumbnail_img' => $thumbnail_img,
                     'is_already_liked' => $is_already_liked
                 ];
