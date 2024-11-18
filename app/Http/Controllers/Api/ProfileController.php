@@ -1601,7 +1601,7 @@ class ProfileController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'promotion_id' => 'required|string|max:255',
-            'is_confirm' => 'required|integer|in:0,1'
+            'is_confirm' => 'required|integer'
         ]);
 
         if ($validator->fails()) {
