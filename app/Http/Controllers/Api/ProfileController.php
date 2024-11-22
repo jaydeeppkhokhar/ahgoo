@@ -1401,8 +1401,8 @@ class ProfileController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'promotion_id' => 'required|string|max:255',
-            'automatic_public' => 'required|integer|in:0,1',
-            'is_name_public_already_created' => 'required|integer|in:0,1'
+            // 'automatic_public' => 'required|integer|in:0,1',
+            // 'is_name_public_already_created' => 'required|integer|in:0,1'
         ]);
 
         if ($validator->fails()) {
@@ -1426,7 +1426,7 @@ class ProfileController extends Controller
 
         try {
             Promotion::where('_id', $request->promotion_id)->update([
-                'automatic_public' => $request->automatic_public,
+                'automatic_public' => $request->automatic_public ?? 0,
                 'is_name_public_already_created' => $request->is_name_public_already_created ?? 0
             ]);
             $promo_data = Promotion::where('_id', $request->promotion_id)->first();
