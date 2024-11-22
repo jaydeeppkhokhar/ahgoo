@@ -2514,22 +2514,18 @@ class ProfileController extends Controller
         }
 
         try {
-            $promotions = Promotion::select('_id','post_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
+            $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(8)->get();
             foreach($promotions as $promo){
-                $promo->event_name = $promo->name_of_audience;
-                $promo->event_description = 'Come Join Us';
-                $post = Posts::where('_id', $promo->post_id)->first();
-                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
-                    $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
-                }else{
-                    $promo->images = $post->thumbnail_img;
-                }
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
-                $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
-                // $promo->users = AllUser::whereNotNull('profile_pic')
-                //                 ->inRandomOrder()
-                //                 ->take(4)
-                //                 ->get();
+                try {
+                    $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
+                } catch (\Exception $e) {
+                    try {
+                        $promo->formatted_event_date = Carbon::parse($promo->event_date)->format('d M');
+                    } catch (\Exception $e) {
+                        $promo->formatted_event_date = 'Invalid date';
+                    }
+                }
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
             }
             return response()->json([
@@ -2722,21 +2718,18 @@ class ProfileController extends Controller
         }
 
         try {
-            $promotions = Promotion::select('_id','post_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
+            $promotions = Events::where('is_confirm','1')->limit(8)->get();
             foreach($promotions as $promo){
-                $promo->event_name = $promo->name_of_audience;
-                $promo->event_description = 'Come Join Us';
-                $post = Posts::where('_id', $promo->post_id)->first();
-                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
-                    $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
-                }else{
-                    $promo->images = $post->thumbnail_img;
+                // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                try {
+                    $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
+                } catch (\Exception $e) {
+                    try {
+                        $promo->formatted_event_date = Carbon::parse($promo->event_date)->format('d M');
+                    } catch (\Exception $e) {
+                        $promo->formatted_event_date = 'Invalid date';
+                    }
                 }
-                $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
-                // $promo->users = AllUser::whereNotNull('profile_pic')
-                //                 ->inRandomOrder()
-                //                 ->take(4)
-                //                 ->get();
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
             }
             return response()->json([
@@ -2778,21 +2771,18 @@ class ProfileController extends Controller
         }
 
         try {
-            $promotions = Promotion::select('_id','post_id','name_of_audience','created_at','event_location')->orderBy('created_at', 'desc')->limit(8)->get();
+            $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(10)->get();
             foreach($promotions as $promo){
-                $promo->event_name = $promo->name_of_audience;
-                $promo->event_description = 'Come Join Us';
-                $post = Posts::where('_id', $promo->post_id)->first();
-                if(!isset($post->thumbnail_img) OR empty($post->thumbnail_img)){
-                    $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
-                }else{
-                    $promo->images = $post->thumbnail_img;
+                // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                try {
+                    $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
+                } catch (\Exception $e) {
+                    try {
+                        $promo->formatted_event_date = Carbon::parse($promo->event_date)->format('d M');
+                    } catch (\Exception $e) {
+                        $promo->formatted_event_date = 'Invalid date';
+                    }
                 }
-                $promo->formatted_event_date = Carbon::parse($promo->created_at)->format('d M');
-                // $promo->users = AllUser::whereNotNull('profile_pic')
-                //                 ->inRandomOrder()
-                //                 ->take(4)
-                //                 ->get();
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
             }
             return response()->json([
