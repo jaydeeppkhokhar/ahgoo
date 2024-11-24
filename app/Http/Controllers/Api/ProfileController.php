@@ -1755,6 +1755,44 @@ class ProfileController extends Controller
 
         try {
             $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+            $post_id = $promo_data->post_id;
+            $promo_data->total_plays = rand(101, 200);
+            $promo_data->total_likes = PostLikes::where('post_id', $post_id)->count();
+            $promo_data->total_comments = rand(10, 20);
+            $promo_data->total_shares = rand(2, 9);
+            $promo_data->total_bookmarks = rand(1, 8);
+            $promo_data->scopes = rand(1, 9);
+            $promo_data->total_interactions = rand(10, 200);
+            $promo_data->total_profile_views = rand(10, 20);
+            $promo_data->reproductions_left_text = "(+11hr from yesterday)";
+            $promo_data->reproductions_right_text = "1450 Hr / 16 min / 24 seg";
+            $promo_data->reproductions_is_positive = 1;
+            $promo_data->avg_viewing_time_left_text = "(-0,5 from yesterday)";
+            $promo_data->avg_viewing_time_right_text = "1450 Hr / 16 min / 24 seg";
+            $promo_data->avg_viewing_time_is_positive = 0;
+            $promo_data->audience_reached = rand(100, 999);
+            $promo_data->audience_reached_text = "(+700 from yesterday)";
+            $promo_data->audience_reached_is_positive = 1;
+
+            $countries = [
+                ['name' => 'USA', 'percentage' => 35],
+                ['name' => 'India', 'percentage' => 30],
+                ['name' => 'Argentina', 'percentage' => 20],
+                ['name' => 'Spain', 'percentage' => 15],
+            ];
+            
+            $country_counts = [];
+            
+            foreach ($countries as $country) {
+                $count = round(($country['percentage'] / 100) * $promo_data->audience_reached);
+                $country_counts[] = [
+                    'name' => $country['name'],
+                    'percentage' => $country['percentage'],
+                    'count' => $count,
+                ];
+            }
+            $promo_data->audience_reached_country_wise = $country_counts;
+            
             return response()->json([
                 'status' => true,
                 'msg' => 'Promotion details below',
