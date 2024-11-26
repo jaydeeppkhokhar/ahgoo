@@ -4890,4 +4890,261 @@ class ProfileController extends Controller
             'msg' => 'Hello '.$name.'! Welcome to the site.'
         ], 200);
     }
+    public function categories_event_wise(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $events = Events::select('event_category','cover_pic')->groupBy('event_category')->where('is_confirm','1')->get();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event Category Listing',
+                'data' => $events
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Addition Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function events_by_category(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'category' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $events = Events::where('event_category',$request->category)->where('is_confirm','1')->get();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event Listing',
+                'data' => $events
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Addition Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function my_active_events(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            if($request->order == 'default'){
+                $promotions = Events::where('is_confirm', '1')
+                ->where('user_id', $request->user_id)
+                ->where(function ($query) {
+                    // Regular expression to match the 'YYYY-MM-DD' format
+                    $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
+                        ->where('event_date', '>', date('Y-m-d'));
+                })
+                ->limit(15)
+                ->get();
+                
+            }else if($request->order == 'older'){
+                $promotions = Events::where('is_confirm', '1')
+                                ->where('user_id', $request->user_id)
+                                ->where(function ($query) {
+                                    // Regular expression to match the 'YYYY-MM-DD' format
+                                    $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
+                                        ->where('event_date', '>', date('Y-m-d'));
+                                })
+                                ->orderBy('created_at', 'asc')
+                                ->limit(15)
+                                ->get();
+            }else{
+                $promotions = Events::where('is_confirm', '1')
+                                ->where('user_id', $request->user_id)
+                                ->where(function ($query) {
+                                    // Regular expression to match the 'YYYY-MM-DD' format
+                                    $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
+                                        ->where('event_date', '>', date('Y-m-d'));
+                                })
+                                ->orderBy('created_at', 'desc')
+                                ->limit(15)
+                                ->get();
+            }
+            
+            foreach($promotions as $promo){
+                // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                try {
+                    $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
+                } catch (\Exception $e) {
+                    try {
+                        $promo->formatted_event_date = Carbon::parse($promo->event_date)->format('d M');
+                    } catch (\Exception $e) {
+                        $promo->formatted_event_date = 'Invalid date';
+                    }
+                }
+                $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+                $promo->users_counts = rand(10, 20);
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'My Active Events Below',
+                'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function my_finished_events(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            if($request->order == 'default'){
+                $promotions = Events::where('is_confirm', '1')
+                ->where('user_id', $request->user_id)
+                ->where(function ($query) {
+                    // Regular expression to match the 'YYYY-MM-DD' format
+                    $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
+                        ->where('event_date', '<=', date('Y-m-d'));
+                })
+                ->limit(15)
+                ->get();
+                
+            }else if($request->order == 'older'){
+                $promotions = Events::where('is_confirm', '1')
+                                ->where('user_id', $request->user_id)
+                                ->where(function ($query) {
+                                    // Regular expression to match the 'YYYY-MM-DD' format
+                                    $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
+                                        ->where('event_date', '<=', date('Y-m-d'));
+                                })
+                                ->orderBy('created_at', 'asc')
+                                ->limit(15)
+                                ->get();
+            }else{
+                $promotions = Events::where('is_confirm', '1')
+                                ->where('user_id', $request->user_id)
+                                ->where(function ($query) {
+                                    // Regular expression to match the 'YYYY-MM-DD' format
+                                    $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
+                                        ->where('event_date', '<=', date('Y-m-d'));
+                                })
+                                ->orderBy('created_at', 'desc')
+                                ->limit(15)
+                                ->get();
+            }
+            
+            foreach($promotions as $promo){
+                // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                try {
+                    $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
+                } catch (\Exception $e) {
+                    try {
+                        $promo->formatted_event_date = Carbon::parse($promo->event_date)->format('d M');
+                    } catch (\Exception $e) {
+                        $promo->formatted_event_date = 'Invalid date';
+                    }
+                }
+                $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+                $promo->users_counts = rand(10, 20);
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'My Active Events Below',
+                'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }

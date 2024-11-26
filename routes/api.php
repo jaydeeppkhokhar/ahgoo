@@ -120,4 +120,8 @@ Route::post('paid_events_about_the_atendees', [ProfileController::class, 'paid_e
 Route::post('paid_events_add_web_address', [ProfileController::class, 'paid_events_add_web_address']);
 Route::post('paid_event_budget', [ProfileController::class, 'paid_event_budget']);
 Route::post('paid_event_payment_method', [ProfileController::class, 'paid_event_payment_method']);
+Route::post('categories_event_wise', [ProfileController::class, 'categories_event_wise']);
+Route::post('events_by_category', [ProfileController::class, 'events_by_category']);
+Route::post('my_active_events', [ProfileController::class, 'my_active_events']);
+Route::post('my_finished_events', [ProfileController::class, 'my_finished_events']);
 Route::get('test', [ProfileController::class, 'test']);
