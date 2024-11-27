@@ -2552,7 +2552,11 @@ class ProfileController extends Controller
         }
 
         try {
-            $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(8)->get();
+            if(!empty($request->category)){
+                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('created_at', 'desc')->limit(10)->get();
+            }else{
+                $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(10)->get();
+            }
             foreach($promotions as $promo){
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 try {
@@ -2756,7 +2760,11 @@ class ProfileController extends Controller
         }
 
         try {
-            $promotions = Events::where('is_confirm','1')->limit(8)->get();
+            if(!empty($request->category)){
+                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->limit(10)->get();
+            }else{
+                $promotions = Events::where('is_confirm','1')->limit(10)->get();
+            }
             foreach($promotions as $promo){
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 try {
@@ -2809,7 +2817,11 @@ class ProfileController extends Controller
         }
 
         try {
-            $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(10)->get();
+            if(!empty($request->category)){
+                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('created_at', 'desc')->limit(10)->get();
+            }else{
+                $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(10)->get();
+            }
             foreach($promotions as $promo){
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 try {
