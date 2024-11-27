@@ -4351,10 +4351,14 @@ class ProfileController extends Controller
                     'is_seen' => 0
                 ]);
             }
+            $getAllInvites = EventInvites::where('event_id',$request->event_id)->get();
+            $user_invites_id = $getAllInvites[0]->user_id;
+            $user_invites = AllUser::where('_id', $user_invites_id)->first();
 
             return response()->json([
                 'status' => true,
                 'msg' => 'Invited Successfully',
+                'total_invites_msg' => $user_invites->name . ' and '.COUNT($getAllInvites).' people were invited.',
                 'data' => (object) []
             ], 200);
         } catch (\Exception $e) {
