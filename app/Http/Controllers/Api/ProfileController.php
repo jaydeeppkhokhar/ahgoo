@@ -726,22 +726,39 @@ class ProfileController extends Controller
                                             ->where('created_at', '>=', $sevenDaysAgo)
                                             ->get();
             }
-            if(!empty($notifications)){
+            // echo '<pre>';print_r($notifications);exit;
+            if(!$notifications->isEmpty()){
                 foreach($notifications as $not){
                     $details = AllUser::where('_id', $not->relavant_id)->first();
-                    $not->relavant_name = $details->name;
+                    if(!$details->isEmpty()){
+                        $not->relavant_name = $details->name;
+                    }else{
+                        $not->relavant_name = '';
+                    }
+                    
                 }
             }
             $new_notifications = Notifications::where('user_id', $request->user_id)
                                                 ->where('is_seen', 0)
                                                 ->get();
-            if(!empty($new_notifications)){
+            // echo '<pre>';print_r($new_notifications);exit;
+            if(!$new_notifications->isEmpty()){
                 foreach($new_notifications as $noti){
-                    $details = AllUser::where('_id', $noti->relavant_id)->first();
-                    $noti->relavant_name = $details->name;
+                    $detailss = AllUser::where('_id', $noti->relavant_id)->first();
+                    // echo '<pre>';print_r($details);exit;
+                    // echo $detailss->name;exit;
+                    if(!empty($detailss)){
+                        // echo '1';exit;
+                        $noti->relavant_name = $detailss->name;
+                    }else{
+                        // echo '2';exit;
+                        $noti->relavant_name = '';
+                    }
+                    // echo $noti->relavant_name;exit;
                 }
             }
-            if ($notifications->isEmpty()) {
+            // echo 'Hello';exit;
+            if ($notifications->isEmpty() && $new_notifications->isEmpty()) {
                 return response()->json([
                     'status' => true,
                     'msg' => 'No notifications found.',
