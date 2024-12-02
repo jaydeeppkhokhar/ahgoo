@@ -4458,7 +4458,7 @@ class ProfileController extends Controller
                         ->first();
             $event_details->delete_cms_title = $cms_data->title;
             $event_details->delete_cms_content = $cms_data->content;
-            $event_details->event_media = EventMedia::select('_id','media_path')->where('event_id',$request->event_id)->get();
+            $event_details->event_media = EventMedia::select('_id','media_path')->where('event_id',$request->event_id)->limit(5)->orderBy('created_at', 'desc')->get();
             return response()->json([
                 'status' => true,
                 'msg' => 'Event Details Below',
