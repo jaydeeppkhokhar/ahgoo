@@ -274,6 +274,11 @@ class AuthController extends Controller
     {
         // AllUser::query()->update(['country' => 'India']);
         AllUser::query()->update(['profile_details' => '','website' => '']);
+        Promotion::query()->update([
+            'target_scope' => '0',
+            'target_interaction' => '0',
+            'target_profile_visits' => '0'
+        ]);
         return response()->json(['message' => 'Users Type Updated']);
     }
     public function forget_password(Request $request)

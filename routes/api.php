@@ -124,4 +124,8 @@ Route::post('categories_event_wise', [ProfileController::class, 'categories_even
 Route::post('events_by_category', [ProfileController::class, 'events_by_category']);
 Route::post('my_active_events', [ProfileController::class, 'my_active_events']);
 Route::post('my_finished_events', [ProfileController::class, 'my_finished_events']);
+Route::post('create_promotion_target', [ProfileController::class, 'create_promotion_target']);
+Route::post('update_preferred_countries', [ProfileController::class, 'update_preferred_countries']);
+Route::post('update_preferred_interest', [ProfileController::class, 'update_preferred_interest']);
+Route::post('update_preferred_age_group', [ProfileController::class, 'update_preferred_age_group']);
 Route::get('test', [ProfileController::class, 'test']);

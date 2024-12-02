@@ -21,6 +21,7 @@ use App\Models\EventConfirm;
 use App\Models\EventMedia;
 use App\Models\EventInvites;
 use App\Models\Cms;
+use App\Models\PreferredSuggestions;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -1736,6 +1737,56 @@ class ProfileController extends Controller
                 'status' => true,
                 'msg' => 'Promotion deleted successfully',
                 'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function create_promotion_target(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'promotion_id' => 'required|string|max:255',
+            'target_scope' => 'required|integer',
+            'target_interaction' => 'required|integer',
+            'target_profile_visits' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $locationJson = json_encode($request->location);
+            Promotion::where('_id', $request->promotion_id)->update([
+                'target_scope' => $request->target_scope,
+                'target_interaction' => $request->target_interaction,
+                'target_profile_visits' => $request->target_profile_visits
+            ]);
+            $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Promotion updated successfully',
+                'data' => $promo_data
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -5176,6 +5227,147 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function update_preferred_countries(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'countries_suggestions' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $customJson = json_encode($request->countries_suggestions);
+
+            $promo_data = PreferredSuggestions::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['countries_suggestions' => $customJson]
+            );
+            // $promo_data = PreferredSuggestions::where('user_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Suggestions updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function update_preferred_interest(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'interests_suggestions' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $customJson = json_encode($request->interests_suggestions);
+
+            $promo_data = PreferredSuggestions::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['interests_suggestions' => $customJson]
+            );
+            // $promo_data = PreferredSuggestions::where('user_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Suggestions updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function update_preferred_age_group(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'age_groups_suggestions' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $customJson = json_encode($request->age_groups_suggestions);
+
+            $promo_data = PreferredSuggestions::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['age_groups_suggestions' => $customJson]
+            );
+            // $promo_data = PreferredSuggestions::where('user_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Suggestions updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
                 'data' => (object) []
             ], 500);
         }
