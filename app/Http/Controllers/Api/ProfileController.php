@@ -4528,8 +4528,9 @@ class ProfileController extends Controller
             'event_id' => 'required|string|max:255',
             'event_name' => 'required|string|max:255',
             'event_description' => 'required|string',
-            'cover_pic' => 'required|string'
-            // 'event_date' => 'required|string|max:255',
+            'cover_pic' => 'required|string',
+            'event_date' => 'nullable|date|after_or_equal:today|max:255',
+            'event_end_date' => 'nullable|date|after_or_equal:event_date|max:255',
             // 'duration' => 'required|string|max:255'
         ]);
 
