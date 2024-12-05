@@ -3014,7 +3014,7 @@ class ProfileController extends Controller
         }
 
         try {
-            $create = EventConfirm::create([
+            $create = EventConfirm::updateOrCreate([
                 'user_id' => $request->user_id,
                 'event_id' => $request->event_id
             ]);
@@ -4491,7 +4491,7 @@ class ProfileController extends Controller
             }else{
                 $event_details->event_created_by_profile_pic = $user->profile_pic;
             }
-            
+            $event_details->total_amount = number_format($event_details->total_amount);
             $inv_cnt = EventInvites::where('event_id',$request->event_id)->get();
             if(!$inv_cnt->isEmpty()){
                 $event_details->event_invites_count = count($inv_cnt);
@@ -4504,6 +4504,12 @@ class ProfileController extends Controller
             }
             $event_details->event_created_by = $user->name;
             $event_details->event_created_by = $user->name;
+            $is_booked = EventConfirm::where('event_id',$request->event_id)->where('user_id',$request->user_id)->first();
+            if(!empty($is_booked)){
+                $event_details->is_already_booked = 1;
+            }else{
+                $event_details->is_already_booked = 0;
+            }
             $slug = 'delete_event';
             $cms_data = Cms::where('slug', 'LIKE', "%{$slug}%")
                         ->first();
@@ -5090,6 +5096,7 @@ class ProfileController extends Controller
                     $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
                         ->where('event_date', '>', date('Y-m-d'));
                 })
+                ->orderBy('created_at', 'desc')
                 ->limit(15)
                 ->get();
                 
@@ -5178,6 +5185,7 @@ class ProfileController extends Controller
                     $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
                         ->where('event_date', '<=', date('Y-m-d'));
                 })
+                ->orderBy('created_at', 'desc')
                 ->limit(15)
                 ->get();
                 
