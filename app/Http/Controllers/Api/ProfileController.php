@@ -4504,12 +4504,17 @@ class ProfileController extends Controller
             }
             $event_details->event_created_by = $user->name;
             $event_details->event_created_by = $user->name;
-            $is_booked = EventConfirm::where('event_id',$request->event_id)->where('user_id',$request->user_id)->first();
-            if(!empty($is_booked)){
-                $event_details->is_already_booked = 1;
+            if(!empty($request->event_id)){
+                $is_booked = EventConfirm::where('event_id',$request->event_id)->where('user_id',$request->user_id)->first();
+                if(!empty($is_booked)){
+                    $event_details->is_already_booked = 1;
+                }else{
+                    $event_details->is_already_booked = 0;
+                }
             }else{
                 $event_details->is_already_booked = 0;
             }
+            
             $slug = 'delete_event';
             $cms_data = Cms::where('slug', 'LIKE', "%{$slug}%")
                         ->first();
@@ -4912,6 +4917,7 @@ class ProfileController extends Controller
                 'total_amount' => $request->per_day_spent * $request->total_days
             ]);
             $promo_data = Events::where('_id', $request->event_id)->first();
+            $promo_data->total_amount = number_format($promo_data->total_amount);
             return response()->json([
                 'status' => true,
                 'msg' => 'Event updated successfully',
