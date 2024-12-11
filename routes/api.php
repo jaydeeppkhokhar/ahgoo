@@ -128,4 +128,6 @@ Route::post('create_promotion_target', [ProfileController::class, 'create_promot
 Route::post('update_preferred_countries', [ProfileController::class, 'update_preferred_countries']);
 Route::post('update_preferred_interest', [ProfileController::class, 'update_preferred_interest']);
 Route::post('update_preferred_age_group', [ProfileController::class, 'update_preferred_age_group']);
+Route::post('get_states_by_country', [ProfileController::class, 'get_states_by_country']);
+Route::post('update_preferred_states', [ProfileController::class, 'update_preferred_states']);
 Route::get('test', [ProfileController::class, 'test']);

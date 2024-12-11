@@ -22,6 +22,7 @@ use App\Models\EventMedia;
 use App\Models\EventInvites;
 use App\Models\Cms;
 use App\Models\PreferredSuggestions;
+use App\Models\AllLocations;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -5381,6 +5382,100 @@ class ProfileController extends Controller
             $promo_data = PreferredSuggestions::updateOrCreate(
                 ['user_id' => $request->user_id],
                 ['age_groups_suggestions' => $customJson]
+            );
+            // $promo_data = PreferredSuggestions::where('user_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Suggestions updated successfully',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function get_states_by_country(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'country_name' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $promo_data = AllLocations::select('city', 'county', 'country')
+                                        ->whereIn('country', $request->country_name)
+                                        ->where('county', '!=', '')
+                                        ->groupBy('county')
+                                        ->limit(100)
+                                        ->get();
+            // $promo_data = PreferredSuggestions::where('user_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'States List Below',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function update_preferred_states(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'states_suggestions' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $customJson = json_encode($request->states_suggestions);
+
+            $promo_data = PreferredSuggestions::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['states_suggestions' => $customJson]
             );
             // $promo_data = PreferredSuggestions::where('user_id', $request->user_id)->first();
             return response()->json([
