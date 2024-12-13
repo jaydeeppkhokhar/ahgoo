@@ -87,34 +87,51 @@ class AdminController extends Controller
         $data['posts'] = $posts;
         return view('admin.posts',$data);
     }
-    public function events(){
-        $event_all_details = Events::where('event_name', '<>', '')->limit(100)->orderBy('created_at', 'desc')->get();
-        foreach($event_all_details as $event_details){
-            
-            $user = AllUser::where('_id',$event_details->user_id)->first();
-            $event_details->event_created_by = $user->name;
-            if(!isset($user->profile_pic) OR empty($user->profile_pic)){
+    public function events()
+    {
+        // Fetch all events with necessary data
+        $event_all_details = Events::where('event_name', '<>', '')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Collect all user_ids and event_ids for batch processing
+        $user_ids = $event_all_details->pluck('user_id')->unique();
+        $event_ids = $event_all_details->pluck('_id');
+
+        // Fetch users in a single query
+        $users = AllUser::whereIn('_id', $user_ids)->get()->keyBy('_id');
+
+        // Fetch event invites counts in a single query
+        $invites = EventInvites::whereIn('event_id', $event_ids)->get()->groupBy('event_id');
+
+        foreach ($event_all_details as $event_details) {
+            $user = isset($users[$event_details->user_id]) ? $users[$event_details->user_id] : null;
+
+            $event_details->event_created_by = $user ? $user->name : 'Unknown User';
+
+            if (!$user || !isset($user->profile_pic) || empty($user->profile_pic)) {
                 $event_details->event_created_by_profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
-            }else{
+            } else {
                 $event_details->event_created_by_profile_pic = $user->profile_pic;
             }
-            
-            $inv_cnt = EventInvites::where('event_id',$event_details->_id)->get();
-            if(!$inv_cnt->isEmpty()){
-                $event_details->event_invites_count = count($inv_cnt);
+
+            $inv_cnt = isset($invites[$event_details->_id]) ? $invites[$event_details->_id] : collect();
+            $event_details->event_invites_count = $inv_cnt->count();
+
+            if ($event_details->event_invites_count > 0) {
                 $event_details->event_invites1 = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
                 $event_details->event_invites2 = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
-            }else{
-                $event_details->event_invites_count = 0;
+            } else {
                 $event_details->event_invites1 = '';
                 $event_details->event_invites2 = '';
             }
-            // $event_details->event_media = EventMedia::select('_id','media_path')->where('event_id',$request->event_id)->get();
+
+            // Uncomment and adjust the following line if you need to fetch event media
+            // $event_details->event_media = EventMedia::select('_id', 'media_path')->where('event_id', $event_details->_id)->get();
         }
-        
+
         $data['events'] = $event_all_details;
-        // echo '<pre>';print_r($data['events']);exit;
-        return view('admin.events',$data);
+        return view('admin.events', $data);
     }
     public function exportAllEvents()
     {
