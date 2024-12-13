@@ -68,11 +68,11 @@
 						</div>
 						<!--begin::Card title-->
 						<!--begin::Card toolbar-->
-						<?php /*<div class="card-toolbar">
+						<div class="card-toolbar">
 							<!--begin::Toolbar-->
 							<div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
 								<!--begin::Filter-->
-								<button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+								{{-- <button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
 									<!--begin::Svg Icon | path: icons/duotune/general/gen031.svg-->
 									<span class="svg-icon svg-icon-2">
 										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -153,11 +153,11 @@
 										<!--end::Actions-->
 									</div>
 									<!--end::Content-->
-								</div>
+								</div> --}}
 								<!--end::Menu 1-->
 								<!--end::Filter-->
 								<!--begin::Export-->
-								<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#kt_customers_export_modal">
+								<a type="button" class="btn btn-light-primary me-3" href="{{ url('/admin/export-all-users') }}">
 									<!--begin::Svg Icon | path: icons/duotune/arrows/arr078.svg-->
 									<span class="svg-icon svg-icon-2">
 										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -167,10 +167,10 @@
 										</svg>
 									</span>
 									<!--end::Svg Icon-->Export
-								</button>
+								</a>
 								<!--end::Export-->
 								<!--begin::Add customer-->
-								<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_customer">Add Customer</button>
+								{{-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_customer">Add Customer</button> --}}
 								<!--end::Add customer-->
 							</div>
 							<!--end::Toolbar-->
@@ -182,7 +182,7 @@
 								<button type="button" class="btn btn-danger" data-kt-customer-table-select="delete_selected">Delete Selected</button>
 							</div>
 							<!--end::Group actions-->
-						</div> */?>
+						</div>
 						<!--end::Card toolbar-->
 					</div>
 					<!--end::Card header-->
@@ -199,14 +199,13 @@
 											<input class="form-check-input" type="checkbox" data-kt-check="true" data-kt-check-target="#kt_customers_table .form-check-input" value="1" />
 										</div>
 									</th>
+									<th class="min-w-125px">Profile Picture</th>
 									<th class="min-w-125px">Name</th>
 									<th class="min-w-125px">Email</th>
-									<!-- <th class="min-w-125px">Phone No</th> -->
+									<th class="min-w-125px">Username</th>
+									<th class="min-w-125px">Phone No</th>
 									<th class="min-w-125px">Country</th>
-									<!-- <th class="min-w-125px">Membership Id</th>
-									<th class="min-w-125px">Created Date</th>
-									<th class="min-w-125px">Membership Expires</th> -->
-									<th class="text-end min-w-70px">Actions</th>
+									{{-- <th class="text-end min-w-70px">Actions</th> --}}
 								</tr>
 								<!--end::Table row-->
 							</thead>
@@ -223,20 +222,22 @@
 											<input class="form-check-input" type="checkbox" value="<?=$user->_id?>" />
 										</div>
 									</td>
+									<?php if(!empty($user->profile_pic)){
+										$dp = $user->profile_pic;	
+									}else{
+										$dp = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+									}?>
+									<td><img src="<?=$dp?>" style="height:50px;width:50px;"></td>
 									<td><?=$user->name?></td>
                                     <td>
 										<a href="mailto:<?=$user->email?>" class="text-gray-600 text-hover-primary mb-1"><?=$user->email?></a>
 									</td>
+									<td><?=$user->username?></td>
+									<td>
+										<a href="tel:<?=$user->phone?>" class="text-gray-600 text-hover-primary mb-1"><?=$user->phone?></a>
+									</td>
 									<td><?=$user->country?></td>
-									
-									<!-- <td>
-										<a href="tel:<?//=$user['phone']?>" class="text-gray-600 text-hover-primary mb-1"><?//=$user['phone']?></a>
-									</td> -->
-									<?php /*<td><?=$user['userid']?></td>
-									<td><?=$user['membership_id']?></td>
-									<td><?=$user['created_at']?></td>
-									<td><?=$user['expires_at']?></td> */?>
-									<td class="text-end">
+									{{-- <td class="text-end">
 										<a href="#" class="btn btn-sm btn-light btn-active-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
 											<!--begin::Svg Icon | path: icons/duotune/arrows/arr072.svg-->
 											<span class="svg-icon svg-icon-5 m-0">
@@ -260,7 +261,7 @@
 											<!--end::Menu item-->
 										</div>
 										<!--end::Menu-->
-									</td>
+									</td> --}}
 									<!--end::Action=-->
 								</tr>
 								<?php } }?>

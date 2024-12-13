@@ -27,16 +27,28 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\AllUsersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
 {
     public function index()
     {
-        return view('admin.dashboard');
+        $data['total_users'] = AllUser::count();
+        $data['free_events'] = Events::where('event_type','1')->count();
+        $data['paid_events'] = Events::where('event_type','2')->count();
+        $data['promotions'] = Promotion::count();
+        $data['posts'] = Posts::count();
+        $data['countries'] = Countries::count();
+        return view('admin.dashboard',$data);
     }
     public function users(){
         $data['user_data'] = AllUser::orderBy('created_at', 'desc')->get();
         return view('admin.users',$data);
+    }
+    public function exportAllUsers()
+    {
+        return Excel::download(new AllUsersExport, 'all_users.xlsx');
     }
     public function countries(){
         $data['countries'] = Countries::get();
@@ -75,7 +87,7 @@ class AdminController extends Controller
         return view('admin.posts',$data);
     }
     public function events(){
-        $event_all_details = Events::where('event_name', '<>', '')->orderBy('created_at', 'desc')->get();
+        $event_all_details = Events::where('event_name', '<>', '')->limit(100)->orderBy('created_at', 'desc')->get();
         foreach($event_all_details as $event_details){
             
             $user = AllUser::where('_id',$event_details->user_id)->first();
