@@ -28,6 +28,7 @@ use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\AllUsersExport;
+use App\Exports\EventsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
@@ -114,5 +115,9 @@ class AdminController extends Controller
         $data['events'] = $event_all_details;
         // echo '<pre>';print_r($data['events']);exit;
         return view('admin.events',$data);
+    }
+    public function exportAllEvents()
+    {
+        return Excel::download(new EventsExport, 'events.xlsx');
     }
 }

@@ -68,11 +68,11 @@
 						</div>
 						<!--begin::Card title-->
 						<!--begin::Card toolbar-->
-						<?php /*<div class="card-toolbar">
+						<div class="card-toolbar">
 							<!--begin::Toolbar-->
 							<div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
 								<!--begin::Filter-->
-								<button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+								{{-- <button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
 									<!--begin::Svg Icon | path: icons/duotune/general/gen031.svg-->
 									<span class="svg-icon svg-icon-2">
 										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -153,11 +153,11 @@
 										<!--end::Actions-->
 									</div>
 									<!--end::Content-->
-								</div>
+								</div> --}}
 								<!--end::Menu 1-->
 								<!--end::Filter-->
 								<!--begin::Export-->
-								<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#kt_customers_export_modal">
+								<a type="button" class="btn btn-light-primary me-3" href="{{ url('/admin/export-all-events') }}">
 									<!--begin::Svg Icon | path: icons/duotune/arrows/arr078.svg-->
 									<span class="svg-icon svg-icon-2">
 										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -167,10 +167,10 @@
 										</svg>
 									</span>
 									<!--end::Svg Icon-->Export
-								</button>
+								</a>
 								<!--end::Export-->
 								<!--begin::Add customer-->
-								<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_customer">Add Customer</button>
+								{{-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_customer">Add Customer</button> --}}
 								<!--end::Add customer-->
 							</div>
 							<!--end::Toolbar-->
@@ -182,7 +182,7 @@
 								<button type="button" class="btn btn-danger" data-kt-customer-table-select="delete_selected">Delete Selected</button>
 							</div>
 							<!--end::Group actions-->
-						</div> */?>
+						</div>
 						<!--end::Card toolbar-->
 					</div>
 					<!--end::Card header-->

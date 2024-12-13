@@ -20,6 +20,7 @@ Route::get('/admin/posts', [AdminController::class, 'posts'])->middleware('auth:
 Route::get('/admin/events', [AdminController::class, 'events'])->middleware('auth:admin');
 Route::resource('/admin/cms', CMSController::class)->middleware('auth:admin');
 Route::get('/admin/export-all-users', [AdminController::class, 'exportAllUsers'])->middleware('auth:admin');
+Route::get('/admin/export-all-events', [AdminController::class, 'exportAllEvents'])->middleware('auth:admin');
 
 // Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 //     Route::resource('cms', CMSController::class);
