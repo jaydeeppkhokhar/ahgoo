@@ -4477,6 +4477,9 @@ class ProfileController extends Controller
 
         try {
             $event_details = Events::where('_id',$request->event_id)->first();
+            if(!empty($event_details->audience_location)){
+                $event_details->audience_location = json_decode($event_details->audience_location);
+            }
             $event_details->event_date_formatted = Carbon::parse($event_details->event_date)->format('d M');
             $user = AllUser::where('_id',$event_details->user_id)->first();
             $event_details->event_created_by = $user->name;
