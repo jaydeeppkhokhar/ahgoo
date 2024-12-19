@@ -5522,6 +5522,7 @@ class ProfileController extends Controller
         try {
             $name_public = Events::select('_id','estimated_size','name_of_audience','age_from','age_to','gender','audience_location')
                     ->where('user_id', $request->user_id)
+                    ->where('name_of_audience','!=','')
                     ->where('is_confirm','1')->get();
             if($name_public->isEmpty()){
                 return response()->json([
@@ -5530,6 +5531,9 @@ class ProfileController extends Controller
                     'data' => (object) []
                 ], 200);
             }else{
+                foreach($name_public as $list){
+                    $list->audience_location = json_decode($list->audience_location);
+                }
                 return response()->json([
                     'status' => true,
                     'msg' => 'Name public list follows',
