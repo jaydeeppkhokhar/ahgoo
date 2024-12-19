@@ -131,4 +131,5 @@ Route::post('update_preferred_age_group', [ProfileController::class, 'update_pre
 Route::post('get_states_by_country', [ProfileController::class, 'get_states_by_country']);
 Route::post('update_preferred_states', [ProfileController::class, 'update_preferred_states']);
 Route::post('public_for_audience_list', [ProfileController::class, 'public_for_audience_list']);
+Route::post('name_public_select_for_event', [ProfileController::class, 'name_public_select_for_event']);
 Route::get('test', [ProfileController::class, 'test']);

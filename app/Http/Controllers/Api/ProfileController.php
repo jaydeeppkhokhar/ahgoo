@@ -5552,4 +5552,58 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function name_public_select_for_event(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'event_id' => 'required|string|max:255',
+            'name_public_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $return_array = array();
+            $name_public = Events::where('_id', $request->name_public_id)->first();
+
+            Events::where('_id', $request->event_id)->update([
+                'estimated_size' => $name_public->estimated_size,
+                'name_of_audience' => $name_public->name_of_audience,
+                'age_from' => $name_public->age_from,
+                'age_to' => $name_public->age_to,
+                'gender' => $name_public->gender,
+                'audience_location' => $name_public->audience_location
+            ]);
+            $promo_data = Events::where('_id', $request->event_id)->first();
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Name public updated for the event',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }
