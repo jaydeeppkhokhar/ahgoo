@@ -5520,6 +5520,7 @@ class ProfileController extends Controller
         }
 
         try {
+            $return_array = array();
             $name_public = Events::select('_id','estimated_size','name_of_audience','age_from','age_to','gender','audience_location')
                     ->where('user_id', $request->user_id)
                     ->where('name_of_audience','!=','')
@@ -5533,11 +5534,14 @@ class ProfileController extends Controller
             }else{
                 foreach($name_public as $list){
                     $list->audience_location = json_decode($list->audience_location);
+                    if(isset($list->name_of_audience) && !empty($list->name_of_audience)){
+                        array_push($return_array,$list);
+                    }
                 }
                 return response()->json([
                     'status' => true,
                     'msg' => 'Name public list follows',
-                    'data' => $name_public
+                    'data' => $return_array
                 ], 200);
             }
         } catch (\Exception $e) {
