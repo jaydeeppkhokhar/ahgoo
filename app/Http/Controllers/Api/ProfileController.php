@@ -5494,4 +5494,54 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function public_for_audience_list(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $name_public = Events::select('_id','estimated_size','name_of_audience','age_from','age_to','gender','audience_location')
+                    ->where('user_id', $request->user_id)
+                    ->where('is_confirm','1')->get();
+            if($name_public->isEmpty()){
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'No list found',
+                    'data' => (object) []
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Name public list follows',
+                    'data' => $name_public
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }

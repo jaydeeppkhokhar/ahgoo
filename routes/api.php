@@ -130,4 +130,5 @@ Route::post('update_preferred_interest', [ProfileController::class, 'update_pref
 Route::post('update_preferred_age_group', [ProfileController::class, 'update_preferred_age_group']);
 Route::post('get_states_by_country', [ProfileController::class, 'get_states_by_country']);
 Route::post('update_preferred_states', [ProfileController::class, 'update_preferred_states']);
+Route::post('public_for_audience_list', [ProfileController::class, 'public_for_audience_list']);
 Route::get('test', [ProfileController::class, 'test']);
