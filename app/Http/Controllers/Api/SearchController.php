@@ -365,6 +365,31 @@ class SearchController extends Controller
             'data' => $locations
         ], 200);
     }
+    
+    public function locations_search(Request $request){
+        if (empty($request->keyword)) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please provide keyword.',
+                'data' => (object) []
+            ], 422);
+        }else{
+            $locations = Locations::where('name','LIKE', "%{$request->keyword}%")->get();
+            if (!$locations) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => "No Locations found.",
+                    'data' => (object) []
+                ], 401);
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Location Listing.',
+                'data' => $locations
+            ], 200);
+        }
+        
+    }
     public function eventCategories(Request $request){
         $categories = EventCategories::get();
         if (!$categories) {

@@ -55,6 +55,7 @@ Route::post('update_location', [ProfileController::class, 'update_location']);
 Route::post('create_post', [ProfileController::class, 'create_post']);
 Route::post('home_page', [ProfileController::class, 'home_page']);
 Route::get('all_locations', [SearchController::class, 'all_locations']);
+Route::post('locations_search', [SearchController::class, 'locations_search']);
 Route::post('create_promotion_1', [ProfileController::class, 'create_promotion_1']);
 Route::post('create_promotion_2', [ProfileController::class, 'create_promotion_2']);
 Route::post('create_promotion_audience', [ProfileController::class, 'create_promotion_audience']);
@@ -132,4 +133,8 @@ Route::post('get_states_by_country', [ProfileController::class, 'get_states_by_c
 Route::post('update_preferred_states', [ProfileController::class, 'update_preferred_states']);
 Route::post('public_for_audience_list', [ProfileController::class, 'public_for_audience_list']);
 Route::post('name_public_select_for_event', [ProfileController::class, 'name_public_select_for_event']);
+Route::post('events_search', [ProfileController::class, 'events_search']);
+Route::post('my_heritage_events', [ProfileController::class, 'my_heritage_events']);
+Route::post('virtual_ahgoo_events', [ProfileController::class, 'virtual_ahgoo_events']);
+Route::post('irl_events', [ProfileController::class, 'irl_events']);
 Route::get('test', [ProfileController::class, 'test']);

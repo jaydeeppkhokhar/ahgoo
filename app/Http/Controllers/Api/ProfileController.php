@@ -715,12 +715,15 @@ class ProfileController extends Controller
 
         try {
             $sevenDaysAgo = Carbon::now()->subDays($request->last_days);
+            // echo $request->type;exit;
             if($request->type == 'all'){
+                // echo 'Hi';exit;
                 $notifications = Notifications::where('user_id', $request->user_id)
                                             ->where('created_at', '>=', $sevenDaysAgo)
                                             ->where('is_seen', 1)
                                             ->get();
             }else{
+                // echo 'Hello';exit;
                 // $notifications = Notifications::where('user_id',$request->user_id)->where('type',$request->type)->get();
                 $notifications = Notifications::where('user_id', $request->user_id)
                                             ->where('type',$request->type)
@@ -740,9 +743,16 @@ class ProfileController extends Controller
                     
                 }
             }
+            if($request->type == 'all'){
             $new_notifications = Notifications::where('user_id', $request->user_id)
                                                 ->where('is_seen', 0)
                                                 ->get();
+            }else{
+                $new_notifications = Notifications::where('user_id', $request->user_id)
+                                                ->where('type',$request->type)
+                                                ->where('is_seen', 0)
+                                                ->get();
+            }
             // echo '<pre>';print_r($new_notifications);exit;
             if(!$new_notifications->isEmpty()){
                 foreach($new_notifications as $noti){
@@ -2907,6 +2917,177 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => true,
                 'msg' => 'Recent Events Below',
+                'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function my_heritage_events(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            if(!empty($request->category)){
+                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('created_at', 'asc')->limit(10)->get();
+            }else{
+                $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'asc')->limit(10)->get();
+            }
+            foreach($promotions as $promo){
+                // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                try {
+                    $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
+                } catch (\Exception $e) {
+                    try {
+                        $promo->formatted_event_date = Carbon::parse($promo->event_date)->format('d M');
+                    } catch (\Exception $e) {
+                        $promo->formatted_event_date = 'Invalid date';
+                    }
+                }
+                $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'My Heritage Events Below',
+                'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function virtual_ahgoo_events(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            if(!empty($request->category)){
+                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('event_name', 'desc')->limit(10)->get();
+            }else{
+                $promotions = Events::where('is_confirm','1')->orderBy('event_name', 'desc')->limit(10)->get();
+            }
+            foreach($promotions as $promo){
+                // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                try {
+                    $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
+                } catch (\Exception $e) {
+                    try {
+                        $promo->formatted_event_date = Carbon::parse($promo->event_date)->format('d M');
+                    } catch (\Exception $e) {
+                        $promo->formatted_event_date = 'Invalid date';
+                    }
+                }
+                $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Virtual Events Below',
+                'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function irl_events(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            if(!empty($request->category)){
+                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('event_name', 'asc')->limit(10)->get();
+            }else{
+                $promotions = Events::where('is_confirm','1')->orderBy('event_name', 'asc')->limit(10)->get();
+            }
+            foreach($promotions as $promo){
+                // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                try {
+                    $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
+                } catch (\Exception $e) {
+                    try {
+                        $promo->formatted_event_date = Carbon::parse($promo->event_date)->format('d M');
+                    } catch (\Exception $e) {
+                        $promo->formatted_event_date = 'Invalid date';
+                    }
+                }
+                $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'IRL Events Below',
                 'data' => $promotions
             ], 200);
         } catch (\Exception $e) {
@@ -5602,6 +5783,63 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function events_search(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            if(!empty($request->keyword)){
+                $promotions = Events::where('is_confirm','1')->where('event_name','LIKE', "%{$request->keyword}%")->orderBy('created_at', 'desc')->limit(20)->get();
+            }else{
+                $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(20)->get();
+            }
+            foreach($promotions as $promo){
+                // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
+                try {
+                    $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
+                } catch (\Exception $e) {
+                    try {
+                        $promo->formatted_event_date = Carbon::parse($promo->event_date)->format('d M');
+                    } catch (\Exception $e) {
+                        $promo->formatted_event_date = 'Invalid date';
+                    }
+                }
+                $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'Events Below',
+                'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
                 'data' => (object) []
             ], 500);
         }
