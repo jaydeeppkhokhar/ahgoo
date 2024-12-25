@@ -23,11 +23,13 @@ use App\Models\EventInvites;
 use App\Models\Cms;
 use App\Models\PreferredSuggestions;
 use App\Models\AllLocations;
+use App\Models\Locations;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use WindowsAzure\ServiceManagement\Models\Location;
 
 class ProfileController extends Controller
 {
@@ -2631,12 +2633,58 @@ class ProfileController extends Controller
         }
 
         try {
-            if(!empty($request->category)){
-                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('created_at', 'desc')->limit(10)->get();
-            }else{
-                $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(10)->get();
+            // if(!empty($request->category)){
+            //     $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('created_at', 'desc')->limit(10)->get();
+            // }else{
+            //     $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(10)->get();
+            // }
+
+            $where = [];
+            $orderBy = [];
+            $where[] = ['is_confirm', '=', '1'];
+            if ($request->has('category')) {
+                $where[] = ['event_category', '=', $request->category];
             }
+            if ($request->has('region')) {
+                $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
+                $where[] = ['location', '=', $all_locations];
+            }
+            if ($request->has('sort_by')) {
+                if($request->sort_by == 'date_asc'){
+                    $orderBy[] = ['created_at', 'asc'];
+                }else if($request->sort_by == 'date_desc'){
+                    $orderBy[] = ['created_at', 'desc'];
+                }else if($request->sort_by == 'name_asc'){
+                    $orderBy[] = ['event_name', 'asc'];
+                }else if($request->sort_by == 'name_desc'){
+                    $orderBy[] = ['event_name', 'desc'];
+                }else{
+                    $orderBy[] = ['created_at', 'desc'];
+                }
+                $orderBy[] = [$request->order_by_field, $request->order_by_direction];
+            } else {
+                $orderBy[] = ['created_at', 'desc'];
+            }
+            // echo '<pre>';print_r($orderBy);exit;
+            $query = Events::query();
+            foreach ($where as $condition) {
+                if (is_array($condition[2])) {
+                    // If the condition value is an array, use whereIn
+                    $query->whereIn($condition[0], $condition[2]);
+                } else {
+                    $query->where($condition[0], $condition[1], $condition[2]);
+                }
+            }
+            foreach ($orderBy as $order) {
+                if(!empty($order[0])){
+                    $query->orderBy($order[0], $order[1]);
+                }
+            }
+            $query->limit(10);
+            $promotions = $query->get();
+            // echo '<pre>';print_r($promotions);exit;
             foreach($promotions as $promo){
+                $promo->formatted_event_date = 'Invalid date';
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 try {
                     $promo->formatted_event_date = Carbon::createFromFormat('Y-m-d', $promo->event_date)->format('d M');
@@ -2896,11 +2944,49 @@ class ProfileController extends Controller
         }
 
         try {
-            if(!empty($request->category)){
-                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('created_at', 'desc')->limit(10)->get();
-            }else{
-                $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(10)->get();
+            $where = [];
+            $orderBy = [];
+            $where[] = ['is_confirm', '=', '1'];
+            if ($request->has('category')) {
+                $where[] = ['event_category', '=', $request->category];
             }
+            if ($request->has('region')) {
+                $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
+                $where[] = ['location', '=', $all_locations];
+            }
+            if ($request->has('sort_by')) {
+                if($request->sort_by == 'date_asc'){
+                    $orderBy[] = ['created_at', 'asc'];
+                }else if($request->sort_by == 'date_desc'){
+                    $orderBy[] = ['created_at', 'desc'];
+                }else if($request->sort_by == 'name_asc'){
+                    $orderBy[] = ['event_name', 'asc'];
+                }else if($request->sort_by == 'name_desc'){
+                    $orderBy[] = ['event_name', 'desc'];
+                }else{
+                    $orderBy[] = ['created_at', 'desc'];
+                }
+                $orderBy[] = [$request->order_by_field, $request->order_by_direction];
+            } else {
+                $orderBy[] = ['created_at', 'desc'];
+            }
+            // echo '<pre>';print_r($orderBy);exit;
+            $query = Events::query();
+            foreach ($where as $condition) {
+                if (is_array($condition[2])) {
+                    // If the condition value is an array, use whereIn
+                    $query->whereIn($condition[0], $condition[2]);
+                } else {
+                    $query->where($condition[0], $condition[1], $condition[2]);
+                }
+            }
+            foreach ($orderBy as $order) {
+                if(!empty($order[0])){
+                    $query->orderBy($order[0], $order[1]);
+                }
+            }
+            $query->limit(10);
+            $promotions = $query->get();
             foreach($promotions as $promo){
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 try {
@@ -2953,11 +3039,49 @@ class ProfileController extends Controller
         }
 
         try {
-            if(!empty($request->category)){
-                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('created_at', 'asc')->limit(10)->get();
-            }else{
-                $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'asc')->limit(10)->get();
+            $where = [];
+            $orderBy = [];
+            $where[] = ['is_confirm', '=', '1'];
+            if ($request->has('category')) {
+                $where[] = ['event_category', '=', $request->category];
             }
+            if ($request->has('region')) {
+                $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
+                $where[] = ['location', '=', $all_locations];
+            }
+            if ($request->has('sort_by')) {
+                if($request->sort_by == 'date_asc'){
+                    $orderBy[] = ['created_at', 'asc'];
+                }else if($request->sort_by == 'date_desc'){
+                    $orderBy[] = ['created_at', 'desc'];
+                }else if($request->sort_by == 'name_asc'){
+                    $orderBy[] = ['event_name', 'asc'];
+                }else if($request->sort_by == 'name_desc'){
+                    $orderBy[] = ['event_name', 'desc'];
+                }else{
+                    $orderBy[] = ['created_at', 'desc'];
+                }
+                $orderBy[] = [$request->order_by_field, $request->order_by_direction];
+            } else {
+                $orderBy[] = ['created_at', 'desc'];
+            }
+            // echo '<pre>';print_r($orderBy);exit;
+            $query = Events::query();
+            foreach ($where as $condition) {
+                if (is_array($condition[2])) {
+                    // If the condition value is an array, use whereIn
+                    $query->whereIn($condition[0], $condition[2]);
+                } else {
+                    $query->where($condition[0], $condition[1], $condition[2]);
+                }
+            }
+            foreach ($orderBy as $order) {
+                if(!empty($order[0])){
+                    $query->orderBy($order[0], $order[1]);
+                }
+            }
+            $query->limit(10);
+            $promotions = $query->get();
             foreach($promotions as $promo){
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 try {
@@ -3010,11 +3134,50 @@ class ProfileController extends Controller
         }
 
         try {
-            if(!empty($request->category)){
-                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('event_name', 'desc')->limit(10)->get();
-            }else{
-                $promotions = Events::where('is_confirm','1')->orderBy('event_name', 'desc')->limit(10)->get();
+            $where = [];
+            $orderBy = [];
+            $where[] = ['is_confirm', '=', '1'];
+            $where[] = ['is_virtual', '=', '1'];
+            if ($request->has('category')) {
+                $where[] = ['event_category', '=', $request->category];
             }
+            if ($request->has('region')) {
+                $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
+                $where[] = ['location', '=', $all_locations];
+            }
+            if ($request->has('sort_by')) {
+                if($request->sort_by == 'date_asc'){
+                    $orderBy[] = ['created_at', 'asc'];
+                }else if($request->sort_by == 'date_desc'){
+                    $orderBy[] = ['created_at', 'desc'];
+                }else if($request->sort_by == 'name_asc'){
+                    $orderBy[] = ['event_name', 'asc'];
+                }else if($request->sort_by == 'name_desc'){
+                    $orderBy[] = ['event_name', 'desc'];
+                }else{
+                    $orderBy[] = ['created_at', 'desc'];
+                }
+                $orderBy[] = [$request->order_by_field, $request->order_by_direction];
+            } else {
+                $orderBy[] = ['created_at', 'desc'];
+            }
+            // echo '<pre>';print_r($orderBy);exit;
+            $query = Events::query();
+            foreach ($where as $condition) {
+                if (is_array($condition[2])) {
+                    // If the condition value is an array, use whereIn
+                    $query->whereIn($condition[0], $condition[2]);
+                } else {
+                    $query->where($condition[0], $condition[1], $condition[2]);
+                }
+            }
+            foreach ($orderBy as $order) {
+                if(!empty($order[0])){
+                    $query->orderBy($order[0], $order[1]);
+                }
+            }
+            $query->limit(10);
+            $promotions = $query->get();
             foreach($promotions as $promo){
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 try {
@@ -3067,11 +3230,50 @@ class ProfileController extends Controller
         }
 
         try {
-            if(!empty($request->category)){
-                $promotions = Events::where('is_confirm','1')->where('event_category',$request->category)->orderBy('event_name', 'asc')->limit(10)->get();
-            }else{
-                $promotions = Events::where('is_confirm','1')->orderBy('event_name', 'asc')->limit(10)->get();
+            $where = [];
+            $orderBy = [];
+            $where[] = ['is_confirm', '=', '1'];
+            $where[] = ['is_virtual', '!=', '1'];
+            if ($request->has('category')) {
+                $where[] = ['event_category', '=', $request->category];
             }
+            if ($request->has('region')) {
+                $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
+                $where[] = ['location', '=', $all_locations];
+            }
+            if ($request->has('sort_by')) {
+                if($request->sort_by == 'date_asc'){
+                    $orderBy[] = ['created_at', 'asc'];
+                }else if($request->sort_by == 'date_desc'){
+                    $orderBy[] = ['created_at', 'desc'];
+                }else if($request->sort_by == 'name_asc'){
+                    $orderBy[] = ['event_name', 'asc'];
+                }else if($request->sort_by == 'name_desc'){
+                    $orderBy[] = ['event_name', 'desc'];
+                }else{
+                    $orderBy[] = ['created_at', 'desc'];
+                }
+                $orderBy[] = [$request->order_by_field, $request->order_by_direction];
+            } else {
+                $orderBy[] = ['created_at', 'desc'];
+            }
+            // echo '<pre>';print_r($orderBy);exit;
+            $query = Events::query();
+            foreach ($where as $condition) {
+                if (is_array($condition[2])) {
+                    // If the condition value is an array, use whereIn
+                    $query->whereIn($condition[0], $condition[2]);
+                } else {
+                    $query->where($condition[0], $condition[1], $condition[2]);
+                }
+            }
+            foreach ($orderBy as $order) {
+                if(!empty($order[0])){
+                    $query->orderBy($order[0], $order[1]);
+                }
+            }
+            $query->limit(10);
+            $promotions = $query->get();
             foreach($promotions as $promo){
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 try {
@@ -4026,7 +4228,7 @@ class ProfileController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'event_id' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
+            // 'location' => 'required|string|max:255',
             'event_category' => 'required|string',
             'cover_pic' => 'required|string'
         ]);
@@ -4052,7 +4254,8 @@ class ProfileController extends Controller
 
         try {
             Events::where('_id', $request->event_id)->update([
-                'location' => $request->location,
+                'is_virtual' => $request->is_virtual ?? '0',
+                'location' => $request->location ?? '',
                 'event_category' => $request->event_category,
                 'cover_pic' => $request->cover_pic
             ]);
@@ -4698,6 +4901,15 @@ class ProfileController extends Controller
                 }
             }else{
                 $event_details->is_already_booked = 0;
+            }
+            if($event_details->is_permanent != 1){
+                if(!empty($event_details->event_end_date)){
+                    $event_details->event_date_range = $event_details->event_date.' to '.$event_details->event_end_date;
+                }else{
+                    $event_details->event_date_range = $event_details->event_date;
+                }
+            }else{
+                $event_details->event_date_range = '';
             }
             
             $slug = 'delete_event';
@@ -5835,6 +6047,66 @@ class ProfileController extends Controller
                 'status' => true,
                 'msg' => 'Events Below',
                 'data' => $promotions
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function my_regions(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $return_array = array();
+            $user = AllUser::where('_id', $request->user_id)->first();
+            if(!empty($user->country)){
+                array_push($return_array,$user->country);
+            }
+            if(!empty($user->country1)){
+                array_push($return_array,$user->country1);
+            }
+            if(!empty($user->country2)){
+                array_push($return_array,$user->country);
+            }
+            if(!empty($user->country3)){
+                array_push($return_array,$user->country3);
+            }
+            if(!empty($user->country4)){
+                array_push($return_array,$user->country4);
+            }
+            if(!empty($user->country5)){
+                array_push($return_array,$user->country5);
+            }
+            $return_array = array_unique($return_array);
+            return response()->json([
+                'status' => true,
+                'msg' => 'My Regions below',
+                'data' => $return_array
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

@@ -137,4 +137,5 @@ Route::post('events_search', [ProfileController::class, 'events_search']);
 Route::post('my_heritage_events', [ProfileController::class, 'my_heritage_events']);
 Route::post('virtual_ahgoo_events', [ProfileController::class, 'virtual_ahgoo_events']);
 Route::post('irl_events', [ProfileController::class, 'irl_events']);
+Route::post('my_regions', [ProfileController::class, 'my_regions']);
 Route::get('test', [ProfileController::class, 'test']);

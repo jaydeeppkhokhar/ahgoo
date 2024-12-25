@@ -14,6 +14,6 @@ class Locations extends Model
     protected $collection = 'locations';
 
     protected $fillable = [
-        'city', 'county', 'name'
+        'city', 'county', 'name', 'country'
     ];
 }
