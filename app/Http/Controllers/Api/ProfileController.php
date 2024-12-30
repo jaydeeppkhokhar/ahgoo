@@ -2642,10 +2642,10 @@ class ProfileController extends Controller
             $where = [];
             $orderBy = [];
             $where[] = ['is_confirm', '=', '1'];
-            if ($request->has('category')) {
+            if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
             }
-            if ($request->has('region')) {
+            if ($request->has('region') && !empty($request->region)) {
                 $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
                 $where[] = ['location', '=', $all_locations];
             }
@@ -2947,10 +2947,10 @@ class ProfileController extends Controller
             $where = [];
             $orderBy = [];
             $where[] = ['is_confirm', '=', '1'];
-            if ($request->has('category')) {
+            if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
             }
-            if ($request->has('region')) {
+            if ($request->has('region') && !empty($request->region)) {
                 $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
                 $where[] = ['location', '=', $all_locations];
             }
@@ -3042,10 +3042,10 @@ class ProfileController extends Controller
             $where = [];
             $orderBy = [];
             $where[] = ['is_confirm', '=', '1'];
-            if ($request->has('category')) {
+            if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
             }
-            if ($request->has('region')) {
+            if ($request->has('region') && !empty($request->region)) {
                 $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
                 $where[] = ['location', '=', $all_locations];
             }
@@ -3138,10 +3138,10 @@ class ProfileController extends Controller
             $orderBy = [];
             $where[] = ['is_confirm', '=', '1'];
             $where[] = ['is_virtual', '=', '1'];
-            if ($request->has('category')) {
+            if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
             }
-            if ($request->has('region')) {
+            if ($request->has('region') && !empty($request->region)) {
                 $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
                 $where[] = ['location', '=', $all_locations];
             }
@@ -3234,10 +3234,10 @@ class ProfileController extends Controller
             $orderBy = [];
             $where[] = ['is_confirm', '=', '1'];
             $where[] = ['is_virtual', '!=', '1'];
-            if ($request->has('category')) {
+            if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
             }
-            if ($request->has('region')) {
+            if ($request->has('region') && !empty($request->region)) {
                 $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
                 $where[] = ['location', '=', $all_locations];
             }
@@ -5498,8 +5498,8 @@ class ProfileController extends Controller
                     $query->where('is_permanent', 1)
                           ->orWhere(function ($query) {
                               // Regular expression to match the 'YYYY-MM-DD' format
-                              $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
-                                    ->where('event_date', '>', date('Y-m-d'));
+                              $query->where('event_end_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
+                                    ->where('event_end_date', '>', date('Y-m-d'));
                           });
                 })
                 ->orderBy('created_at', 'desc')
@@ -5513,8 +5513,8 @@ class ProfileController extends Controller
                                     $query->where('is_permanent', 1)
                                           ->orWhere(function ($query) {
                                               // Regular expression to match the 'YYYY-MM-DD' format
-                                              $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
-                                                    ->where('event_date', '>', date('Y-m-d'));
+                                              $query->where('event_end_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
+                                                    ->where('event_end_date', '>', date('Y-m-d'));
                                           });
                                 })
                                 ->orderBy('created_at', 'asc')
