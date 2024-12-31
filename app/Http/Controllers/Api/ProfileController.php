@@ -3398,6 +3398,19 @@ class ProfileController extends Controller
         }
 
         try {
+            $existingConfirmation = EventConfirm::where([
+                ['user_id', '=', $request->user_id],
+                ['event_id', '=', $request->event_id]
+            ])->first();
+            
+            if ($existingConfirmation) {
+                // The record already exists
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Event already confirmed',
+                    'data' => $existingConfirmation
+                ], 422);
+            }
             $create = EventConfirm::updateOrCreate([
                 'user_id' => $request->user_id,
                 'event_id' => $request->event_id
@@ -6112,6 +6125,95 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Some error occured',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function event_confirm_attendies(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $followers = EventConfirm::where('event_id',$request->event_id)->groupBy('user_id')->get();
+            // echo '<pre>';print_r($followers);exit;
+            if(!empty($followers)){
+                foreach($followers as $follow){
+                    $details = AllUser::where('_id', $follow->user_id)->first();
+                    $follow->_id = $details->_id;
+                    $follow->name = $details->name;
+                    $follow->email = $details->email;
+                    $follow->username = $details->username;
+                    $follow->phone = $details->phone;
+                    $follow->country = $details->country;
+                    $follow->user_type = $details->user_type;
+                    $followers_total = Followers::where('followed_to',$details->_id)->get();
+                    if(!empty($followers_total)){
+                        $follow->followers = count($followers_total);
+                    }else{
+                        $follow->followers = 0;
+                    }
+                    $follow->post = 0;
+                    $followed_total = Followers::where('followed_by',$details->_id)->get();
+                    if(!empty($followed_total)){
+                        $follow->followed = count($followed_total);
+                    }else{
+                        $follow->followed = 0;
+                    }
+                    $follow->friends = 0;
+                    $follow->videos = 0;
+                    $follow->amount1 = '0$';
+                    $follow->amount2 = '0$';
+                    $follow->account_description = 'Love Yourself';
+                    if(!isset($follow->profile_pic) OR empty($follow->profile_pic)){
+                        $follow->profile_pic = 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
+                    }
+                    $country =  $details->country;
+                    $country_details = Countries::where('name', $country)->first();
+                    if(!empty($country_details)){
+                        $follow->country_code = $country_details->phone_code;
+                        $follow->country_flag = $country_details->flag;
+                    }else{
+                        $follow->country_code = '';
+                        $follow->country_flag = '';
+                    }
+                }
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Event Confirms Attendies Below',
+                    'data' => $followers
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => 'No Event Confirms Attendies Found'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
                 'data' => (object) []
             ], 500);
         }
