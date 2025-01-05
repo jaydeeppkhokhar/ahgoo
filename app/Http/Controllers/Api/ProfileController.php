@@ -1566,6 +1566,7 @@ class ProfileController extends Controller
                 // 'event_location' => $request->event_location
             ]);
             $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+            $promo_data->total_cost = number_format($promo_data->total_cost);
             return response()->json([
                 'status' => true,
                 'msg' => 'Promotion updated successfully',
@@ -1836,6 +1837,7 @@ class ProfileController extends Controller
 
         try {
             $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+            $promo_data->total_cost = number_format($promo_data->total_cost);
             $post_id = $promo_data->post_id;
             $promo_data->total_plays = rand(101, 200);
             $promo_data->total_likes = PostLikes::where('post_id', $post_id)->count();
@@ -2644,6 +2646,9 @@ class ProfileController extends Controller
             $where[] = ['is_confirm', '=', '1'];
             if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
+            }
+            if ($request->has('keyword') && !empty($request->keyword)) {
+                $where[] = ['event_name', 'LIKE', "%{$request->keyword}%"];
             }
             if ($request->has('region') && !empty($request->region)) {
                 $all_locations = Locations::where('country', $request->region)->pluck('name')->toArray();
@@ -6214,6 +6219,118 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function public_for_audience_list_for_promotion(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $return_array = array();
+            $name_public = Promotion::select('_id','estimated_size','name_of_audience','age_from','age_to','gender','location')
+                    ->where('user_id', $request->user_id)
+                    ->where('name_of_audience','!=','')
+                    ->where('is_confirm','1')->get();
+            if($name_public->isEmpty()){
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'No list found',
+                    'data' => (object) []
+                ], 200);
+            }else{
+                foreach($name_public as $list){
+                    $list->location = json_decode($list->location);
+                    if(isset($list->name_of_audience) && !empty($list->name_of_audience)){
+                        array_push($return_array,$list);
+                    }
+                }
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Name public list follows',
+                    'data' => $return_array
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function name_public_select_for_promotion(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'promotion_id' => 'required|string|max:255',
+            'name_public_id' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $return_array = array();
+            $name_public = Promotion::where('_id', $request->name_public_id)->first();
+
+            Promotion::where('_id', $request->promotion_id)->update([
+                'estimated_size' => $name_public->estimated_size,
+                'name_of_audience' => $name_public->name_of_audience,
+                'age_from' => $name_public->age_from,
+                'age_to' => $name_public->age_to,
+                'gender' => $name_public->gender,
+                'location' => $name_public->location
+            ]);
+            $promo_data = Promotion::where('_id', $request->promotion_id)->first();
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Name public updated for the promotion',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
                 'data' => (object) []
             ], 500);
         }

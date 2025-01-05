@@ -139,4 +139,6 @@ Route::post('virtual_ahgoo_events', [ProfileController::class, 'virtual_ahgoo_ev
 Route::post('irl_events', [ProfileController::class, 'irl_events']);
 Route::post('my_regions', [ProfileController::class, 'my_regions']);
 Route::post('event_confirm_attendies', [ProfileController::class, 'event_confirm_attendies']);
+Route::post('public_for_audience_list_for_promotion', [ProfileController::class, 'public_for_audience_list_for_promotion']);
+Route::post('name_public_select_for_promotion', [ProfileController::class, 'name_public_select_for_promotion']);
 Route::get('test', [ProfileController::class, 'test']);
