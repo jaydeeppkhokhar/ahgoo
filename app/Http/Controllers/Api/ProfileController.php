@@ -1319,6 +1319,24 @@ class ProfileController extends Controller
                 $is_promotion_added = isset($promotionDetails[$post->_id]) && !$promotionDetails[$post->_id]->isEmpty() 
                                 ? $promotionDetails[$post->_id]->first()->is_confirm 
                                 : 0;
+                if (isset($promotionDetails[$post->_id]) && !$promotionDetails[$post->_id]->isEmpty()) {
+                    $promotion = $promotionDetails[$post->_id]->first(); // Get the first record
+                
+                    $updatedAt = $promotion->updated_at;
+                    $totalDays = $promotion->total_days; // Ensure `total_days` is in your Promotion model
+                    $totalDays = isset($promotion->total_days) && !empty($promotion->total_days) 
+                                ? (int)$promotion->total_days 
+                                : 0;
+                    $expiryDate = Carbon::parse($updatedAt)->addDays($totalDays);
+                    // echo 'EXP '.$post->_id.' '.$expiryDate;exit;
+                    if ($expiryDate->greaterThan(Carbon::now())) {
+                        $able_to_repromote = 0;
+                    }else{
+                        $able_to_repromote = 1;
+                    }
+                }else{
+                    $able_to_repromote = 0;
+                }
                 $promotion_id = isset($promotionDetails[$post->_id]) && !$promotionDetails[$post->_id]->isEmpty() 
                                 ? $promotionDetails[$post->_id]->first()->_id 
                                 : 0;
@@ -1346,7 +1364,8 @@ class ProfileController extends Controller
                     'is_promotion_created' => $is_promotion_added,
                     'promotion_id' => $promotion_id,
                     'thumbnail_img' => $thumbnail_img,
-                    'is_already_liked' => $is_already_liked
+                    'is_already_liked' => $is_already_liked,
+                    'able_to_repromote' => $able_to_repromote
                 ];
             });
 
@@ -6325,6 +6344,100 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => true,
                 'msg' => 'Name public updated for the promotion',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function get_cities_by_country(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'country_name' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $promo_data = AllLocations::select('city', 'county', 'country')
+                                        ->whereIn('country', $request->country_name)
+                                        ->where('city', '!=', '')
+                                        ->groupBy('city')
+                                        ->limit(100)
+                                        ->get();
+            // $promo_data = PreferredSuggestions::where('user_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Cities List Below',
+                'data' => $promo_data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Updation Failed',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    public function update_preferred_cities(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'cities_suggestions' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            $customJson = json_encode($request->cities_suggestions);
+
+            $promo_data = PreferredSuggestions::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['cities_suggestions' => $customJson]
+            );
+            // $promo_data = PreferredSuggestions::where('user_id', $request->user_id)->first();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Suggestions updated successfully',
                 'data' => $promo_data
             ], 200);
         } catch (\Exception $e) {

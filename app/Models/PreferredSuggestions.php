@@ -14,6 +14,6 @@ class PreferredSuggestions extends Model
     protected $collection = 'preferred_suggestions';
 
     protected $fillable = [
-        'user_id', 'countries_suggestions', 'states_suggestions', 'interests_suggestions', 'age_groups_suggestions'
+        'user_id', 'countries_suggestions', 'states_suggestions', 'cities_suggestions', 'interests_suggestions', 'age_groups_suggestions'
     ];
 }

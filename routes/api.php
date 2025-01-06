@@ -141,4 +141,6 @@ Route::post('my_regions', [ProfileController::class, 'my_regions']);
 Route::post('event_confirm_attendies', [ProfileController::class, 'event_confirm_attendies']);
 Route::post('public_for_audience_list_for_promotion', [ProfileController::class, 'public_for_audience_list_for_promotion']);
 Route::post('name_public_select_for_promotion', [ProfileController::class, 'name_public_select_for_promotion']);
+Route::post('get_cities_by_country', [ProfileController::class, 'get_cities_by_country']);
+Route::post('update_preferred_cities', [ProfileController::class, 'update_preferred_cities']);
 Route::get('test', [ProfileController::class, 'test']);
