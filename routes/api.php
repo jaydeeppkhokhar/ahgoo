@@ -143,4 +143,5 @@ Route::post('public_for_audience_list_for_promotion', [ProfileController::class,
 Route::post('name_public_select_for_promotion', [ProfileController::class, 'name_public_select_for_promotion']);
 Route::post('get_cities_by_country', [ProfileController::class, 'get_cities_by_country']);
 Route::post('update_preferred_cities', [ProfileController::class, 'update_preferred_cities']);
+Route::post('get_user_by_mobile_or_email', [ProfileController::class, 'get_user_by_mobile_or_email']);
 Route::get('test', [ProfileController::class, 'test']);

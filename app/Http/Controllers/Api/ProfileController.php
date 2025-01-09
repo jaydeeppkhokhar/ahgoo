@@ -6448,4 +6448,57 @@ class ProfileController extends Controller
             ], 500);
         }
     }
+    public function get_user_by_mobile_or_email(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone_no' => 'nullable|required_without:email_id|digits:10',
+            'email_id' => 'nullable|required_without:phone_no|email',
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                $allErrors = [];
+            
+                foreach ($errors as $messageArray) {
+                    $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                }
+            
+                $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+                
+                return response()->json([
+                    'status' => false,
+                    'data' => (object) [],
+                    'msg' => $formattedErrors
+                ], 422);
+            }
+        }
+
+        try {
+            if ($request->filled('phone_no')) {
+                $user = AllUser::where('phone', $request->phone_no)->first();
+            } elseif ($request->filled('email_id')) {
+                $user = AllUser::where('email', $request->email_id)->first();
+            }
+            if ($user) {
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'User Found!',
+                    'data' => $user
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'No user found!',
+                    'data' => (object) []
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
 }
