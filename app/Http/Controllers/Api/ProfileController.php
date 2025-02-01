@@ -23,6 +23,7 @@ use App\Models\EventInvites;
 use App\Models\Cms;
 use App\Models\PreferredSuggestions;
 use App\Models\AllLocations;
+use App\Models\BookmarkEvent;
 use App\Models\Locations;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -6493,6 +6494,102 @@ class ProfileController extends Controller
                     'data' => (object) []
                 ], 422);
             }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+
+    public function bookmark_event(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|string|max:255',
+                'event_ids' => 'required|array',
+            ]);
+
+            if ($validator->fails()) {
+                if ($validator->fails()) {
+                    $errors = $validator->errors()->toArray();
+                    $allErrors = [];
+
+                    foreach ($errors as $messageArray) {
+                        $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                    }
+
+                    $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+
+                    return response()->json([
+                        'status' => false,
+                        'data' => (object) [],
+                        'msg' => $formattedErrors
+                    ], 422);
+                }
+            }
+
+            $eventIDs = $request->event_ids;
+            $userID = $request->user_id;
+
+            $bookmarkedEvent = BookmarkEvent::where('user_id', $userID)->delete();
+            foreach ($eventIDs as $eventID) {
+                $bookmarkedEvent = new BookmarkEvent();
+                $bookmarkedEvent->event_id = $eventID;
+                $bookmarkedEvent->user_id = $userID;
+                $bookmarkedEvent->save();
+            }
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Bookmarked Events Updated.',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+
+    public function get_bookmark_event(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|string|max:255'
+            ]);
+
+            if ($validator->fails()) {
+                if ($validator->fails()) {
+                    $errors = $validator->errors()->toArray();
+                    $allErrors = [];
+
+                    foreach ($errors as $messageArray) {
+                        $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                    }
+
+                    $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+
+                    return response()->json([
+                        'status' => false,
+                        'data' => (object) [],
+                        'msg' => $formattedErrors
+                    ], 422);
+                }
+            }
+
+            $userID = $request->user_id;
+
+            $bookmarkedEvents = BookmarkEvent::where('user_id', $userID)->get();
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Bookmarked Events.',
+                'data' => $bookmarkedEvents
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
