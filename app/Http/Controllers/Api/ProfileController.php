@@ -6482,6 +6482,8 @@ class ProfileController extends Controller
                 $user = AllUser::where('email', $request->email_id)->first();
             }
             if ($user) {
+                // Add the mi_flag key to the response
+                $user->mi_flag = isset($user->profile_pic) ? $user->profile_pic : 'http://34.207.97.193/ahgoo/storage/profile_pics/no_image.jpg';
                 return response()->json([
                     'status' => true,
                     'msg' => 'User Found!',
@@ -6534,17 +6536,26 @@ class ProfileController extends Controller
             $userID = $request->user_id;
 
             $bookmarkedEvent = BookmarkEvent::where('user_id', $userID)->delete();
+
+            $bookmarkedEvents = [];
+
             foreach ($eventIDs as $eventID) {
                 $bookmarkedEvent = new BookmarkEvent();
+
+                $eventDetails = Events::find($eventID);
+                $bookmarkedEvents[] = $eventDetails;
                 $bookmarkedEvent->event_id = $eventID;
                 $bookmarkedEvent->user_id = $userID;
                 $bookmarkedEvent->save();
+
+                $eventDetails = Events::find($eventID);
+                $bookmarkedEvents[] = $eventDetails;
             }
 
             return response()->json([
                 'status' => true,
                 'msg' => 'Bookmarked Events Updated.',
-                'data' => (object) []
+                'data' => $bookmarkedEvents
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -6585,15 +6596,116 @@ class ProfileController extends Controller
 
             $bookmarkedEvents = BookmarkEvent::where('user_id', $userID)->get();
 
+            $eventDetails = [];
+
+            foreach ($bookmarkedEvents as $bookmark) {
+                // Fetch the full event details for each bookmarked event
+                $event = Events::find($bookmark->event_id);
+                $eventDetails[] = $event;
+            }
+
             return response()->json([
                 'status' => true,
                 'msg' => 'Bookmarked Events.',
-                'data' => $bookmarkedEvents
+                'data' => $eventDetails
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+
+    public function get_user_selections(Request $request)
+    {
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string|max:255',
+            'type' => 'required|integer|in:1,2,3,4', // type must be one of 1, 2, 3, or 4
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $allErrors = [];
+
+            foreach ($errors as $messageArray) {
+                $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+            }
+
+            $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+
+            return response()->json([
+                'status' => false,
+                'data' => (object) [],
+                'msg' => $formattedErrors
+            ], 422);
+        }
+
+        try {
+            // Fetch user profile based on user_id
+            $user = AllUser::find($request->user_id);
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'User not found!',
+                    'data' => (object) []
+                ], 404);
+            }
+
+            // Fetch the user's preferred selections from the 'preferred_suggestions' collection
+            $userPreferences = PreferredSuggestions::where('user_id', $request->user_id)->first();
+
+            if (!$userPreferences) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'No preferences found for this user.',
+                    'data' => (object) []
+                ], 404);
+            }
+
+            // Check 'type' and return appropriate data
+            $responseData = [];
+
+            switch ($request->type) {
+                case 1:
+                    // Return countries suggestions
+                    $responseData = $userPreferences->countries_suggestions ?? [];
+                    break;
+
+                case 2:
+                    // Return cities suggestions
+                    $responseData = $userPreferences->cities_suggestions ?? [];
+                    break;
+
+                case 3:
+                    // Return interests suggestions
+                    $responseData = $userPreferences->interests_suggestions ?? [];
+                    break;
+
+                case 4:
+                    // Return age group suggestions
+                    $responseData = $userPreferences->age_groups_suggestions ?? [];
+                    break;
+
+                default:
+                    return response()->json([
+                        'status' => false,
+                        'msg' => 'Invalid type parameter.',
+                        'data' => (object) []
+                    ], 400);
+            }
+            return response()->json([
+                'status' => true,
+                'msg' => 'User selections fetched successfully.',
+                'data' => $responseData,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'An error occurred, please try again later.',
                 'data' => (object) []
             ], 500);
         }
