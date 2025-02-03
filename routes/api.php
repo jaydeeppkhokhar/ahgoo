@@ -134,6 +134,7 @@ Route::post('update_preferred_age_group', [ProfileController::class, 'update_pre
 Route::post('get_states_by_country', [ProfileController::class, 'get_states_by_country']);
 Route::post('update_preferred_states', [ProfileController::class, 'update_preferred_states']);
 Route::post('public_for_audience_list', [ProfileController::class, 'public_for_audience_list']);
+Route::post('get_user_selections', [ProfileController::class, 'get_user_selections']);
 Route::post('name_public_select_for_event', [ProfileController::class, 'name_public_select_for_event']);
 Route::post('events_search', [ProfileController::class, 'events_search']);
 Route::post('my_heritage_events', [ProfileController::class, 'my_heritage_events']);
