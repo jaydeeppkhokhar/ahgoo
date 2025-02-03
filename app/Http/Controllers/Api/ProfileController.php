@@ -6537,25 +6537,17 @@ class ProfileController extends Controller
 
             $bookmarkedEvent = BookmarkEvent::where('user_id', $userID)->delete();
 
-            $bookmarkedEvents = [];
-
             foreach ($eventIDs as $eventID) {
                 $bookmarkedEvent = new BookmarkEvent();
-
-                $eventDetails = Events::find($eventID);
-                $bookmarkedEvents[] = $eventDetails;
                 $bookmarkedEvent->event_id = $eventID;
                 $bookmarkedEvent->user_id = $userID;
                 $bookmarkedEvent->save();
-
-                $eventDetails = Events::find($eventID);
-                $bookmarkedEvents[] = $eventDetails;
             }
 
             return response()->json([
                 'status' => true,
                 'msg' => 'Bookmarked Events Updated.',
-                'data' => $bookmarkedEvents
+                'data' => (object) []
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
