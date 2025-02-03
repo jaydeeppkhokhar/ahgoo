@@ -32,8 +32,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use WindowsAzure\ServiceManagement\Models\Location;
 
-use function PHPUnit\Framework\isString;
-
 class ProfileController extends Controller
 {
     public function follow(Request $request)
@@ -6700,7 +6698,7 @@ class ProfileController extends Controller
                     ], 400);
             }
 
-            if(isString($responseData)) {
+            if (is_string($responseData)) {
                 $responseData = json_decode($responseData);
             }
             
