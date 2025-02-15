@@ -4948,7 +4948,7 @@ class ProfileController extends Controller
             }
 
             $event_details->is_bookmarked = BookmarkEvent::where('event_id', $request->event_id)->where('user_id', $request->user_id)->exists() ? 1 : 0;
-            
+
             if($event_details->is_permanent != 1){
                 if(!empty($event_details->event_end_date)){
                     $event_details->event_date_range = $event_details->event_date.' to '.$event_details->event_end_date;
@@ -6049,7 +6049,8 @@ class ProfileController extends Controller
     public function events_search(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|string|max:255'
+            'user_id' => 'required|string|max:255',
+            'keyword' => 'nullable|string|max:255'
         ]);
 
         if ($validator->fails()) {
@@ -6072,11 +6073,12 @@ class ProfileController extends Controller
         }
 
         try {
-            if(!empty($request->keyword)){
-                $promotions = Events::where('is_confirm','1')->where('event_name','LIKE', "%{$request->keyword}%")->orderBy('created_at', 'desc')->limit(20)->get();
-            }else{
-                $promotions = Events::where('is_confirm','1')->orderBy('created_at', 'desc')->limit(20)->get();
+            $eventObj = Events::where('is_confirm', '1')->where('user_id', $request->user_id);
+            if (!empty($request->keyword)) {
+                $eventObj = $eventObj->where('event_name', 'LIKE', "%{$request->keyword}%");
             }
+            $promotions = $eventObj->orderBy('created_at', 'desc')->limit(20)->get();
+
             foreach($promotions as $promo){
                 // $promo->images = 'http://34.207.97.193/ahgoo/storage/profile_pics/event_iamge.jpeg';
                 try {
