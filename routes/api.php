@@ -82,6 +82,7 @@ Route::post('recent_events_your_countries', [ProfileController::class, 'recent_e
 Route::post('recent_events_near_you', [ProfileController::class, 'recent_events_near_you']);
 Route::post('event_details', [ProfileController::class, 'event_details']);
 Route::post('bookmark_event', [ProfileController::class, 'bookmark_event']);
+Route::post('undo_bookmark_event', [ProfileController::class, 'undo_bookmark_event']);
 Route::post('get_bookmark_event', [ProfileController::class, 'get_bookmark_event']);
 Route::post('event_confirm', [ProfileController::class, 'event_confirm']);
 Route::post('upload_flag_image', [ProfileController::class, 'upload_flag_image']);

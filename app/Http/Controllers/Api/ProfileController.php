@@ -6569,6 +6569,51 @@ class ProfileController extends Controller
         }
     }
 
+    public function undo_bookmark_event(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|string|max:255',
+                'event_id' => 'required|string|max:255',
+            ]);
+
+            if ($validator->fails()) {
+                if ($validator->fails()) {
+                    $errors = $validator->errors()->toArray();
+                    $allErrors = [];
+
+                    foreach ($errors as $messageArray) {
+                        $allErrors = array_merge($allErrors, $messageArray); // Merge all error messages into a single array
+                    }
+
+                    $formattedErrors = implode(' ', $allErrors); // Join all error messages with a comma
+
+                    return response()->json([
+                        'status' => false,
+                        'data' => (object) [],
+                        'msg' => $formattedErrors
+                    ], 422);
+                }
+            }
+
+            $eventID = $request->event_id;
+            $userID = $request->user_id;
+            
+            BookmarkEvent::where('user_id', $userID)->where('event_id', $eventID)->delete();
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Event Unbookmarked.',
+                'data' => (object) []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Please try again later!',
+                'data' => (object) []
+            ], 500);
+        }
+    }
+    
     public function get_bookmark_event(Request $request)
     {
         try {
