@@ -4902,7 +4902,7 @@ class ProfileController extends Controller
             if(!empty($event_details->audience_location)){
                 $event_details->audience_location = json_decode($event_details->audience_location);
             }
-            $event_details->event_date_formatted = Carbon::parse($event_details->event_date)->format('d M');
+            $event_details->event_date_formatted = Carbon::createFromFormat('m-d-Y', $event_details->event_date)->format('d/m/Y');
             $user = AllUser::where('_id',$event_details->user_id)->first();
             $event_details->event_created_by = $user->name;
 
