@@ -4946,6 +4946,9 @@ class ProfileController extends Controller
             }else{
                 $event_details->is_already_booked = 0;
             }
+
+            $event_details->is_bookmarked = BookmarkEvent::where('event_id', $request->event_id)->where('user_id', $request->user_id)->exists() ? 1 : 0;
+            
             if($event_details->is_permanent != 1){
                 if(!empty($event_details->event_end_date)){
                     $event_details->event_date_range = $event_details->event_date.' to '.$event_details->event_end_date;
