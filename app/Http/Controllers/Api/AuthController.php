@@ -27,6 +27,7 @@ class AuthController extends Controller
             // // 'dob' => 'required|string|max:255',
             'country' => 'required|string|max:255',
             // 'profile_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'node_user_id'  => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -61,6 +62,7 @@ class AuthController extends Controller
         }
 
         try {
+
             // Handle the profile picture upload
             $profilePicPath = null;
             if ($request->hasFile('profile_pic')) {
@@ -69,6 +71,7 @@ class AuthController extends Controller
             }
 
             $user = AllUser::create([
+                '_id' => $request->node_user_id,
                 'name' => $request->name,
                 'email' => $request->email,
                 'username' => $request->username,
