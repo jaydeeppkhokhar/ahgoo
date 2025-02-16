@@ -26,7 +26,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:8',
             // // 'dob' => 'required|string|max:255',
             'country' => 'required|string|max:255',
-            // 'profile_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'profile_pic' => 'nullable|string',
             'node_user_id'  => 'required|string|max:255',
         ]);
 
@@ -62,14 +62,6 @@ class AuthController extends Controller
         }
 
         try {
-
-            // Handle the profile picture upload
-            $profilePicPath = null;
-            if ($request->hasFile('profile_pic')) {
-                $profilePicPath = $request->file('profile_pic')->store('profile_pics', 'public');
-                $profilePicUrl = Storage::url($profilePicPath);
-            }
-
             $user = AllUser::create([
                 '_id' => $request->node_user_id,
                 'name' => $request->name,
@@ -78,7 +70,7 @@ class AuthController extends Controller
                 'phone' => $request->phone,
                 'country' => $request->country,
                 'password' => Hash::make($request->password),
-                // 'profile_pic' => $profilePicUrl,
+                'profile_pic' => $request->profile_pic,
             ]);
 
             // $token = $user->createToken('api-token')->plainTextToken;
