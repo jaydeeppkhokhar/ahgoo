@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use WindowsAzure\ServiceManagement\Models\Location;
 
@@ -1390,7 +1391,8 @@ class ProfileController extends Controller
             'post_id' => 'required|string|max:255',
             'cover_pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'is_showing_event' => 'required|integer|in:0,1',
-            'type' => 'required|string|max:255'
+            'type' => 'required|string|max:255',
+            'plan_active_days' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -1430,10 +1432,40 @@ class ProfileController extends Controller
                 'is_showing_event' => $request->is_showing_event,
                 'type' => $request->type,
                 'web_address' => $request->web_address ?? '',
-                'cover_pic' => $pth
+                'cover_pic' => $pth,
+                'plan_active_days' => $request->plan_active_days ?? 0,
             ]);
             $insertedId = $promotion->_id;
             // $token = $user->createToken('api-token')->plainTextToken;
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://dev-api.ahgoo.com/v1/post/adsDetail',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>'{
+                "postId":"'.$request->post_id.'",
+                "coverPic":".'.$pth.'",
+                "isShowingEvent":'.$request->is_showing_event.',
+                "webAddress":"'.$request->web_address.'",
+                "userId":"'.$request->user_id.'",
+                "type":"'.$request->type.'",
+                "planActiveDays":'.$request->plan_active_days.'
+            }',
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json'
+            ),
+            ));
+
+            $response = curl_exec($curl);
+            curl_close($curl);
+            
             $promo_data = Promotion::where('_id', $insertedId)->first();
             return response()->json([
                 'status' => true,
