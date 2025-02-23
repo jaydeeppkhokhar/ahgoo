@@ -55,6 +55,7 @@ Route::post('update_location', [ProfileController::class, 'update_location']);
 Route::post('create_post', [ProfileController::class, 'create_post']);
 Route::post('home_page', [ProfileController::class, 'home_page']);
 Route::get('all_locations', [SearchController::class, 'all_locations']);
+Route::get('all_cities', [SearchController::class, 'all_cities']);
 Route::post('locations_search', [SearchController::class, 'locations_search']);
 Route::post('create_promotion_1', [ProfileController::class, 'create_promotion_1']);
 Route::post('create_promotion_2', [ProfileController::class, 'create_promotion_2']);

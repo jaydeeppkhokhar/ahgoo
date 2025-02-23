@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AllUser;
+use App\Models\City;
 use App\Models\Followers;
 use App\Models\Hobbies;
 use App\Models\EventCategories;
@@ -364,6 +365,34 @@ class SearchController extends Controller
             'msg' => 'Location Listing.',
             'data' => $locations
         ], 200);
+    }
+
+    public function all_cities(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'keyword' => 'nullable|string',
+            'limit' => 'nullable|integer',
+            'page' => 'nullable|integer',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' => false,
+                'data' => (object) [],
+                'msg' => $errors
+            ], 422);
+        }
+
+        $keyword = $request->keyword;
+        $limit = $request->limit ?? 100;
+        $cities = City::select('_id', 'city', 'country')
+        ->where('city', 'LIKE', "%{$keyword}%")
+        ->orderBy('city', 'asc')
+        ->orderBy('country', 'asc')
+        ->simplePaginate($limit);
+
+        return response()->json($cities, 200);
     }
     
     public function locations_search(Request $request){
