@@ -5574,9 +5574,7 @@ class ProfileController extends Controller
                 $promotions = Events::where('is_confirm', '1')
                 ->where('user_id', $request->user_id)
                 ->where(function ($query) {
-                    $query->where('is_permanent', 1)
-                        ->orWhere('is_permanent', 0)
-                        ->orWhere(function ($query) {
+                    $query->where(function ($query) {
                             // Regular expression to match the 'YYYY-MM-DD' format
                             $query->where('event_end_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
                                 ->where('event_end_date', '>', date('Y-m-d'));
@@ -5590,9 +5588,7 @@ class ProfileController extends Controller
                 $promotions = Events::where('is_confirm', '1')
                                 ->where('user_id', $request->user_id)
                                 ->where(function ($query) {
-                                    $query->where('is_permanent', 1)
-                                        ->orWhere('is_permanent', 0)
-                                        ->orWhere(function ($query) {
+                                    $query->where(function ($query) {
                                             // Regular expression to match the 'YYYY-MM-DD' format
                                             $query->where('event_end_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
                                                 ->where('event_end_date', '>', date('Y-m-d'));
@@ -5605,9 +5601,7 @@ class ProfileController extends Controller
                 $promotions = Events::where('is_confirm', '1')
                                 ->where('user_id', $request->user_id)
                                 ->where(function ($query) {
-                                    $query->where('is_permanent', 1)
-                                        ->orWhere('is_permanent', 0)
-                                        ->orWhere(function ($query) {
+                                    $query->where(function ($query) {
                                             // Regular expression to match the 'YYYY-MM-DD' format
                                             $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
                                                 ->where('event_date', '>', date('Y-m-d'));
