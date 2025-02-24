@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use WindowsAzure\ServiceManagement\Models\Location;
@@ -4947,7 +4948,11 @@ class ProfileController extends Controller
             }
 
             if(!empty($event_details->event_date)){
-                $event_details->event_date_formatted = Carbon::createFromFormat('m-d-Y', $event_details->event_date)->format('d M');
+                try{
+                    $event_details->event_date_formatted = Carbon::createFromFormat('m-d-Y', $event_details->event_date)->format('d M');
+                }catch(Exception $e){
+                    $event_details->event_date_formatted = Carbon::createFromFormat('Y-m-d', $event_details->event_date)->format('d M');
+                }
             }else{
                 $event_details->event_date_formatted = null;
             }
