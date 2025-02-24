@@ -4936,7 +4936,7 @@ class ProfileController extends Controller
             }
 
             if(!empty($event_details->event_date)){
-                $event_details->event_date_formatted = Carbon::createFromFormat('m-d-Y', $event_details->event_date)->format('d/m/Y');
+                $event_details->event_date_formatted = Carbon::createFromFormat('m-d-Y', $event_details->event_date)->format('d M');
             }else{
                 $event_details->event_date_formatted = null;
             }
