@@ -5604,7 +5604,7 @@ class ProfileController extends Controller
                                     $query->where(function ($query) {
                                             // Regular expression to match the 'YYYY-MM-DD' format
                                             $query->where('event_date', 'regex', '/^\d{4}-\d{2}-\d{2}$/')
-                                                ->where('event_date', '>', date('Y-m-d'));
+                                                ->where('event_date', '>=', date('Y-m-d'));
                                         });
                                 })
                                 ->orderBy('created_at', 'desc')
