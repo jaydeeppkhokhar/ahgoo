@@ -4271,13 +4271,24 @@ class ProfileController extends Controller
         }
 
         try {
+            $eventDate = $request->event_date ?? '';
+            $eventEndDate = $request->event_end_date ?? '';
+
+            if (!empty($eventDate)) {
+                $eventDate = Carbon::createFromFormat('m-d-Y', $request->event_date)->format('Y-m-d');
+            }
+
+            if (!empty($eventEndDate)) {   
+            $eventEndDate = Carbon::createFromFormat('m-d-Y', $request->event_end_date)->format('Y-m-d');
+            }
+
             Events::where('_id', $request->event_id)->update([
                 'event_name' => $request->event_name,
                 'event_subtitle' => $request->event_subtitle,
                 'event_description' => $request->event_description,
                 'is_permanent' => $request->is_permanent ?? 0,
-                'event_date' => $request->event_date ?? '',
-                'event_end_date' => $request->event_end_date ?? '',
+                'event_date' => $eventDate,
+                'event_end_date' => $eventEndDate,
                 'duration' => $request->duration ?? ''
             ]);
             $promo_data = Events::where('_id', $request->event_id)->first();
