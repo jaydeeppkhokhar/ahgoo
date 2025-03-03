@@ -1388,8 +1388,6 @@ class ProfileController extends Controller
     }
     public function create_promotion_1(Request $request)
     {
-        Log::info('create_promotion_1', ['payload'=> $request->all()]);
-
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|string|max:255',
             'post_id' => 'required|string|max:255',
@@ -1455,10 +1453,8 @@ class ProfileController extends Controller
                 $nodeRequestData['planActiveDays'] = $request->plan_active_days;
             }
 
-            $response = Http::post('https://dev-api.ahgoo.com/v1/post/adsDetail', $nodeRequestData);
+            Http::post('https://dev-api.ahgoo.com/v1/post/adsDetail', $nodeRequestData);
             
-            Log::info('create_promotion_1 node api response', ['response'=> $response]);
-
             $promo_data = Promotion::where('_id', $insertedId)->first();
             return response()->json([
                 'status' => true,
