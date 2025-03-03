@@ -4995,6 +4995,21 @@ class ProfileController extends Controller
                 $event_details->is_already_booked = 0;
             }
 
+            $eventJoinedUserIDs = EventConfirm::where('event_id', $request->event_id)->pluck('user_id');
+            if(!empty($eventJoinedUserIDs)){
+                $joinedUsers = AllUser::whereIn('_id', $eventJoinedUserIDs)->get()->map(function($user){
+                    return [
+                        'user_id' => $user->_id,
+                        'name' => $user->name,
+                        'profile_pic' => $user->profile_pic ?? null
+                    ];
+                });
+                $event_details->event_joined_users = $joinedUsers;
+            } else {
+                $event_details->event_joined_users = [];
+        }
+
+
             $event_details->is_bookmarked = BookmarkEvent::where('event_id', $request->event_id)->where('user_id', $request->user_id)->exists() ? 1 : 0;
 
             if($event_details->is_permanent != 1){
