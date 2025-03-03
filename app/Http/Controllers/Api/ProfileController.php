@@ -1442,15 +1442,20 @@ class ProfileController extends Controller
             $insertedId = $promotion->_id;
             // $token = $user->createToken('api-token')->plainTextToken;
 
-            $response = Http::post('https://dev-api.ahgoo.com/v1/post/adsDetail', [
+            $nodeRequestData = [
                 'postId' => $request->post_id,
                 'coverPic' => $pth,
                 'isShowingEvent' => $request->is_showing_event,
                 'webAddress' => $request->web_address,
                 'userId' => $request->user_id,
                 'type' => $request->type,
-                'planActiveDays' => $request->plan_active_days
-            ]);
+            ];
+
+            if(!empty($request->plan_active_days)){
+                $nodeRequestData['planActiveDays'] = $request->plan_active_days;
+            }
+
+            $response = Http::post('https://dev-api.ahgoo.com/v1/post/adsDetail', $nodeRequestData);
             
             Log::info('create_promotion_1 node api response', ['response'=> $response]);
 
