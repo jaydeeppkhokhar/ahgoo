@@ -2754,6 +2754,20 @@ class ProfileController extends Controller
                     }
                 }
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+
+                $eventJoinedUserIDs = EventConfirm::where('event_id', $promo->id)->pluck('user_id');
+                if (!empty($eventJoinedUserIDs)) {
+                    $joinedUsers = AllUser::whereIn('_id', $eventJoinedUserIDs)->get()->map(function ($user) {
+                        return [
+                            'user_id' => $user->_id,
+                            'name' => $user->name,
+                            'profile_pic' => $user->profile_pic ?? null
+                        ];
+                    });
+                    $promo->event_joined_users = $joinedUsers;
+                } else {
+                    $promo->event_joined_users = [];
+                }
             }
             return response()->json([
                 'status' => true,
@@ -3057,6 +3071,20 @@ class ProfileController extends Controller
                     }
                 }
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+
+                $eventJoinedUserIDs = EventConfirm::where('event_id', $promo->id)->pluck('user_id');
+                if (!empty($eventJoinedUserIDs)) {
+                    $joinedUsers = AllUser::whereIn('_id', $eventJoinedUserIDs)->get()->map(function ($user) {
+                        return [
+                            'user_id' => $user->_id,
+                            'name' => $user->name,
+                            'profile_pic' => $user->profile_pic ?? null
+                        ];
+                    });
+                    $promo->event_joined_users = $joinedUsers;
+                } else {
+                    $promo->event_joined_users = [];
+                }
             }
             return response()->json([
                 'status' => true,
@@ -3152,6 +3180,20 @@ class ProfileController extends Controller
                     }
                 }
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+
+                $eventJoinedUserIDs = EventConfirm::where('event_id', $promo->id)->pluck('user_id');
+                if (!empty($eventJoinedUserIDs)) {
+                    $joinedUsers = AllUser::whereIn('_id', $eventJoinedUserIDs)->get()->map(function ($user) {
+                        return [
+                            'user_id' => $user->_id,
+                            'name' => $user->name,
+                            'profile_pic' => $user->profile_pic ?? null
+                        ];
+                    });
+                    $promo->event_joined_users = $joinedUsers;
+                } else {
+                    $promo->event_joined_users = [];
+                }
             }
             return response()->json([
                 'status' => true,
@@ -3248,6 +3290,20 @@ class ProfileController extends Controller
                     }
                 }
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+
+                $eventJoinedUserIDs = EventConfirm::where('event_id', $promo->id)->pluck('user_id');
+                if (!empty($eventJoinedUserIDs)) {
+                    $joinedUsers = AllUser::whereIn('_id', $eventJoinedUserIDs)->get()->map(function ($user) {
+                        return [
+                            'user_id' => $user->_id,
+                            'name' => $user->name,
+                            'profile_pic' => $user->profile_pic ?? null
+                        ];
+                    });
+                    $promo->event_joined_users = $joinedUsers;
+                } else {
+                    $promo->event_joined_users = [];
+                }
             }
             return response()->json([
                 'status' => true,
@@ -3344,6 +3400,20 @@ class ProfileController extends Controller
                     }
                 }
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
+
+                $eventJoinedUserIDs = EventConfirm::where('event_id', $promo->id)->pluck('user_id');
+                if (!empty($eventJoinedUserIDs)) {
+                    $joinedUsers = AllUser::whereIn('_id', $eventJoinedUserIDs)->get()->map(function ($user) {
+                        return [
+                            'user_id' => $user->_id,
+                            'name' => $user->name,
+                            'profile_pic' => $user->profile_pic ?? null
+                        ];
+                    });
+                    $promo->event_joined_users = $joinedUsers;
+                } else {
+                    $promo->event_joined_users = [];
+                }
             }
             return response()->json([
                 'status' => true,
@@ -5007,7 +5077,7 @@ class ProfileController extends Controller
                 $event_details->event_joined_users = $joinedUsers;
             } else {
                 $event_details->event_joined_users = [];
-        }
+            }
 
 
             $event_details->is_bookmarked = BookmarkEvent::where('event_id', $request->event_id)->where('user_id', $request->user_id)->exists() ? 1 : 0;
@@ -5656,6 +5726,20 @@ class ProfileController extends Controller
                 }
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
                 $promo->users_counts = rand(10, 20);
+
+                $eventJoinedUserIDs = EventConfirm::where('event_id', $promo->id)->pluck('user_id');
+                if (!empty($eventJoinedUserIDs)) {
+                    $joinedUsers = AllUser::whereIn('_id', $eventJoinedUserIDs)->get()->map(function ($user) {
+                        return [
+                            'user_id' => $user->_id,
+                            'name' => $user->name,
+                            'profile_pic' => $user->profile_pic ?? null
+                        ];
+                    });
+                    $promo->event_joined_users = $joinedUsers;
+                } else {
+                    $promo->event_joined_users = [];
+                }
             }
             return response()->json([
                 'status' => true,
@@ -5745,6 +5829,20 @@ class ProfileController extends Controller
                 }
                 $promo->users = (object) ['http://34.207.97.193/ahgoo/public/storage/profile_pics/9n4Iib5TeWy4rg7r8ThmHUm68yyXAnKEyeIJRrme.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/zvHXOR1FvMfEDAhI7keSGWSSEHQoAR2DqpduS3OL.jpg','http://34.207.97.193/ahgoo/public/storage/profile_pics/aUWcn7KmzHDEckC67yPRCidOrItNY96Hsz19YN8w.jpg'];
                 $promo->users_counts = rand(10, 20);
+
+                $eventJoinedUserIDs = EventConfirm::where('event_id', $promo->id)->pluck('user_id');
+                if (!empty($eventJoinedUserIDs)) {
+                    $joinedUsers = AllUser::whereIn('_id', $eventJoinedUserIDs)->get()->map(function ($user) {
+                        return [
+                            'user_id' => $user->_id,
+                            'name' => $user->name,
+                            'profile_pic' => $user->profile_pic ?? null
+                        ];
+                    });
+                    $promo->event_joined_users = $joinedUsers;
+                } else {
+                    $promo->event_joined_users = [];
+                }
             }
             return response()->json([
                 'status' => true,
