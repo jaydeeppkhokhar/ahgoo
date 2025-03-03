@@ -6195,7 +6195,7 @@ class ProfileController extends Controller
     public function events_search(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|string|max:255',
+            'user_id' => 'nullable|string|max:255',
             'keyword' => 'nullable|string|max:255'
         ]);
 
@@ -6219,7 +6219,12 @@ class ProfileController extends Controller
         }
 
         try {
-            $eventObj = Events::where('is_confirm', '1')->where('user_id', $request->user_id);
+            $eventObj = Events::where('is_confirm', '1');
+            
+            if (!empty($request->user_id)) {
+                $eventObj = $eventObj->where('user_id', $request->user_id);
+            }
+            
             if (!empty($request->keyword)) {
                 $eventObj = $eventObj->where('event_name', 'LIKE', "%{$request->keyword}%");
             }
