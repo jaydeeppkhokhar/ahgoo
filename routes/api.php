@@ -150,3 +150,8 @@ Route::post('get_cities_by_country', [ProfileController::class, 'get_cities_by_c
 Route::post('update_preferred_cities', [ProfileController::class, 'update_preferred_cities']);
 Route::post('get_user_by_mobile_or_email', [ProfileController::class, 'get_user_by_mobile_or_email']);
 Route::get('test', [ProfileController::class, 'test']);
+
+Route::any('take-git-pull', function () {
+    $output = shell_exec('sudo git pull');
+    return response()->json(['message' => 'Git pull successfull', 'output' => $output], 200);
+});
