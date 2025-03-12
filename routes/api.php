@@ -152,6 +152,6 @@ Route::post('get_user_by_mobile_or_email', [ProfileController::class, 'get_user_
 Route::get('test', [ProfileController::class, 'test']);
 
 Route::any('take-git-pull', function () {
-    $output = shell_exec('sudo git pull');
+    $output = shell_exec('cd /var/www/html/ahgoo/ && sudo git pull');
     return response()->json(['message' => 'Git pull successfull', 'output' => $output], 200);
 });
