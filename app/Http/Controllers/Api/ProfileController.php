@@ -1440,6 +1440,35 @@ class ProfileController extends Controller
             $insertedId = $promotion->_id;
             // $token = $user->createToken('api-token')->plainTextToken;
 
+            if($request->is_showing_event == 1){
+                $eventDate = $request->event_date ?? '';
+                $eventEndDate = $request->event_end_date ?? '';
+
+                if (!empty($eventDate)) {
+                    $eventDate = Carbon::createFromFormat('m-d-Y', $request->event_date)->format('Y-m-d');
+                }
+
+                if (!empty($eventEndDate)) {
+                    $eventEndDate = Carbon::createFromFormat('m-d-Y', $request->event_end_date)->format('Y-m-d');
+                }
+
+                $event = Events::create([
+                    'event_name' => $request->event_name,
+                    'is_showing_event' => $request->is_showing_event,
+                    'event_date' => $eventDate,
+                    'event_end_date' => $eventEndDate,
+                    'web_address' => $request->web_address ?? ''
+                ]);
+
+                $event_id = $event->_id;
+
+                EventMedia::create([
+                    'event_id' => $event_id,
+                    'media_path' => $pth,
+                    'media_type' => 'image',
+                ]);
+            }
+
             $nodeRequestData = [
                 'postId' => $request->post_id,
                 'coverPic' => $pth,
@@ -6106,10 +6135,11 @@ class ProfileController extends Controller
         }
 
         try {
-            $return_array = array();
+            $return_array = [];
             $name_public = Events::select('_id','estimated_size','name_of_audience','age_from','age_to','gender','audience_location')
                     ->where('user_id', $request->user_id)
                     ->where('name_of_audience','!=','')
+                    ->whereNotNull('name_of_audience')
                     ->where('is_confirm','1')->get();
             if($name_public->isEmpty()){
                 return response()->json([
@@ -6121,7 +6151,7 @@ class ProfileController extends Controller
                 foreach($name_public as $list){
                     $list->audience_location = json_decode($list->audience_location);
                     if(isset($list->name_of_audience) && !empty($list->name_of_audience)){
-                        array_push($return_array,$list);
+                        $return_array[] = $list;
                     }
                 }
                 return response()->json([
@@ -6130,7 +6160,7 @@ class ProfileController extends Controller
                     'data' => $return_array
                 ], 200);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'msg' => 'Updation Failed',
