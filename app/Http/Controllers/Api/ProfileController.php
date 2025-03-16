@@ -1486,6 +1486,10 @@ class ProfileController extends Controller
             Http::post('https://dev-api.ahgoo.com/v1/post/adsDetail', $nodeRequestData);
             
             $promo_data = Promotion::where('_id', $insertedId)->first();
+            $event_data = Events::where('_id', $event_id)->first();
+
+            $promo_data->event = $event_data;
+
             return response()->json([
                 'status' => true,
                 'msg' => 'Promotion added successfully',
@@ -2714,7 +2718,7 @@ class ProfileController extends Controller
 
             $where = [];
             $orderBy = [];
-            $where[] = ['is_confirm', '=', '1'];
+            $where[] = ['is_confirm', 'IN', [1, '1']];
             if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
             }
@@ -3036,7 +3040,7 @@ class ProfileController extends Controller
         try {
             $where = [];
             $orderBy = [];
-            $where[] = ['is_confirm', '=', '1'];
+            $where[] = ['is_confirm', 'IN', [1, '1']];
             if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
             }
@@ -3145,7 +3149,7 @@ class ProfileController extends Controller
         try {
             $where = [];
             $orderBy = [];
-            $where[] = ['is_confirm', '=', '1'];
+            $where[] = ['is_confirm', 'IN', [1, '1']];
             if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
             }
@@ -3254,7 +3258,7 @@ class ProfileController extends Controller
         try {
             $where = [];
             $orderBy = [];
-            $where[] = ['is_confirm', '=', '1'];
+            $where[] = ['is_confirm', 'IN', [1, '1']];
             $where[] = ['is_virtual', '=', '1'];
             if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
@@ -3364,7 +3368,7 @@ class ProfileController extends Controller
         try {
             $where = [];
             $orderBy = [];
-            $where[] = ['is_confirm', '=', '1'];
+            $where[] = ['is_confirm', 'IN', [1, '1']];
             $where[] = ['is_virtual', '!=', '1'];
             if ($request->has('category') && !empty($request->category)) {
                 $where[] = ['event_category', '=', $request->category];
