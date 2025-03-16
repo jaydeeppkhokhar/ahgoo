@@ -6140,7 +6140,8 @@ class ProfileController extends Controller
                     ->where('user_id', $request->user_id)
                     ->where('name_of_audience','!=','')
                     ->whereNotNull('name_of_audience')
-                    ->where('is_confirm','1')->get();
+                    // ->where('is_confirm','1')
+                    ->get();
             if($name_public->isEmpty()){
                 return response()->json([
                     'status' => true,
