@@ -1488,10 +1488,12 @@ class ProfileController extends Controller
             Http::post('https://dev-api.ahgoo.com/v1/post/adsDetail', $nodeRequestData);
             
             $promo_data = Promotion::where('_id', $insertedId)->first();
-            $event_data = Events::where('_id', $event_id)->first();
 
-            $promo_data->event = $event_data;
-
+            if ($request->is_showing_event == 1) {
+                $event_data = Events::where('_id', $event_id)->first();
+                $promo_data->event = $event_data;
+            }
+            
             return response()->json([
                 'status' => true,
                 'msg' => 'Promotion added successfully',
