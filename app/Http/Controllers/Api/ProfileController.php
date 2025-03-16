@@ -1445,11 +1445,11 @@ class ProfileController extends Controller
                 $eventEndDate = $request->event_end_date ?? '';
 
                 if (!empty($eventDate)) {
-                    $eventDate = Carbon::createFromFormat('m-d-Y', $request->event_date)->format('Y-m-d');
+                    $eventDate = Carbon::createFromFormat('Y-m-d', $request->event_date)->format('Y-m-d');
                 }
 
                 if (!empty($eventEndDate)) {
-                    $eventEndDate = Carbon::createFromFormat('m-d-Y', $request->event_end_date)->format('Y-m-d');
+                    $eventEndDate = Carbon::createFromFormat('Y-m-d', $request->event_end_date)->format('Y-m-d');
                 }
 
                 $event = Events::create([
