@@ -1490,11 +1490,11 @@ class ProfileController extends Controller
                 'msg' => 'Promotion added successfully',
                 'data' => $promo_data
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'msg' => 'Updation Failed',
-                'data' => (object) []
+                'data' => (object) [$e->getMessage()]
             ], 500);
         }
     }
