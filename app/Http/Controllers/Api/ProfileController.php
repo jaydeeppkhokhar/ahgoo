@@ -1457,7 +1457,8 @@ class ProfileController extends Controller
                     'is_showing_event' => $request->is_showing_event,
                     'event_date' => $eventDate,
                     'event_end_date' => $eventEndDate,
-                    'web_address' => $request->web_address ?? ''
+                    'web_address' => $request->web_address ?? '',
+                    'is_confirm' => 1
                 ]);
 
                 $event_id = $event->_id;
