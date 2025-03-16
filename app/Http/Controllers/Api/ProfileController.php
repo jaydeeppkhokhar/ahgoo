@@ -1453,6 +1453,7 @@ class ProfileController extends Controller
                 }
 
                 $event = Events::create([
+                    'user_id' => $request->user_id,
                     'event_name' => $request->event_name,
                     'is_showing_event' => $request->is_showing_event,
                     'event_date' => $eventDate,
@@ -5127,6 +5128,7 @@ class ProfileController extends Controller
                 'data' => $event_details
             ], 200);
         } catch (\Exception $e) {
+            return $e;
             return response()->json([
                 'status' => false,
                 'msg' => 'Some error occured',
