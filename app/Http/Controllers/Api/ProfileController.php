@@ -6471,7 +6471,8 @@ class ProfileController extends Controller
             $name_public = Promotion::select('_id','estimated_size','name_of_audience','age_from','age_to','gender','location')
                     ->where('user_id', $request->user_id)
                     ->where('name_of_audience','!=','')
-                    ->where('is_confirm','1')->get();
+                    // ->where('is_confirm','1')
+                    ->get();
             if($name_public->isEmpty()){
                 return response()->json([
                     'status' => true,
