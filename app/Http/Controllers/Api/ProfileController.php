@@ -1458,6 +1458,7 @@ class ProfileController extends Controller
                     'event_date' => $eventDate,
                     'event_end_date' => $eventEndDate,
                     'web_address' => $request->web_address ?? '',
+                    'cover_pic' => $pth,
                     'is_confirm' => 1
                 ]);
 
